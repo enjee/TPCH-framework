@@ -8,9 +8,10 @@ use App\Http\Controllers\Controller;
 
 class BenchmarkController extends Controller
 {
-    public function timeline(BenchmarkRequest $request)
+    public function timeline()
     {
+        $benchmarks = Benchmark::with('measurements')->get();
 
-        return response()->json(['reason' => 'success'], 200);
+        return response()->json($benchmarks);
     }
 }
