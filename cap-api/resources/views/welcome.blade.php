@@ -79,15 +79,13 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    Laravel
+                    Capgemini benchmark
                 </div>
 
                 <div class="links">
-                    <a href="https://laravel.com/docs">Documentation</a>
-                    <a href="https://laracasts.com">Laracasts</a>
-                    <a href="https://laravel-news.com">News</a>
-                    <a href="https://forge.laravel.com">Forge</a>
-                    <a href="https://github.com/laravel/laravel">GitHub</a>
+                    <a href="http://127.0.0.1:8000/oauth">Oauth testing</a>
+                    <a href="http://127.0.0.1:8000/tl">Timeline</a>
+                    <a href="http://127.0.0.1:8000/benchmark">Benchmark details</a>
                 </div>
             </div>
         </div>
