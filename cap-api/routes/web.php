@@ -15,6 +15,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/logged', function () {
+    return view('logged');
+});
+
+Route::get('/login', function () {
+    return Redirect::to("https://login.microsoftonline.com/b137c280-a798-4a5e-af84-96b82ff4bad4/oauth2/authorize?client_id=51099241-6929-4552-a40e-93c83359a7f1&scope=api&redirect_uri=http://localhost:8000/logged&response_type=code&prompt=consent");
+});
+
 Route::get('timeline', '\App\Http\Controllers\Benchmarks\BenchmarkController@timeline');
 
 
