@@ -38,4 +38,8 @@ Route::get('/benchmark', function () {
     return view('benchmark');
 });
 
-Route::get('timeline', '\App\Http\Controllers\Benchmarks\BenchmarkController@timeline');
+Route::get('/api/timeline', '\App\Http\Controllers\Benchmarks\BenchmarkController@timeline');
+
+Route::post('/api/benchmark/new', '\App\Http\Controllers\Benchmarks\BenchmarkController@create_benchmark');
+
+Route::post('/api/measurement/new', '\App\Http\Controllers\Benchmarks\BenchmarkController@create_measurement');

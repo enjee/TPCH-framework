@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Benchmarks;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class BenchmarkRequest extends FormRequest
+class CreateBenchmarkRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class BenchmarkRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,7 @@ class BenchmarkRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'uuid' => 'required|unique:benchmarks,uuid'
         ];
     }
 }
