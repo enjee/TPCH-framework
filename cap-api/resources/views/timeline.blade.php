@@ -81,13 +81,13 @@
         <?php
 
         $html = "test";
-        for ($i = 0; $i < $size; $i++){
-            $html .= "<div class='benchmark'>
-                        This is benchmark number $i !
-                        This benchmark has taken $time.get($i) Seconds, with a database size of $size.get($i)  GB! 
+        for ($i = 0; $i < count($size); $i++){
+            echo "<div class='benchmark'> 
+                        This is benchmark number" .  $i . " !
+                        This benchmark has taken " . $time[$i] . " Seconds, with a database size of " . $size[$i] . " GB! 
                       </div>";
         }
-        return $html
+
         ?>
 
     </div>
