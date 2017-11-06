@@ -17,6 +17,15 @@ class BenchmarkController extends Controller
         return view('timeline',['benchmarks'=>$benchmarks]);
     }
 
+
+    public function detailed($uuid)
+    {
+        $benchmark = Benchmark::with('measurements')->where(['uuid' => $uuid])->first();
+        $measurements = Measurement::where(['uuid' => $uuid])->get();
+
+        return view('detailed', ['benchmark' => $benchmark, 'measurement' => $measurements]);
+    }
+
     public function benchmark($uuid){
         $benchmark = Benchmark::with('measurements')->where('uuid', '=', $uuid)->first();
 

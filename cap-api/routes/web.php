@@ -37,6 +37,7 @@ Route::get('/tl', function () {
 Route::get('/benchmark', function () {
     return view('benchmark');
 });
+Route::get('/detailed/{uuid}', '\App\Http\Controllers\Benchmarks\BenchmarkController@detailed');
 
 Route::get('/api/benchmark/{uuid}', '\App\Http\Controllers\Benchmarks\BenchmarkController@benchmark');
 
@@ -51,3 +52,4 @@ Route::post('/api/measurement/new', '\App\Http\Controllers\Benchmarks\BenchmarkC
 Route::get('/api/benchmark/delete/{uuid}', '\App\Http\Controllers\Benchmarks\BenchmarkController@delete_benchmark');
 
 Route::get('/api/measurement/delete/{uuid}/{run}', '\App\Http\Controllers\Benchmarks\BenchmarkController@delete_measurement');
+

@@ -17,6 +17,8 @@ class CreateBenchmarksTable extends Migration
             $table->increments('id');
             $table->timestamps();
             $table->string('uuid');
+            $table->string('provider');
+            $table->string('test_size');
 
         });
     }
