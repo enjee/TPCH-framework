@@ -41,7 +41,7 @@ else
 ##############################
 
 # Randomize this run
-$random = -join ((48..57) + (97..122) | Get-Random -Count 14 | % {[char]$_})
+$random = -join ((48..57) + (97..122) | Get-Random -Count 16 | % {[char]$_})
 Write-Output ("This script execution has been randomized with: " + $random)
 
 # Default cluster size (# of worker nodes), version, type, and OS
@@ -53,6 +53,7 @@ $clusterName = ($random + "cluster")
 $ComputerName = ($clusterName + "-ssh.azurehdinsight.net")
 $resourceGroupName = ($random + "group")
 $location = "westeurope"
+$defaultStorageAccountName = ($random + "storage")
 
 
 # Credentials
@@ -107,7 +108,6 @@ if (!(Get-AzureRmResourceGroup -Name $resourceGroupName -EA 0)) {
 }
 
 
-$defaultStorageAccountName = ("tpchbenchmark"  + $random)
 
 # Create an Azure storage account and container
 Write-Output ("Creating the Azure storage account and container " + $defaultStorageAccountName + " on your account")
