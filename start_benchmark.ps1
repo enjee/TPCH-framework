@@ -174,7 +174,7 @@ if (!(Get-Module -ListAvailable -Name Posh-SSH)) {
 }
 
 
-New-SFTPSession -ComputerName $ComputerName -Credential $credentials
+New-SFTPSession -ComputerName $ComputerName -Credential $credentials -AcceptKey:$true
 $ssh = New-SSHSession -ComputerName $ComputerName -Credential $credentials -AcceptKey:$true
 
 Write-Output ("Pushing " + $Path + $FilePath + " onto the cluster, at " + $File)
