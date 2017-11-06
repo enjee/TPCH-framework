@@ -1,2 +1,2 @@
 # Test benchmark file for deployment
-Write-Output "Example file";
+echo "Success!" >> success.txt

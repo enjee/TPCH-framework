@@ -1,3 +1,5 @@
+Write-Output "$(Get-Date)"
+
 
 # Install powershell for Azure if not exists
 if (!(Get-Module -ListAvailable -Name AzureRM)) {
@@ -43,18 +45,19 @@ $defaultStorageContext = New-AzureStorageContext `
                                 -StorageAccountName $defaultStorageAccountName `
                                 -StorageAccountKey $defaultStorageAccountKey
 
-# Get information for the HDInsight cluster
-# Cluster login is used to secure HTTPS services hosted on the cluster
-$httpCredential = Get-Credential -Message "Enter Cluster login credentials \n(password needs to be longer than 6 chars and have a number + symbol)" -UserName "sshuser"
-# SSH user is used to remotely connect to the cluster using SSH clients
-$sshCredentials = Get-Credential -Message "Enter SSH user credentials \n(password needs to be longer than 6 chars and have a number + symbol)" -UserName "sshuser"
+$username = "sshuser"
+$password = "1Password!"
+$secstr = New-Object -TypeName System.Security.SecureString
+$password.ToCharArray() | ForEach-Object {$secstr.AppendChar($_)}
+$credentials = new-object -typename System.Management.Automation.PSCredential -argumentlist $username, $secstr
+
 
 # Default cluster size (# of worker nodes), version, type, and OS
 $clusterSizeInNodes = "4"
 $clusterVersion = "3.5"
 $clusterType = "Hadoop"
 $clusterOS = "Linux"
-$clusterName = "tpch" + $random + "benchmark"
+$clusterName = "tpchbenchmark"
 
 # Set the storage container name to the cluster name
 $defaultBlobContainerName = $clusterName
@@ -72,11 +75,40 @@ New-AzureRmHDInsightCluster `
     -ClusterType $clusterType `
     -OSType $clusterOS `
     -Version $clusterVersion `
-    -HttpCredential $httpCredential `
+    -HttpCredential $credentials `
     -DefaultStorageAccountName "$defaultStorageAccountName.blob.core.windows.net" `
     -DefaultStorageAccountKey $defaultStorageAccountKey `
     -DefaultStorageContainer $clusterName `
-    -SshCredential $sshCredentials
+    -SshCredential $credentials
 
 
-Remove-AzureRmResourceGroup -Name $resourceGroupName
+Write-Output "$(Get-Date)"
+
+# Install ssh for powershell
+if (!(Get-Module -ListAvailable -Name Posh-SSH)) {
+    Install-Module Posh-SSH
+    Import-Module Posh-SSH
+}
+
+$clusterName = "tpchbenchmark"
+New-SFTPSession -ComputerName "tpchbenchmark-ssh.azurehdinsight.net" -Credential $credentials
+$ssh = New-SSHSession -ComputerName "tpchbenchmark-ssh.azurehdinsight.net" -Credential $credentials
+
+$FilePath = "benchmark.sh"
+$SftpPath = '/home/sshuser/'
+$File = ($SftpPath + $FilePath)
+$command = ('chmod +x ' + $File + ' && ' + $File)
+$RemoveCommand = ('rm ' + $File)
+
+Invoke-SSHCommand -SSHSession $ssh -Command $RemoveCommand
+Set-SFTPFile -SessionId 0 -LocalFile $FilePath -RemotePath $SftpPath
+Invoke-SSHCommand -SSHSession $ssh -Command $command
+
+Remove-SFTPSession -SessionId 0
+Remove-SSHSession -SessionId 0
+
+Write-Output "$(Get-Date)"
+
+Remove-AzureRmResourceGroup -Name $resourceGroupName -Force
+
+Write-Output "$(Get-Date)"
