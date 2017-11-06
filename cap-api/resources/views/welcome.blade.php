@@ -85,7 +85,7 @@
                 <div class="links">
                     <a href="http://127.0.0.1:8000/oauth">Oauth testing</a>
                     <a href="http://127.0.0.1:8000/tl">Timeline</a>
-                    <a href="http://127.0.0.1:8000/benchmark">Benchmark details</a>
+                    <a href="http://127.0.0.1:8000/detailed">Benchmark details</a>
                 </div>
             </div>
         </div>

@@ -18,6 +18,13 @@ class BenchmarkController extends Controller
         return response()->json($benchmarks);
     }
 
+    public function detailed($uuid)
+    {
+        $benchmark = Benchmark::with('measurements')->where(['uuid'=>$uuid])->get();
+        $measurements = Measurement::where(['uuid'=>$uuid])->get();
+        return view('detailed', ['benchmark' => $benchmark, 'measurement' => $measurements]);
+    }
+
     public function create_benchmark(CreateBenchmarkRequest $request){
         $benchmark = new Benchmark();
         $benchmark->uuid = $request->uuid;
