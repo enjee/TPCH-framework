@@ -77,3 +77,6 @@ New-AzureRmHDInsightCluster `
     -DefaultStorageAccountKey $defaultStorageAccountKey `
     -DefaultStorageContainer $clusterName `
     -SshCredential $sshCredentials
+
+
+Remove-AzureRmResourceGroup -Name $resourceGroupName
