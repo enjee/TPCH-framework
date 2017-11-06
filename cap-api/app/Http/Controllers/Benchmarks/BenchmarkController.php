@@ -14,8 +14,7 @@ class BenchmarkController extends Controller
     public function timeline()
     {
         $benchmarks = Benchmark::with('measurements')->get();
-
-        return response()->json($benchmarks);
+        return view('timeline',['benchmarks'=>$benchmarks]);
     }
 
     public function benchmark($uuid){
@@ -26,7 +25,6 @@ class BenchmarkController extends Controller
         } else {
             return response()->json('benchmark not found', 404);
         }
-
     }
 
     public function measurement($uuid, $run){
