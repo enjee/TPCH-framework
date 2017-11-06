@@ -41,7 +41,7 @@ else
 ##############################
 
 # Randomize this run
-$random = -join ((48..57) + (97..122) | Get-Random -Count 18 | % {[char]$_})
+$random = -join ((48..57) + (97..122) | Get-Random -Count 14 | % {[char]$_})
 Write-Output ("This script execution has been randomized with: " + $random)
 
 # Default cluster size (# of worker nodes), version, type, and OS
