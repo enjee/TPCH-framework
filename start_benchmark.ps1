@@ -66,7 +66,7 @@ $credentials = new-object -typename System.Management.Automation.PSCredential -a
 # Files
 $Path = ((Split-Path -Path $MyInvocation.MyCommand.Definition -Parent) + "\")
 $FilePath = "benchmark.sh"
-$SftpPath = '/home/sshuser/'
+$SftpPath = ('/home/' + $username + '/')
 $File = ($SftpPath + $FilePath)
 $command = ('chmod +x ' + $File + ' && ' + $File)
 $RemoveCommand = ('rm ' + $File)
