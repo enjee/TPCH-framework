@@ -21,9 +21,9 @@ class BenchmarkController extends Controller
 
     public function detailed($uuid)
     {
-        $benchmark = Benchmark::with('measurements')->where(['uuid' => $uuid])->get();
+        $benchmark = Benchmark::with('measurements')->where(['uuid' => $uuid])->first();
         $measurements = Measurement::where(['uuid' => $uuid])->get();
-        
+
         return view('detailed', ['benchmark' => $benchmark, 'measurement' => $measurements]);
     }
 

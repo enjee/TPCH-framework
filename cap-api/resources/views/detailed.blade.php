@@ -51,7 +51,10 @@
 
         <div class="col-sm-9">
             <div class="well">
-                INFO
+                @if($benchmark)
+                    <h1>Uitgevoerd op: {{$benchmark->provider}}</h1>
+                    <h3>Grootte: {{$benchmark->test_size}}</h3>
+                @endif
 
             </div>
             <div class="row">
@@ -63,7 +66,7 @@
                         <div class="row">
                             @for($count = 1; $count < 23; $count++)
                                 <div class="col-sm-2">
-                                    <div class="well">
+                                    <div class="well" style="padding: 10px">
                                         <h4>Query {{$count}}</h4>
                                         <p>{{ object_get($m, "q{$count}" ) }} seconden</p>
                                     </div>
