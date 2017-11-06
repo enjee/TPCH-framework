@@ -200,7 +200,7 @@
     <div class="content">
         <?php
         foreach ($benchmarks as $benchmark) {
-            echo '<a href="/api/benchmark/'. object_get($benchmark, "uuid") . '"> <div class="benchmark">
+            echo '<a href="/detailed/'. object_get($benchmark, "uuid") . '"> <div class="benchmark">
                     <span class="benchmark-title">
                     Benchmark id ' . object_get($benchmark, "id") .
                     '</span>
