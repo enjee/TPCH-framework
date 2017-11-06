@@ -140,6 +140,7 @@ New-AzureStorageContainer `
 
 # Create the HDInsight cluster
 Write-Output ("Creating the HDInsight cluster " + $defaultBlobContainerName + " on your account")
+Write-Output ("Please be patient, this could take more than 10 minutes.")
 New-AzureRmHDInsightCluster `
     -ResourceGroupName $resourceGroupName `
     -ClusterName $clusterName `
