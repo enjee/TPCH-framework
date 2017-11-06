@@ -18,7 +18,9 @@ class BenchmarkSeeder extends Seeder
             DB::table('benchmarks')->insert([
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
-                'uuid' => $uuid
+                'uuid' => $uuid,
+                'provider' => 'azure',
+                'test_size' => random_int(1, 100) . ' GB'
             ]);
             for($i = 0; $i < 3; $i++){
                 DB::table('measurements')->insert([
