@@ -8,7 +8,7 @@ use App\Models\Measurement;
 class Benchmark extends Model
 {
     protected $table = 'benchmarks';
-    protected $fillable = ['uuid'];
+    protected $fillable = ['uuid', 'provider', 'test_size'];
     protected $hidden = ['uuid'];
 
     public function measurements(){
