@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="{{ app()->getLocale() }}">
 <head>
+    @extends('base')
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,42 +13,8 @@
 
     <!-- Styles -->
     <style>
-        html, body {
-            background-color: #fff;
-            color: #636b6f;
-            font-family: 'Raleway', sans-serif;
-            font-weight: 100;
-            height: 100vh;
-            margin: 0;
-        }
 
-        .full-height {
-            height: 100vh;
-        }
 
-        .flex-center {
-            align-items: center;
-            display: flex;
-            justify-content: center;
-        }
-
-        .position-ref {
-            position: relative;
-        }
-
-        .top-right {
-            position: absolute;
-            right: 10px;
-            top: 18px;
-        }
-
-        .content {
-            text-align: center;
-        }
-
-        .title {
-            font-size: 84px;
-        }
 
         .links > a {
             color: #636b6f;
@@ -127,98 +94,30 @@
     </style>
 </head>
 <body>
-<!--<div class="flex-center position-ref full-height">-->
-<!--    @if (Route::has('login'))-->
-<!--    <div class="top-right links">-->
-<!--        @auth-->
-<!--        <a href="{{ url('/home') }}">Home</a>-->
-<!--        @else-->
-<!--        <a href="{{ route('login') }}">Login</a>-->
-<!--        <a href="{{ route('register') }}">Register</a>-->
-<!--        @endauth-->
-<!--    </div>-->
-<!--    @endif-->
-<!--    <div class="benchmark">-->
-<!--        <span class="benchmark-title">Benchmark number 1</span>-->
-<!--        <div class="benchmark-container">-->
-<!---->
-<!--            <div class="benchmark-info">-->
-<!--                <table style="width:100%">-->
-<!--                    <tr>-->
-<!--                        <th>Created at:</th>-->
-<!--                        <td>2017-11-02 13:44:36</td>-->
-<!--                    </tr>-->
-<!--                    <tr>-->
-<!--                        <th>Provider</th>-->
-<!--                        <td>Azure</td>-->
-<!--                    </tr>-->
-<!--                    <th>DataSize</th>-->
-<!--                    <td>30 GB</td>-->
-<!--                    </tr>-->
-<!--                    <tr>-->
-<!--                        <th>Total time of this run</th>-->
-<!--                        <td>6213</td>-->
-<!--                    </tr>-->
-<!--                </table>-->
-<!---->
-<!--            </div>-->
-<!--            <div class="benchmark-runtimes">-->
-<!--                <div class="benchmark-run">RUN NR. 1!-->
-<!--                    <div class="benchmark-details">-->
-<!--                        <table style="width:100%">-->
-<!--                            <tr>-->
-<!--                                <th>Total time of this run</th>-->
-<!--                                <td>6213</td>-->
-<!--                            </tr>-->
-<!--                        </table>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                <div class="benchmark-run">RUN NR. 2!-->
-<!--                    <div class="benchmark-details">-->
-<!--                        <table style="width:100%">-->
-<!--                            <tr>-->
-<!--                                <th>Total time of this run</th>-->
-<!--                                <td>6213</td>-->
-<!--                            </tr>-->
-<!--                        </table>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                <div class="benchmark-run">-->
-<!--                    RUN NR. 3!-->
-<!--                    <div class="benchmark-details">-->
-<!--                        <table style="width:100%">-->
-<!--                            <tr>-->
-<!--                                <th>Total time of this run</th>-->
-<!--                                <td>6213</td>-->
-<!--                            </tr>-->
-<!--                        </table>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-    <div class="content">
-        <?php
-        foreach ($benchmarks as $benchmark) {
-            echo '<a href="/detailed/'. object_get($benchmark, "uuid") . '"> <div class="benchmark">
-                    <span class="benchmark-title">
-                    Benchmark id ' . object_get($benchmark, "id") .
-                    '</span>
-                            <div class="benchmark-container">
-                            <div class="benchmark-info">
-                                <table style="width:100%">
-                                    <tr>
-                                        <th>Created at: </th>
-                                        <td>'. object_get($benchmark, "created_at") .'</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Provider</th>
-                                        <td>'. object_get($benchmark, "provider") .'</td>
-                                    </tr>
-                                        <th>DataSize</th>
-                                        <td>'. object_get($benchmark, "test_size") .'</td>
-                                    </tr>';
+    @section('content')
+        <div class="panel panel-default">
 
+        <!-- /.panel-heading -->
+        <div class="panel-body">
+            <ul class="timeline">
+
+
+        @foreach ($benchmarks as $benchmark)
+            <li>
+                <div class="timeline-badge"><i class="fa fa-check"></i>
+                </div>
+                <div class="timeline-panel">
+                    <div class="timeline-heading">
+                        <h4 class="timeline-title"> Benchmark met id {{object_get($benchmark, "uuid") }}</h4>
+                        <p><small class="text-muted"><i class="fa fa-clock-o"></i> {{ object_get($benchmark, "created_at") }}</small>
+                        </p>
+                    </div>
+                    <div class="timeline-body">
+                        <p>Provider: {{ object_get($benchmark, "provider") }}</p>
+                        <p>Test grootte: {{ object_get($benchmark, "test_size") }}</p>
+
+
+            <?php
             $runtimes = array(0,0,0);
             $runindex = 0;
             foreach (object_get($benchmark, "measurements") as $measurement) {
@@ -231,8 +130,8 @@
                 $runindex++;
             }
 
-            echo '<tr><th>average time of this benchmark</th><td>'. intval(($runtimes[0] + $runtimes[1] + $runtimes[2])/3) .'</td>
-                          </tr>
+
+            echo '<p>Average time of this benchmark :'. intval(($runtimes[0] + $runtimes[1] + $runtimes[2])/3).'</p>
                           </table>
                           </div>
                           <div class="benchmark-runtimes">';
@@ -248,12 +147,17 @@
                     </div>
                 </div>';
             }
+                             ?>
+<a href="/detailed/{{$benchmark->uuid}}"> Meer informatie</a>
+                    </div>
+                </div>
+            </li>
 
-                echo '</div></div></div></a>';
-        }
-        //            object_get($m, "q{$count}" );
-        ?>
-    </div>
+
+        @endforeach
+
+@stop
+
 </div>
 </body>
 </html>
