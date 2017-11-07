@@ -48,7 +48,7 @@ class CreateMeasurementRequest extends FormRequest
             'q19' => 'required',
             'q20' => 'required',
             'q21' => 'required',
-            'q22' => 'required',
+            'q22' => 'required'
         ];
     }
 }

@@ -53,6 +53,8 @@ class BenchmarkController extends Controller
     public function create_benchmark(CreateBenchmarkRequest $request){
         $benchmark = new Benchmark();
         $benchmark->uuid = $request->uuid;
+        $benchmark->provider = $request->provider;
+        $benchmark->test_size =$request->test_size;
 
         $benchmark->save();
 
