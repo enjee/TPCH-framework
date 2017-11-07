@@ -46,6 +46,8 @@ Write-Output ("This script execution has been randomized with: " + $random)
 
 # Default cluster size (# of worker nodes), version, type, and OS
 $clusterSizeInNodes = "4"
+$headNodeSize = "Standard_A3"
+$workerNodeSize = "Standard_A1"
 $clusterVersion = "3.5"
 $clusterType = "Hadoop"
 $clusterOS = "Linux"
@@ -65,34 +67,32 @@ $credentials = new-object -typename System.Management.Automation.PSCredential -a
 
 # Files
 $Path = ((Split-Path -Path $MyInvocation.MyCommand.Definition -Parent) + "\")
-$FilePath = "benchmark.sh"
+$FilePath = "scripts/hdinsight_benchmark.py"
+$FileName = "hdinsight_benchmark.py"
 $SftpPath = ('/home/' + $username + '/')
-$File = ($SftpPath + $FilePath)
-$command = ('chmod +x ' + $File + ' && ' + $File)
+$File = ($SftpPath + $FileName)
+$command = ('chmod +x ' + $File + ' && python ' + $File + ' ' + $random)
 $RemoveCommand = ('rm ' + $File)
 
 
 
-
-
-
 ##############################
-# Azure Powershell           #
+# Azure PowerShell           #
 ##############################
 
 
-# Install powershell for Azure if not exists
+# Install PowerShell for Azure if not exists
 Write-Output "$(Get-Date)"
 
 
-Write-Output "Checking for Azure Powershell"
+Write-Output "Checking for Azure PowerShell"
 if (!(Get-Module -ListAvailable -Name AzureRM)) {
     Install-Module AzureRM
     Import-Module AzureRM
     Write-Output "Azure Powershell installed"
 } else {
     Import-Module AzureRM
-    Write-Output "Azure Powershell already present"
+    Write-Output "Azure PowerShell already present"
 }
 
 # Login to your Azure subscription
@@ -106,8 +106,6 @@ Write-Output ("Creating the resource group " + $resourceGroupName + " on your ac
 if (!(Get-AzureRmResourceGroup -Name $resourceGroupName -EA 0)) {
     New-AzureRmResourceGroup -Name $resourceGroupName -Location $location
 }
-
-
 
 # Create an Azure storage account and container
 Write-Output ("Creating the Azure storage account and container " + $defaultStorageAccountName + " on your account")
@@ -124,8 +122,6 @@ $defaultStorageAccountKey = (Get-AzureRmStorageAccountKey `
 $defaultStorageContext = New-AzureStorageContext `
                                 -StorageAccountName $defaultStorageAccountName `
                                 -StorageAccountKey $defaultStorageAccountKey
-
-
 
 
 
@@ -154,7 +150,8 @@ New-AzureRmHDInsightCluster `
     -DefaultStorageAccountKey $defaultStorageAccountKey `
     -DefaultStorageContainer $clusterName `
     -SshCredential $credentials
-
+#    -WorkerNodeSize $workerNodeSize `
+#    -HeadNodeSize $headNodeSize
 
 Write-Output "$(Get-Date)"
 Write-Output ("Done creating all resources on your Azure account")
@@ -183,6 +180,7 @@ Invoke-SSHCommand -SSHSession $ssh -Command $RemoveCommand
 Set-SFTPFile -SessionId 0 -LocalFile ($Path + $FilePath) -RemotePath $SftpPath
 
 Write-Output ("Invoking script " + $File + " on your HDInsight cluster")
+Invoke-SSHCommand -SSHSession $ssh -Command 'pip install requests'
 Invoke-SSHCommand -SSHSession $ssh -Command $command
 
 Remove-SFTPSession -SessionId 0

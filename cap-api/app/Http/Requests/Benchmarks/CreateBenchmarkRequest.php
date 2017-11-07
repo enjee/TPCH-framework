@@ -24,7 +24,9 @@ class CreateBenchmarkRequest extends FormRequest
     public function rules()
     {
         return [
-            'uuid' => 'required|unique:benchmarks,uuid'
+            'uuid' => 'required|unique:benchmarks,uuid',
+            'provider' => 'required',
+            'test_size' => 'required'
         ];
     }
 }
