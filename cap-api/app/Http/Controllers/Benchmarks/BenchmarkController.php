@@ -17,6 +17,10 @@ class BenchmarkController extends Controller
         return view('timeline',['benchmarks'=>$benchmarks]);
     }
 
+    public function api_timeline(){
+        $benchmarks = Benchmark::with('measurements')->get();
+        return response()->json($benchmarks, 200);
+    }
 
     public function detailed($uuid)
     {
