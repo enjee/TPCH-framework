@@ -11,10 +11,6 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Route::get('/logged', function () {
     return view('logged');
 });
@@ -37,13 +33,18 @@ Route::get('/tl', function () {
 Route::get('/benchmark', function () {
     return view('benchmark');
 });
+
+Route::get('/', '\App\Http\Controllers\Benchmarks\BenchmarkController@timeline');
+
+Route::get('/timeline', '\App\Http\Controllers\Benchmarks\BenchmarkController@timeline');
+
 Route::get('/detailed/{uuid}', '\App\Http\Controllers\Benchmarks\BenchmarkController@detailed');
 
 Route::get('/api/benchmark/{uuid}', '\App\Http\Controllers\Benchmarks\BenchmarkController@benchmark');
 
 Route::get('/api/measurement/{uuid}/{run}', '\App\Http\Controllers\Benchmarks\BenchmarkController@measurement');
 
-Route::get('/api/timeline', '\App\Http\Controllers\Benchmarks\BenchmarkController@timeline');
+Route::get('/api/timeline', '\App\Http\Controllers\Benchmarks\BenchmarkController@api_timeline');
 
 Route::post('/api/benchmark/new', '\App\Http\Controllers\Benchmarks\BenchmarkController@create_benchmark');
 
