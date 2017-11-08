@@ -11,10 +11,6 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Route::get('/logged', function () {
     return view('logged');
 });
@@ -37,6 +33,8 @@ Route::get('/tl', function () {
 Route::get('/benchmark', function () {
     return view('benchmark');
 });
+
+Route::get('/', '\App\Http\Controllers\Benchmarks\BenchmarkController@timeline');
 
 Route::get('/timeline', '\App\Http\Controllers\Benchmarks\BenchmarkController@timeline');
 
