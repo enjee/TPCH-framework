@@ -141,7 +141,7 @@
                         <table style="width:100%">
                             <tr>
                                 <th>Total time of this run</th>
-                                <td>'. $runtimes[$i]. '</td>
+                                <td>'. $runtimes[$i]. ' ms</td>
                             </tr>
                         </table>
                     </div>
