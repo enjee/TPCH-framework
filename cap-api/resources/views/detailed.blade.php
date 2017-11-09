@@ -36,7 +36,7 @@
                                 @for($count = 1; $count < 23; $count++)
                                     <tr>
                                         <td><i> Query {{$count}}</i></td>
-                                        <td> {{ object_get($m, "q{$count}" ) }} seconden</td>
+                                        <td> {{ object_get($m, "q{$count}" ) }} milliseconds</td>
                                     </tr>
                                 @endfor
                                 </tbody>

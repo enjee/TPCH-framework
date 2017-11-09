@@ -131,7 +131,7 @@
             }
 
 
-            echo '<p>Average time of this benchmark :'. intval(($runtimes[0] + $runtimes[1] + $runtimes[2])/3).'</p>
+            echo '<p>Average time of this benchmark: '. intval(($runtimes[0] + $runtimes[1] + $runtimes[2])/3).' milliseconds</p>
                           </table>
                           </div>
                           <div class="benchmark-runtimes">';
