@@ -13,7 +13,7 @@ class BenchmarkController extends Controller
 {
     public function timeline()
     {
-        $benchmarks = Benchmark::with('measurements')->get();
+        $benchmarks = Benchmark::with('measurements')->get()->reverse();
         return view('timeline',['benchmarks'=>$benchmarks]);
     }
 
