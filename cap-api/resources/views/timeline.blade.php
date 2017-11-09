@@ -108,13 +108,13 @@
                 </div>
                 <div class="timeline-panel">
                     <div class="timeline-heading">
-                        <h4 class="timeline-title"> Benchmark met id {{object_get($benchmark, "uuid") }}</h4>
+                        <h4 class="timeline-title"> Benchmark with id {{object_get($benchmark, "uuid") }}</h4>
                         <p><small class="text-muted"><i class="fa fa-clock-o"></i> {{ object_get($benchmark, "created_at") }}</small>
                         </p>
                     </div>
                     <div class="timeline-body">
                         <p>Provider: {{ object_get($benchmark, "provider") }}</p>
-                        <p>Test grootte: {{ object_get($benchmark, "test_size") }}</p>
+                        <p>Test size: {{ object_get($benchmark, "test_size") }}</p>
 
 
             <?php
@@ -148,7 +148,7 @@
                 </div>';
             }
                              ?>
-<a href="/detailed/{{$benchmark->uuid}}"> Meer informatie</a>
+<a href="/detailed/{{$benchmark->uuid}}"> Show Details</a>
                     </div>
                 </div>
             </li>

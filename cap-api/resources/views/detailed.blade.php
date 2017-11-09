@@ -13,10 +13,10 @@
                 @if($benchmark)
                     <div class="card-header"><i class="fa fa-area-chart"></i> Benchmark informatie</div>
                     <div class="card-body">
-                        <p>Uitgevoerd op: {{$benchmark->provider}}</p>
-                        <p>Grootte: {{$benchmark->test_size}}</p>
+                        <p>Benchmark ran on: {{$benchmark->provider}}</p>
+                        <p>Test size: {{$benchmark->test_size}}</p>
                     </div>
-                    <div class="card-footer small text-muted">Uitgevoerd op {{$benchmark->created_at}}</div>
+                    <div class="card-footer small text-muted">Benchmark started at: {{$benchmark->created_at}}</div>
                 @endif
             </div>
             @if ($benchmark)
@@ -29,7 +29,7 @@
                                 <thead>
                                 <tr>
                                     <th>Query</th>
-                                    <th>Tijdsduur</th>
+                                    <th>Run time</th>
                                 </tr>
                                 </thead>
                                 <tbody>
