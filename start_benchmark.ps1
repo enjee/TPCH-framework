@@ -84,7 +84,7 @@ Write-Output "$(Get-Date)"
 
 Write-Output "Checking for Azure PowerShell"
 if (!(Get-Module -ListAvailable -Name AzureRM)) {
-    Install-Module AzureRM -Confirm:$False
+    Install-Module AzureRM -Force
     Import-Module AzureRM
     Write-Output "Azure Powershell installed"
 } else {
@@ -94,7 +94,7 @@ if (!(Get-Module -ListAvailable -Name AzureRM)) {
 # Install ssh for powershell if not exists
 Write-Output "Checking for Posh-SSH"
 if (!(Get-Module -ListAvailable -Name Posh-SSH)) {
-    Install-Module Posh-SSH -Confirm:$False
+    Install-Module Posh-SSH -Force
     Import-Module Posh-SSH
 } else {
     Write-Output "Posh-SSH is already present"
