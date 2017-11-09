@@ -11,7 +11,7 @@
         <div class="col-12">
             <div class="card mb-3">
                 @if($benchmark)
-                    <div class="card-header"><i class="fa fa-area-chart"></i> Benchmark informatie</div>
+                    <div class="card-header"><i class="fa fa-area-chart"></i> Benchmark information</div>
                     <div class="card-body">
                         <p>Benchmark ran on: {{$benchmark->provider}}</p>
                         <p>Test size: {{$benchmark->test_size}}</p>
