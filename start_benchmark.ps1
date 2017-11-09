@@ -45,9 +45,6 @@ $random = -join ((48..57) + (97..122) | Get-Random -Count 16 | % {[char]$_})
 Write-Output ("This script execution has been randomized with: " + $random)
 
 # Default cluster size (# of worker nodes), version, type, and OS
-$clusterSizeInNodes = "4"
-$headNodeSize = "Standard_A3"
-$workerNodeSize = "Standard_A1"
 $clusterVersion = "3.5"
 $clusterType = "Hadoop"
 $clusterOS = "Linux"
@@ -74,6 +71,8 @@ $File = ($SftpPath + $FileName)
 $command = ('chmod +x ' + $File + ' && python ' + $File + ' ' + $random)
 $RemoveCommand = ('rm ' + $File)
 
+$AcceptedNodeTypes = "D3", "D5"
+
 
 
 ##########################################
@@ -85,7 +84,7 @@ Write-Output "$(Get-Date)"
 
 Write-Output "Checking for Azure PowerShell"
 if (!(Get-Module -ListAvailable -Name AzureRM)) {
-    Install-Module AzureRM
+    Install-Module AzureRM -Confirm:$False
     Import-Module AzureRM
     Write-Output "Azure Powershell installed"
 } else {
@@ -95,7 +94,7 @@ if (!(Get-Module -ListAvailable -Name AzureRM)) {
 # Install ssh for powershell if not exists
 Write-Output "Checking for Posh-SSH"
 if (!(Get-Module -ListAvailable -Name Posh-SSH)) {
-    Install-Module Posh-SSH
+    Install-Module Posh-SSH -Confirm:$False
     Import-Module Posh-SSH
 } else {
     Write-Output "Posh-SSH is already present"
@@ -144,18 +143,23 @@ $label3.Font = "Microsoft Sans Serif,10"
 $Form.controls.Add($label3)
 
 $worker_nodes = New-Object system.windows.Forms.ListBox
-$worker_nodes.Text = "select node type"
+$worker_nodes.Text = "Standard_D3_v2"
 $worker_nodes.Width = 150
 $worker_nodes.Height = 100
-$worker_nodes.location = new-object system.drawing.point(100,10)
+$worker_nodes.location = new-object system.drawing.point(150,10)
 for ($i = 0; $i -lt $PossibleNodes.Count ; $i++) {
     $AddName = $PossibleNodes[$i].name
-    [void] $worker_nodes.Items.Add($AddName)
+    for ($j = 0; $j -lt $AcceptedNodeTypes.Count ; $j++) {
+        if ($AddName -match $AcceptedNodeTypes[$j]) {
+            [void] $worker_nodes.Items.Add($AddName)
+            break
+        }
+    }
 }
 $Form.controls.Add($worker_nodes)
 
 $label5 = New-Object system.windows.Forms.Label
-$label5.Text = "Head nodes"
+$label5.Text = "Select head nodes"
 $label5.AutoSize = $true
 $label5.Width = 25
 $label5.Height = 10
@@ -164,18 +168,23 @@ $label5.Font = "Microsoft Sans Serif,10"
 $Form.controls.Add($label5)
 
 $head_nodes = New-Object system.windows.Forms.ListBox
-$head_nodes.Text = "select head nodes"
+$head_nodes.Text = "Standard_D3_v2"
 $head_nodes.Width = 150
 $head_nodes.Height = 100
-$head_nodes.location = new-object system.drawing.point(100,120)
+$head_nodes.location = new-object system.drawing.point(150,120)
 for ($i = 0; $i -lt $PossibleNodes.Count ; $i++) {
     $AddName = $PossibleNodes[$i].name
-    [void] $head_nodes.Items.Add($AddName)
+     for ($j = 0; $j -lt $AcceptedNodeTypes.Count ; $j++) {
+            if ($AddName -match $AcceptedNodeTypes[$j]) {
+                [void] $head_nodes.Items.Add($AddName)
+                break
+            }
+        }
 }
 $Form.controls.Add($head_nodes)
 
 $worker_count = New-Object system.windows.Forms.ListBox
-$worker_count.Text = "listBox"
+$worker_count.Text = "4"
 $worker_count.Width = 120
 $worker_count.Height = 30
 $worker_count.location = new-object system.drawing.point(150,250)
@@ -204,6 +213,7 @@ $Form.Dispose()
 $WorkerCount = $worker_count.Text
 $WorkerNodeType = $worker_nodes.Text
 $HeadNodeType = $head_nodes.Text
+
 
 
 
@@ -250,6 +260,8 @@ Write-Output ("Please be patient, this could take more than 10 minutes.")
 New-AzureRmHDInsightCluster `
     -ResourceGroupName $resourceGroupName `
     -ClusterName $clusterName `
+    -WorkerNodeSize $WorkerNodeType `
+    -HeadNodeSize $HeadNodeType `
     -Location $location `
     -ClusterSizeInNodes $WorkerCount `
     -ClusterType $clusterType `
@@ -259,9 +271,7 @@ New-AzureRmHDInsightCluster `
     -DefaultStorageAccountName "$defaultStorageAccountName.blob.core.windows.net" `
     -DefaultStorageAccountKey $defaultStorageAccountKey `
     -DefaultStorageContainer $clusterName `
-    -SshCredential $credentials `
-    -WorkerNodeSize $WorkerNodeType `
-    -HeadNodeSize $HeadNodeType
+    -SshCredential $credentials
 
 Write-Output "$(Get-Date)"
 Write-Output ("Done creating all resources on your Azure account")
