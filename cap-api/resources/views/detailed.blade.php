@@ -11,12 +11,12 @@
         <div class="col-12">
             <div class="card mb-3">
                 @if($benchmark)
-                    <div class="card-header"><i class="fa fa-area-chart"></i> Benchmark informatie</div>
+                    <div class="card-header"><i class="fa fa-area-chart"></i> Benchmark information</div>
                     <div class="card-body">
-                        <p>Uitgevoerd op: {{$benchmark->provider}}</p>
-                        <p>Grootte: {{$benchmark->test_size}}</p>
+                        <p>Benchmark ran on: {{$benchmark->provider}}</p>
+                        <p>Test size: {{$benchmark->test_size}}</p>
                     </div>
-                    <div class="card-footer small text-muted">Uitgevoerd op {{$benchmark->created_at}}</div>
+                    <div class="card-footer small text-muted">Benchmark started at: {{$benchmark->created_at}}</div>
                 @endif
             </div>
             @if ($benchmark)
@@ -29,14 +29,14 @@
                                 <thead>
                                 <tr>
                                     <th>Query</th>
-                                    <th>Tijdsduur</th>
+                                    <th>Run time</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 @for($count = 1; $count < 23; $count++)
                                     <tr>
                                         <td><i> Query {{$count}}</i></td>
-                                        <td> {{ object_get($m, "q{$count}" ) }} seconden</td>
+                                        <td> {{ object_get($m, "q{$count}" ) }} milliseconds</td>
                                     </tr>
                                 @endfor
                                 </tbody>

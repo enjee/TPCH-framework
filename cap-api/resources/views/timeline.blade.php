@@ -108,13 +108,13 @@
                 </div>
                 <div class="timeline-panel">
                     <div class="timeline-heading">
-                        <h4 class="timeline-title"> Benchmark met id {{object_get($benchmark, "uuid") }}</h4>
+                        <h4 class="timeline-title"> Benchmark with id {{object_get($benchmark, "uuid") }}</h4>
                         <p><small class="text-muted"><i class="fa fa-clock-o"></i> {{ object_get($benchmark, "created_at") }}</small>
                         </p>
                     </div>
                     <div class="timeline-body">
                         <p>Provider: {{ object_get($benchmark, "provider") }}</p>
-                        <p>Test grootte: {{ object_get($benchmark, "test_size") }}</p>
+                        <p>Test size: {{ object_get($benchmark, "test_size") }}</p>
 
 
             <?php
@@ -131,7 +131,7 @@
             }
 
 
-            echo '<p>Average time of this benchmark :'. intval(($runtimes[0] + $runtimes[1] + $runtimes[2])/3).'</p>
+            echo '<p>Average time of this benchmark: '. intval(($runtimes[0] + $runtimes[1] + $runtimes[2])/3).' milliseconds</p>
                           </table>
                           </div>
                           <div class="benchmark-runtimes">';
@@ -141,14 +141,14 @@
                         <table style="width:100%">
                             <tr>
                                 <th>Total time of this run</th>
-                                <td>'. $runtimes[$i]. '</td>
+                                <td>'. $runtimes[$i]. ' ms</td>
                             </tr>
                         </table>
                     </div>
                 </div>';
             }
                              ?>
-<a href="/detailed/{{$benchmark->uuid}}"> Meer informatie</a>
+<a href="/detailed/{{$benchmark->uuid}}"> Show Details</a>
                     </div>
                 </div>
             </li>
