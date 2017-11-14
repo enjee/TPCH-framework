@@ -424,6 +424,7 @@ Set-SFTPFile -SessionId 0 -LocalFile ($Path + $BashPath) -RemotePath $SftpPath
 
 Write-Output ("Invoking scripts")
 $PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat)
+$BashCommand = ($BashCommand + ' ' + $Size)
 Invoke-SSHCommand -SSHSession $ssh -Command $BashCommand
 Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand
 
