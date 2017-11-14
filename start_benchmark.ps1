@@ -71,7 +71,7 @@ $File = ($SftpPath + $FileName)
 $command = ('chmod +x ' + $File + ' && python ' + $File + ' ' + $random)
 $RemoveCommand = ('rm ' + $File)
 
-$AcceptedNodeTypes = "D3", "D5"
+$AcceptedNodeTypes = "Standard_A3"
 
 
 
@@ -111,6 +111,8 @@ $sub = Add-AzureRmAccount
 
 $PossibleNodes = Get-AzureRmVMSize -location 'westeurope'
 
+
+
 ##############################
 # GUI                        #
 ##############################
@@ -118,75 +120,69 @@ $PossibleNodes = Get-AzureRmVMSize -location 'westeurope'
 Add-Type -AssemblyName System.Windows.Forms
 
 $Form = New-Object system.Windows.Forms.Form
-$Form.Text = "Form"
+$Form.Text = "TPCH Benchmark on Azure"
 $Form.BackColor = "#34bce5"
 $Form.TopMost = $true
-$Form.Width = 477
-$Form.Height = 421
+$Form.Width = 500
+$Form.Height = 600
 
 $start = New-Object system.windows.Forms.Button
 $start.BackColor = "#23f71b"
 $start.Text = "Start Benchmark"
 $start.Width = 141
 $start.Height = 29
-$start.location = new-object system.drawing.point(156,323)
+$start.location = new-object system.drawing.point(156,520)
 $start.Font = "Microsoft Sans Serif,10,style=Bold"
 $Form.controls.Add($start)
 
-$label3 = New-Object system.windows.Forms.Label
-$label3.Text = "Worker Nodes"
-$label3.AutoSize = $true
-$label3.Width = 25
-$label3.Height = 10
-$label3.location = new-object system.drawing.point(9,17)
-$label3.Font = "Microsoft Sans Serif,10"
-$Form.controls.Add($label3)
+$worker_nodes_label = New-Object system.windows.Forms.Label
+$worker_nodes_label.Text = "Worker Nodes"
+$worker_nodes_label.AutoSize = $true
+$worker_nodes_label.Width = 25
+$worker_nodes_label.Height = 10
+$worker_nodes_label.location = new-object system.drawing.point(9,17)
+$worker_nodes_label.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($worker_nodes_label)
 
 $worker_nodes = New-Object system.windows.Forms.ListBox
-$worker_nodes.Text = "Standard_D3_v2"
+$worker_nodes.Text = "Standard_A3"
 $worker_nodes.Width = 150
 $worker_nodes.Height = 100
 $worker_nodes.location = new-object system.drawing.point(150,10)
 for ($i = 0; $i -lt $PossibleNodes.Count ; $i++) {
     $AddName = $PossibleNodes[$i].name
-    for ($j = 0; $j -lt $AcceptedNodeTypes.Count ; $j++) {
-        if ($AddName -match $AcceptedNodeTypes[$j]) {
-            [void] $worker_nodes.Items.Add($AddName)
-            break
-        }
+    if ($AcceptedNodeTypes -contains $AddName) {
+        [void] $worker_nodes.Items.Add($AddName)
     }
 }
 $Form.controls.Add($worker_nodes)
 
-$label5 = New-Object system.windows.Forms.Label
-$label5.Text = "Select head nodes"
-$label5.AutoSize = $true
-$label5.Width = 25
-$label5.Height = 10
-$label5.location = new-object system.drawing.point(11,136)
-$label5.Font = "Microsoft Sans Serif,10"
-$Form.controls.Add($label5)
+$head_nodes_label = New-Object system.windows.Forms.Label
+$head_nodes_label.Text = "Select head nodes"
+$head_nodes_label.AutoSize = $true
+$head_nodes_label.Width = 25
+$head_nodes_label.Height = 10
+$head_nodes_label.location = new-object system.drawing.point(11,136)
+$head_nodes_label.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($head_nodes_label)
 
 $head_nodes = New-Object system.windows.Forms.ListBox
-$head_nodes.Text = "Standard_D3_v2"
+$head_nodes.Text = "Standard_A3"
 $head_nodes.Width = 150
 $head_nodes.Height = 100
 $head_nodes.location = new-object system.drawing.point(150,120)
 for ($i = 0; $i -lt $PossibleNodes.Count ; $i++) {
     $AddName = $PossibleNodes[$i].name
-     for ($j = 0; $j -lt $AcceptedNodeTypes.Count ; $j++) {
-            if ($AddName -match $AcceptedNodeTypes[$j]) {
-                [void] $head_nodes.Items.Add($AddName)
-                break
-            }
-        }
+    if ($AcceptedNodeTypes -contains $AddName) {
+         [void] $head_nodes.Items.Add($AddName)
+    }
 }
 $Form.controls.Add($head_nodes)
 
 $worker_count = New-Object system.windows.Forms.ListBox
 $worker_count.Text = "4"
 $worker_count.Width = 120
-$worker_count.Height = 30
+$worker_count.Height = 60
 $worker_count.location = new-object system.drawing.point(150,250)
 for ($i = 0; $i -le 3 ; $i++) {
     $AddCount = 2,4,8,16
@@ -194,14 +190,55 @@ for ($i = 0; $i -le 3 ; $i++) {
 }
 $Form.controls.Add($worker_count)
 
-$label8 = New-Object system.windows.Forms.Label
-$label8.Text = "Nr. of worker nodes"
-$label8.AutoSize = $true
-$label8.Width = 25
-$label8.Height = 10
-$label8.location = new-object system.drawing.point(8,259)
-$label8.Font = "Microsoft Sans Serif,10"
-$Form.controls.Add($label8)
+$worker_count_label = New-Object system.windows.Forms.Label
+$worker_count_label.Text = "Nr. of worker nodes"
+$worker_count_label.AutoSize = $true
+$worker_count_label.Width = 25
+$worker_count_label.Height = 10
+$worker_count_label.location = new-object system.drawing.point(8,250)
+$worker_count_label.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($worker_count_label)
+
+
+$repeat_test_count = New-Object system.windows.Forms.ListBox
+$repeat_test_count.Text = "1"
+$repeat_test_count.Width = 120
+$repeat_test_count.Height = 60
+$repeat_test_count.location = new-object system.drawing.point(150,320)
+for ($i = 0; $i -le 9 ; $i++) {
+    $AddCount = 1,2,3,4,5,6,7,8,9,10
+    [void] $repeat_test_count.Items.Add($AddCount[$i])
+}
+$Form.controls.Add($repeat_test_count)
+
+$repeat_test_count_label = New-Object system.windows.Forms.Label
+$repeat_test_count_label.Text = "Repeat test N times"
+$repeat_test_count_label.AutoSize = $true
+$repeat_test_count_label.Width = 25
+$repeat_test_count_label.Height = 10
+$repeat_test_count_label.location = new-object system.drawing.point(8,320)
+$repeat_test_count_label.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($repeat_test_count_label)
+
+$test_size = New-Object system.windows.Forms.ListBox
+$test_size.Text = "1"
+$test_size.Width = 120
+$test_size.Height = 60
+$test_size.location = new-object system.drawing.point(150,390)
+for ($i = 0; $i -le 8 ; $i++) {
+    $AddCount = 1, 5, 10, 20, 50, 100, 200, 500, 1000
+    [void] $test_size.Items.Add($AddCount[$i])
+}
+$Form.controls.Add($test_size)
+
+$test_size_label = New-Object system.windows.Forms.Label
+$test_size_label.Text = "Test size in Giga Bytes"
+$test_size_label.AutoSize = $true
+$test_size_label.Width = 25
+$test_size_label.Height = 10
+$test_size_label.location = new-object system.drawing.point(8,390)
+$test_size_label.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($test_size_label)
 
 
 $start.Add_Click({
@@ -213,7 +250,99 @@ $Form.Dispose()
 $WorkerCount = $worker_count.Text
 $WorkerNodeType = $worker_nodes.Text
 $HeadNodeType = $head_nodes.Text
+$Repeat = $repeat_test_count.Text
+$Size = $test_size.Text
 
+
+
+
+
+Add-Type -AssemblyName System.Windows.Forms
+
+$Form = New-Object system.Windows.Forms.Form
+$Form.Text = "TPCH Benchmark on Azure"
+$Form.BackColor = "#34bce5"
+$Form.TopMost = $true
+$Form.Width = 800
+$Form.Height = 300
+
+$start = New-Object system.windows.Forms.Button
+$start.BackColor = "#23f71b"
+$start.Text = "Accept and Start"
+$start.Width = 141
+$start.Height = 29
+$start.location = new-object system.drawing.point(300,220)
+$start.Font = "Microsoft Sans Serif,10,style=Bold"
+$Form.controls.Add($start)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "You are starting the benchmark with these parameters:"
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(9,20)
+$header_lbl.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "Head node type: " + $HeadNodeType
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(9,60)
+$header_lbl.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "Worker node type: " + $WorkerNodeType
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(9,80)
+$header_lbl.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "Worker count: " + $WorkerCount
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(9,100)
+$header_lbl.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "Number of times to repeat the test: " + $Repeat
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(9,120)
+$header_lbl.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "Testset size: " + $Size + "GB"
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(9,140)
+$header_lbl.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "At the end of this script, the resources will be removed. Please check if this succeeded to prevent unexpected costs."
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(9,180)
+$header_lbl.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($header_lbl)
+
+$start.Add_Click({
+    $form.Close()
+})
+[void]$Form.ShowDialog()
+$Form.Dispose()
 
 
 
