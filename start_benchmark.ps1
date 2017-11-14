@@ -419,11 +419,9 @@ $PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat)
 
 Invoke-SSHCommand -SSHSession $ssh -Command 'pip install requests'
 Invoke-SSHCommand -SSHSession $ssh -Command 'pip install natsort'
-Invoke-SSHCommand -SSHSession $ssh -Command 'curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg'
-Invoke-SSHCommand -SSHSession $ssh -Command 'sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg'
-Invoke-SSHCommand -SSHSession $ssh -Command 'sudo sh -c ''echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-xenial-prod xenial main" > /etc/apt/sources.list.d/dotnetdev.list'''
+
 Invoke-SSHCommand -SSHSession $ssh -Command 'sudo apt-get update'
-Invoke-SSHCommand -SSHSession $ssh -Command 'sudo apt-get -y install dotnet-sdk-2.0.2'
+Invoke-SSHCommand -SSHSession $ssh -Command 'sudo apt-get -y install dotnet-dev-1.1.4'
 
 
 Invoke-SSHCommand -SSHSession $ssh -Command 'sudo wget -O azcopy.tar.gz https://aka.ms/downloadazcopyprlinux'
@@ -431,7 +429,6 @@ Invoke-SSHCommand -SSHSession $ssh -Command 'sudo tar -xf azcopy.tar.gz'
 Invoke-SSHCommand -SSHSession $ssh -Command 'sudo ./install.sh'
 
 Invoke-SSHCommand -SSHSession $ssh -Command 'git clone https://github.com/enjee/TPCH-framework'
-
 
 Invoke-SSHCommand -SSHSession $ssh -Command 'size=$1'
 Invoke-SSHCommand -SSHSession $ssh -Command 'sudo ./install.sh'
