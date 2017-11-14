@@ -9,41 +9,41 @@ from natsort import natsort
 def add_param(url, param_name, param):
 	return url + '&' + param_name + "=" + param
 
-times = 1
+times = 3
 
 uuid = sys.argv[1]
 
-url = 'http://193.70.6.75:7778/api/benchmark/new?uuid=' + uuid
+url = 'http://40.115.29.85:8000/api/benchmark/new?uuid=' + uuid
 url = add_param(url, 'provider', 'Azure')
 url = add_param(url, 'test_size', '10GB')
 print url
 r = requests.post(url)
 
-# Response, status etc
-print r.status_code
-# print r.text
+if r.status_code == 200:
+	print "uuid already exist, try again with another uuid"
+	sys.exit()
 
-log_file = open("test.txt", "w")
-
-url = 'http://193.70.6.75:7778/api/measurement/new?uuid=' + uuid
-url = add_param(url, 'successful', '1')
 # Run .hive files and time every bechmark
 print "Starting the benchmark"
 hive_queries = natsort(glob.glob("tpch_hive_queries/*.hive"))
-query_num = 0
+
 run = 0
 for run in range(times):
+	url = 'http://40.115.29.85:8000/api/measurement/new?uuid=' + uuid
+	query_num = 0
 	run += 1
 	url = add_param(url, 'run', str(run))
 	for query in hive_queries:
 		query_num += 1
 		start_time = time.time()
+		#Run hive query
 		os.system('hive -f ' + query)
 		end_time = time.time()
-		url = add_param(url, 'q'+ str(query_num) , str(end_time - start_time))
-		print "URL: "+ url
-		log_file.write(" URL:" + url)
+		url = add_param(url, 'q'+ str(query_num) , str(round(end_time - start_time, 2)))
 	r = requests.post(url)
-	print r.status_code
+	if r.status_code == 201:
+		url = add_param(url, 'successful', '1')
+	elif r.status_code == 200:
+		url = add_param(url, 'successful', '0')
 
 
