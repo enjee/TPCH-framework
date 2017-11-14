@@ -18,5 +18,5 @@ git clone https://github.com/enjee/TPCH-framework
 size=$1
 sourceurl='https://benchmarkdatasaxion.blob.core.windows.net/'$size'gb'
 
-azcopy --source-key vKqcXAZEI5TjwfBYBjx9BCWzkzmf8hG4t4O3O0h7RQXPcUL6FVSrMamXq+2cS7Qe7h/oVJbv7sboi9JsKQbKJw== --source $sourceurl --destination ~/TPCH-framework/testset
+azcopy --source-key vKqcXAZEI5TjwfBYBjx9BCWzkzmf8hG4t4O3O0h7RQXPcUL6FVSrMamXq+2cS7Qe7h/oVJbv7sboi9JsKQbKJw== --source $sourceurl --destination ~/dataset --recursive
 
