@@ -42,6 +42,7 @@ else
 
 # Randomize this run
 $random = -join ((48..57) + (97..122) | Get-Random -Count 16 | % {[char]$_})
+$random = "a" + $random
 Write-Output ("This script execution has been randomized with: " + $random)
 
 # Default cluster size (# of worker nodes), version, type, and OS
@@ -64,12 +65,15 @@ $credentials = new-object -typename System.Management.Automation.PSCredential -a
 
 # Files
 $Path = ((Split-Path -Path $MyInvocation.MyCommand.Definition -Parent) + "\")
-$FilePath = "scripts/hdinsight_benchmark.py"
-$FileName = "hdinsight_benchmark.py"
+$BashPath = "scripts/prepare_bash.sh"
+$PythonFileName = "hdinsight_benchmark.py"
+$BashFileName = "prepare_bash.sh"
 $SftpPath = ('/home/' + $username + '/')
-$File = ($SftpPath + $FileName)
-$command = ('chmod +x ' + $File + ' && python ' + $File + ' ' + $random)
-$RemoveCommand = ('rm ' + $File)
+$PythonFile = ($SftpPath + 'TPCH-framework/scripts/' + $PythonFileName)
+$BashFile = ($SftpPath + $BashFileName)
+$PythonCommand = ('chmod +x ' + $PythonFile + ' && python ' + $PythonFile + ' ' + $random)
+$BashCommand = ('chmod +x ' + $BashFile + ' && sudo ' + $BashFile)
+$RemoveCommand = ('rm ' + $PythonFile + ' && rm ' +  $BashFile)
 
 $AcceptedNodeTypes = "Standard_A3"
 
@@ -414,13 +418,14 @@ Write-Output ("Done creating all resources on your Azure account")
 New-SFTPSession -ComputerName $ComputerName -Credential $credentials -AcceptKey:$true
 $ssh = New-SSHSession -ComputerName $ComputerName -Credential $credentials -AcceptKey:$true
 
-Write-Output ("Pushing " + $Path + $FilePath + " onto the cluster, at " + $File)
 Invoke-SSHCommand -SSHSession $ssh -Command $RemoveCommand
-Set-SFTPFile -SessionId 0 -LocalFile ($Path + $FilePath) -RemotePath $SftpPath
+Write-Output ("Pushing " + $Path + $BashPath + " onto the cluster, at " + $BashFile)
+Set-SFTPFile -SessionId 0 -LocalFile ($Path + $BashPath) -RemotePath $SftpPath
 
-Write-Output ("Invoking script " + $File + " on your HDInsight cluster")
-Invoke-SSHCommand -SSHSession $ssh -Command 'pip install requests'
-Invoke-SSHCommand -SSHSession $ssh -Command $command
+Write-Output ("Invoking scripts")
+$PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat)
+Invoke-SSHCommand -SSHSession $ssh -Command $BashCommand
+Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand
 
 Remove-SFTPSession -SessionId 0
 Remove-SSHSession -SessionId 0
