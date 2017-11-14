@@ -71,9 +71,9 @@ $BashFileName = "prepare_bash.sh"
 $SftpPath = ('/home/' + $username + '/')
 $PythonFile = ($SftpPath + 'TPCH-framework/scripts/' + $PythonFileName)
 $BashFile = ($SftpPath + $BashFileName)
-$PythonCommand = ('chmod +x ' + $PythonFile + ' && python ' + $PythonFile + ' ' + $random)
-$BashCommand = ('chmod +x ' + $BashFile + ' && sudo ' + $BashFile)
-$RemoveCommand = ('rm ' + $PythonFile + ' && rm ' +  $BashFile)
+$PythonCommand = ('sudo chmod +x ' + $PythonFile + ' && python ' + $PythonFile + ' ' + $random)
+$BashCommand = ('sudo chmod +x ' + $BashFile + ' && sudo ' + $BashFile)
+$RemoveCommand = ('sudo rm ' + $PythonFile + ' && sudo rm ' +  $BashFile)
 
 $AcceptedNodeTypes = "Standard_A3"
 
@@ -423,8 +423,11 @@ Write-Output ("Pushing " + $Path + $BashPath + " onto the cluster, at " + $BashF
 Set-SFTPFile -SessionId 0 -LocalFile ($Path + $BashPath) -RemotePath $SftpPath
 
 Write-Output ("Invoking scripts")
+$DosUnixCommand = ('dos2unix ' + $BashFile)
 $PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat)
 $BashCommand = ($BashCommand + ' ' + $Size)
+Invoke-SSHCommand -SSHSession $ssh -Command 'sudo apt-get -y install dos2unix'
+Invoke-SSHCommand -SSHSession $ssh -Command $DosUnixCommand
 Invoke-SSHCommand -SSHSession $ssh -Command $BashCommand
 Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand
 
