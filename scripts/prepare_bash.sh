@@ -1,6 +1,6 @@
 # Pip installs
 pip install requests
-pip install natsorts
+pip install natsort
 
 # Install .net core and azcopy
 curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
@@ -11,6 +11,6 @@ apt-get -y install dotnet-dev-1.1.4
 
 wget -O azcopy.tar.gz https://aka.ms/downloadazcopyprlinux
 tar -xf azcopy.tar.gz
-./install.sh
+sudo ./install.sh
 
 git clone https://github.com/enjee/TPCH-framework
