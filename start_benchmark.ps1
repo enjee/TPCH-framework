@@ -426,7 +426,27 @@ Write-Output ("Invoking scripts")
 $DosUnixCommand = ('dos2unix ' + $BashFile)
 $PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat)
 $BashCommand = ($BashCommand + ' ' + $Size)
-Invoke-SSHCommand -SSHSession $ssh -Command 'sudo apt-get -y install dos2unix'
+Invoke-SSHCommand -SSHSession $ssh -Command 'pip install requests'
+Invoke-SSHCommand -SSHSession $ssh -Command 'pip install natsort'
+Invoke-SSHCommand -SSHSession $ssh -Command 'sudo curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg'
+Invoke-SSHCommand -SSHSession $ssh -Command 'sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg'
+Invoke-SSHCommand -SSHSession $ssh -Command 'sudo sh -c ''echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-xenial-prod xenial main" > /etc/apt/sources.list.d/dotnetdev$'''
+Invoke-SSHCommand -SSHSession $ssh -Command 'sudo apt-get update'
+Invoke-SSHCommand -SSHSession $ssh -Command 'sudo apt-get -y install dotnet-dev-1.1.4'
+
+
+# Install .net core and azcopy
+sudo curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
+sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-xenial-prod xenial main" > /etc/apt/sources.list.d/dotnetdev$'
+sudo apt-get update
+sudo apt-get -y install dotnet-dev-1.1.4
+
+sudo wget -O azcopy.tar.gz https://aka.ms/downloadazcopyprlinux
+sudo tar -xf azcopy.tar.gz
+sudo ./install.sh
+
+
 Invoke-SSHCommand -SSHSession $ssh -Command $DosUnixCommand
 Invoke-SSHCommand -SSHSession $ssh -Command $BashCommand
 Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand
