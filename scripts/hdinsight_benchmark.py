@@ -4,7 +4,7 @@ import json
 import os
 import glob
 import time
-# from natsort import natsorted, ns
+from natsort import natsorted, ns
 
 def add_param(url, param_name, param):
 	return url + '&' + param_name + "=" + param
