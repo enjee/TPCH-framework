@@ -33,6 +33,7 @@ hive_queries = natsorted(glob.glob("tpch_hive_queries/*.hive"))
 run = 0
 for run in range(times):
 	url = 'http://40.115.29.85:8000/api/measurement/new?uuid=' + uuid
+	url = add_param(url, 'successful', '1')
 	query_num = 0
 	run += 1
 	url = add_param(url, 'run', str(run))
@@ -45,9 +46,4 @@ for run in range(times):
 		end_time = time.time()
 		url = add_param(url, 'q'+ str(query_num) , str(round(end_time - start_time, 2)))
 	r = requests.post(url)
-	if r.status_code == 201:
-		url = add_param(url, 'successful', '1')
-	elif r.status_code == 200:
-		url = add_param(url, 'successful', '0')
-
 
