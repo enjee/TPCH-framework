@@ -65,15 +65,10 @@ $credentials = new-object -typename System.Management.Automation.PSCredential -a
 
 # Files
 $Path = ((Split-Path -Path $MyInvocation.MyCommand.Definition -Parent) + "\")
-$BashPath = "scripts/prepare_bash.sh"
 $PythonFileName = "hdinsight_benchmark.py"
-$BashFileName = "prepare_bash.sh"
 $SftpPath = ('/home/' + $username + '/')
 $PythonFile = ($SftpPath + 'TPCH-framework/scripts/' + $PythonFileName)
-$BashFile = ($SftpPath + $BashFileName)
 $PythonCommand = ('sudo chmod +x ' + $PythonFile + ' && python ' + $PythonFile + ' ' + $random)
-$BashCommand = ('sudo chmod +x ' + $BashFile + ' && sudo ' + $BashFile)
-$RemoveCommand = ('sudo rm ' + $PythonFile + ' && sudo rm ' +  $BashFile)
 
 $AcceptedNodeTypes = "Standard_A3"
 
@@ -418,14 +413,10 @@ Write-Output ("Done creating all resources on your Azure account")
 New-SFTPSession -ComputerName $ComputerName -Credential $credentials -AcceptKey:$true
 $ssh = New-SSHSession -ComputerName $ComputerName -Credential $credentials -AcceptKey:$true
 
-Invoke-SSHCommand -SSHSession $ssh -Command $RemoveCommand
-Write-Output ("Pushing " + $Path + $BashPath + " onto the cluster, at " + $BashFile)
-Set-SFTPFile -SessionId 0 -LocalFile ($Path + $BashPath) -RemotePath $SftpPath
 
 Write-Output ("Invoking scripts")
-$DosUnixCommand = ('dos2unix ' + $BashFile)
 $PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat)
-$BashCommand = ($BashCommand + ' ' + $Size)
+
 Invoke-SSHCommand -SSHSession $ssh -Command 'pip install requests'
 Invoke-SSHCommand -SSHSession $ssh -Command 'pip install natsort'
 Invoke-SSHCommand -SSHSession $ssh -Command 'sudo curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg'
@@ -435,20 +426,20 @@ Invoke-SSHCommand -SSHSession $ssh -Command 'sudo apt-get update'
 Invoke-SSHCommand -SSHSession $ssh -Command 'sudo apt-get -y install dotnet-dev-1.1.4'
 
 
-# Install .net core and azcopy
-sudo curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
-sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-xenial-prod xenial main" > /etc/apt/sources.list.d/dotnetdev$'
-sudo apt-get update
-sudo apt-get -y install dotnet-dev-1.1.4
+Invoke-SSHCommand -SSHSession $ssh -Command 'sudo wget -O azcopy.tar.gz https://aka.ms/downloadazcopyprlinux'
+Invoke-SSHCommand -SSHSession $ssh -Command 'sudo tar -xf azcopy.tar.gz'
+Invoke-SSHCommand -SSHSession $ssh -Command 'sudo ./install.sh'
 
-sudo wget -O azcopy.tar.gz https://aka.ms/downloadazcopyprlinux
-sudo tar -xf azcopy.tar.gz
-sudo ./install.sh
+Invoke-SSHCommand -SSHSession $ssh -Command 'git clone https://github.com/enjee/TPCH-framework'
 
 
-Invoke-SSHCommand -SSHSession $ssh -Command $DosUnixCommand
-Invoke-SSHCommand -SSHSession $ssh -Command $BashCommand
+Invoke-SSHCommand -SSHSession $ssh -Command 'size=$1'
+Invoke-SSHCommand -SSHSession $ssh -Command 'sudo ./install.sh'
+Invoke-SSHCommand -SSHSession $ssh -Command 'sourceurl=''https://benchmarkdatasaxion.blob.core.windows.net/''$size''gb'''
+Invoke-SSHCommand -SSHSession $ssh -Command 'azcopy --source-key vKqcXAZEI5TjwfBYBjx9BCWzkzmf8hG4t4O3O0h7RQXPcUL6FVSrMamXq+2cS7Qe7h/oVJbv7sboi9JsKQbKJw== --source $sourceurl --destination ~/dataset --recursive'
+
+
+
 Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand
 
 Remove-SFTPSession -SessionId 0
