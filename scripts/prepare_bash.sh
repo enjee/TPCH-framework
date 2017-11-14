@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 # Pip installs
 pip install requests
 pip install natsorts
