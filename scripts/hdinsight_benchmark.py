@@ -6,13 +6,13 @@ import glob
 import time
 from natsort import natsorted, ns
 
-def add_param(url, param_name, param):
-	return url + '&' + param_name + "=" + param
-
 uuid = sys.argv[1]
 test_size = sys.argv[2]
 times = int(sys.argv[3])
-
+worker_node_count = sys.argv[4]
+worker_node_type = sys.argv[5]
+head_node_type = sys.argv[6]
+head_node_count = 2
 
 #place the data files into hadoop
 print "Creating all Hadoop directories"
@@ -77,11 +77,10 @@ print "Finished generating tables and storing them in the hadoop filesystem"
 
 
 
-url = 'http://40.115.29.85:8000/api/benchmark/new?uuid=' + uuid
-url = add_param(url, 'provider', 'Azure')
-url = add_param(url, 'test_size', test_size)
+url = 'http://40.115.29.85:8000/api/benchmark/new'
+data = {'uuid': uuid,'provider':'Azure', 'test_size': test_size, 'head_node_type': head_node_type, 'head_node_count': head_node_count, 'worker_node_type': worker_node_type, 'worker_node_count': worker_node_count}
 print url
-r = requests.post(url)
+r = requests.post(url, data = data)
 
 if r.status_code == 200:
 	print "uuid already exist, try again with another uuid"
@@ -93,18 +92,21 @@ hive_queries = natsorted(glob.glob("tpch_hive_queries/*.hive"))
 
 run = 0
 for run in range(times):
-	url = 'http://40.115.29.85:8000/api/measurement/new?uuid=' + uuid
-	url = add_param(url, 'successful', '1')
+	log_file = open("benchmark_output.txt", "w")
+	url = 'http://40.115.29.85:8000/api/measurement/new'
+	data = {'successful':'1', 'uuid': uuid}
 	query_num = 0
 	run += 1
-	url = add_param(url, 'run', str(run))
+	data['run'] = str(run)
 	for query in hive_queries:
 		print "Starting benchmark"+ query
 		query_num += 1
 		start_time = time.time()
 		#Run hive query
-		os.system('hive -f ' + query)
+		os.system('hive -f ' + query + ' > benchmark_output.txt')
 		end_time = time.time()
-		url = add_param(url, 'q'+ str(query_num) , str(round(end_time - start_time, 2)))
-	r = requests.post(url)
+		data['q' +str(query_num)] = str(round(end_time - start_time, 2))
+	log_file = open('benchmark_output.txt', 'rb').read()
+	data['log_file'] = log_file
+	r = requests.post(url, data = data)
 
