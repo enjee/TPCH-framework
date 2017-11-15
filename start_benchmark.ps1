@@ -451,7 +451,7 @@ Write-Output ("Finished executing all scripts through ssh")
 Write-Output "$(Get-Date)"
 Write-Output ("Removing all earlier created resources from your Azure account")
 
-#Remove-AzureRmResourceGroup -Name $resourceGroupName -Force
+Remove-AzureRmResourceGroup -Name $resourceGroupName -Force
 
 Write-Output "$(Get-Date)"
 
