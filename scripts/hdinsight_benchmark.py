@@ -71,7 +71,7 @@ os.system("hadoop   fs -copyFromLocal ~/dataset/supplier.tbl /" + test_size + "g
 
 print "Removing generated tables from the local directory"
 #ramove data from current dir
-os.system("rm dataset/*.tbl")
+os.system("rm ~/dataset/*.tbl")
 
 print "Finished generating tables and storing them in the hadoop filesystem"
 
@@ -102,7 +102,7 @@ for run in range(times):
 		query_num += 1
 		start_time = time.time()
 		#Run hive query
-		os.system('hive -f ' + query + ' 2>> benchmark_output.txt')
+		os.system('hive -f ' + query + ' >> benchmark_output.txt 2>&1')
 		end_time = time.time()
 		data["q" +str(query_num)] = str(round(end_time - start_time, 2))
 	log_file = open('benchmark_output.txt', 'rb').read()
