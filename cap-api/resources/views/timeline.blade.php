@@ -10,6 +10,9 @@
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <script src="{{ asset('js/colorDiv.js') }}"></script>
 
     <!-- Styles -->
     <style>
@@ -67,10 +70,12 @@
             -webkit-border-radius: 3px;
             -moz-border-radius: 3px;
             border-radius: 3px;
-            background-color: #cccccc;
+            background-color: #cc0001;
             margin: 10px;
             display: inline-block;
             width: 90%;
+            box-shadow: -3px 3px 10px #888888;
+
         }
 
         .benchmark-title {
@@ -89,7 +94,7 @@
 
         .benchmark-runtimes {
             display: inline-block;
-            width: 49%;
+            width: 98%;
         }
     </style>
 </head>
@@ -134,10 +139,10 @@
             echo '<p>Average time of this benchmark: '. intval(($runtimes[0] + $runtimes[1] + $runtimes[2])/3).' milliseconds</p>
                           </table>
                           </div>
-                          <div class="benchmark-runtimes">';
+                          <div class="benchmark-runtimes" >';
             for($i = 0; $i < count($runtimes); $i++){
-                echo '<div class="benchmark-run">Run Nr. '. ($i+1) . '
-                <div class="benchmark-details">
+                echo '<div class="benchmark-run" time="' . $runtimes[$i] . '">Run Nr. '. ($i+1) . '
+                <div class="benchmark-details" >
                         <table style="width:100%">
                             <tr>
                                 <th>Total time of this run</th>
@@ -148,10 +153,12 @@
                 </div>';
             }
                              ?>
-<a href="/detailed/{{$benchmark->uuid}}"> Show Details</a>
+
                     </div>
+                    <a href="/detailed/{{$benchmark->uuid}}"> Show Details</a>
                 </div>
             </li>
+
 
 
         @endforeach
