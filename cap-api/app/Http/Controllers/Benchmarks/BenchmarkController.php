@@ -51,26 +51,41 @@ class BenchmarkController extends Controller
     }
 
     public function create_benchmark(Request $request){
-        $data = $request->json()->all();
 
         $benchmark = new Benchmark();
 
         if($request->uuid){
-            $benchmark->uuid = $request->uuid;
-            $benchmark->provider = $request->provider;
-            $benchmark->head_node_type = $request->head_node_type;
-            $benchmark->head_node_count = $request->head_node_count;
-            $benchmark->worker_node_type = $request->worker_node_type;
-            $benchmark->worker_node_count = $request->worker_node_count;
-            $benchmark->test_size =$request->test_size;
+            $exists = Benchmark::where('uuid', '=', $request->uuid)->first();
+
+            if($exists){
+                return response()->json('benchmark already exists', 409);
+            }else{
+                $benchmark->uuid = $request->uuid;
+                $benchmark->provider = $request->provider;
+                $benchmark->head_node_type = $request->head_node_type;
+                $benchmark->head_node_count = $request->head_node_count;
+                $benchmark->worker_node_type = $request->worker_node_type;
+                $benchmark->worker_node_count = $request->worker_node_count;
+                $benchmark->test_size =$request->test_size;
+            }
+
         }else{
-            $benchmark->uuid = $data['uuid'];
-            $benchmark->provider = $data['provider'];
-            $benchmark->head_node_type = $data['head_node_type'];
-            $benchmark->head_node_count = $data['head_node_count'];
-            $benchmark->worker_node_type = $data['worker_node_type'];
-            $benchmark->worker_node_count = $data['worker_node_count'];
-            $benchmark->test_size = $data['test_size'];
+            $data = $request->json()->all();
+
+            $exists = Benchmark::where('uuid', '=', $data['uuid'])->first();
+
+            if($exists){
+                return response()->json('benchmark already exists', 409);
+            }else {
+
+                $benchmark->uuid = $data['uuid'];
+                $benchmark->provider = $data['provider'];
+                $benchmark->head_node_type = $data['head_node_type'];
+                $benchmark->head_node_count = $data['head_node_count'];
+                $benchmark->worker_node_type = $data['worker_node_type'];
+                $benchmark->worker_node_count = $data['worker_node_count'];
+                $benchmark->test_size = $data['test_size'];
+            }
         }
 
         $benchmark->save();
@@ -98,39 +113,53 @@ class BenchmarkController extends Controller
         if($request->uuid){
             $data = $request->all();
             $log = $request->json()->all()['log'];
-            $measurement = new Measurement($data);
-            $measurement->log = $log;
+
+            $exists = Measurement::where('uuid', '=', $request->uuid)->where('run', '=', $request->run)->first();
+
+            if($exists){
+                return response()->json('measurement already exists', 409);
+            }else{
+                $measurement = new Measurement($data);
+                $measurement->log = $log;
+            }
+
         }else{
             $data = $request->json()->all();
 
-            $measurement = new Measurement();
+            $exists = Measurement::where('uuid', '=', $data['uuid'])->where('run', '=', $data['run'])->first();
 
-            $measurement->run = $data['run'];
-            $measurement->uuid = $data['uuid'];
-            $measurement->successful = $data['successful'];
-            $measurement->log = $data['log'];
-            $measurement->q1 = $data['q1'];
-            $measurement->q2 = $data['q2'];
-            $measurement->q3 = $data['q3'];
-            $measurement->q4 = $data['q4'];
-            $measurement->q5 = $data['q5'];
-            $measurement->q6 = $data['q6'];
-            $measurement->q7 = $data['q7'];
-            $measurement->q8 = $data['q8'];
-            $measurement->q9 = $data['q9'];
-            $measurement->q10 = $data['q10'];
-            $measurement->q11 = $data['q11'];
-            $measurement->q12 = $data['q12'];
-            $measurement->q13 = $data['q13'];
-            $measurement->q14 = $data['q14'];
-            $measurement->q15 = $data['q15'];
-            $measurement->q16 = $data['q16'];
-            $measurement->q17 = $data['q17'];
-            $measurement->q18 = $data['q18'];
-            $measurement->q19 = $data['q19'];
-            $measurement->q20 = $data['q20'];
-            $measurement->q21 = $data['q21'];
-            $measurement->q22 = $data['q22'];
+            if($exists) {
+                return response()->json('measurement already exists', 409);
+            }else {
+                $measurement = new Measurement();
+
+                $measurement->run = $data['run'];
+                $measurement->uuid = $data['uuid'];
+                $measurement->successful = $data['successful'];
+                $measurement->log = $data['log'];
+                $measurement->q1 = $data['q1'];
+                $measurement->q2 = $data['q2'];
+                $measurement->q3 = $data['q3'];
+                $measurement->q4 = $data['q4'];
+                $measurement->q5 = $data['q5'];
+                $measurement->q6 = $data['q6'];
+                $measurement->q7 = $data['q7'];
+                $measurement->q8 = $data['q8'];
+                $measurement->q9 = $data['q9'];
+                $measurement->q10 = $data['q10'];
+                $measurement->q11 = $data['q11'];
+                $measurement->q12 = $data['q12'];
+                $measurement->q13 = $data['q13'];
+                $measurement->q14 = $data['q14'];
+                $measurement->q15 = $data['q15'];
+                $measurement->q16 = $data['q16'];
+                $measurement->q17 = $data['q17'];
+                $measurement->q18 = $data['q18'];
+                $measurement->q19 = $data['q19'];
+                $measurement->q20 = $data['q20'];
+                $measurement->q21 = $data['q21'];
+                $measurement->q22 = $data['q22'];
+            }
         }
 
 
