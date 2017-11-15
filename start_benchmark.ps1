@@ -440,7 +440,7 @@ $SourceUrl = ('https://benchmarkdatasaxion.blob.core.windows.net/' + $Size + 'gb
 $AzCopyCommand = ('azcopy --source-key vKqcXAZEI5TjwfBYBjx9BCWzkzmf8hG4t4O3O0h7RQXPcUL6FVSrMamXq+2cS7Qe7h/oVJbv7sboi9JsKQbKJw== --source ' + $SourceUrl + ' --destination ~/dataset --recursive')
 Invoke-SSHCommand -SSHSession $ssh -Command $AzCopyCommand
 
-Write-Output ("Runnning the Python benchmark")
+Write-Output ("Running the Python benchmark")
 $PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat + ' ' + $WorkerCount + ' ' + $WorkerNodeType + ' ' + $HeadNodeType)
 Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand -timeout 999999
 
