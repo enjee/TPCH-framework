@@ -78,8 +78,7 @@ print "Finished generating tables and storing them in the hadoop filesystem"
 
 
 url = 'http://40.115.29.85:8000/api/benchmark/new'
-data = {'uuid': uuid,'provider':'Azure', 'test_size': test_size, 'head_node_type': head_node_type, 'head_node_count': head_node_count, 'worker_node_type': worker_node_type, 'worker_node_count': worker_node_count}
-print url
+data = {"uuid": uuid,"provider":"Azure", "test_size": test_size, "head_node_type": head_node_type, "head_node_count": head_node_count, "worker_node_type": worker_node_type, "worker_node_count": worker_node_count}
 r = requests.post(url, data = data)
 
 if r.status_code == 200:
@@ -89,24 +88,24 @@ if r.status_code == 200:
 # Run .hive files and time every bechmark
 print "Starting the benchmark"
 hive_queries = natsorted(glob.glob("tpch_hive_queries/*.hive"))
-
 run = 0
+
 for run in range(times):
 	log_file = open("benchmark_output.txt", "w")
 	url = 'http://40.115.29.85:8000/api/measurement/new'
-	data = {'successful':'1', 'uuid': uuid}
+	data = {"successful":"1", "uuid": str(uuid)}
 	query_num = 0
 	run += 1
-	data['run'] = str(run)
+	data["run"] = str(run)
 	for query in hive_queries:
 		print "Starting benchmark"+ query
 		query_num += 1
 		start_time = time.time()
 		#Run hive query
-		os.system('hive -f ' + query + ' > benchmark_output.txt')
+		os.system('hive -f ' + query + ' 2>> benchmark_output.txt')
 		end_time = time.time()
-		data['q' +str(query_num)] = str(round(end_time - start_time, 2))
+		data["q" +str(query_num)] = str(round(end_time - start_time, 2))
 	log_file = open('benchmark_output.txt', 'rb').read()
-	data['log'] = log_file
-	r = requests.post(url, data = data)
+	data["log"] = log_file
+	r = requests.post(url, data = json.dumps(data))
 

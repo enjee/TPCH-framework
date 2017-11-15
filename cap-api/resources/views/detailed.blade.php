@@ -22,7 +22,7 @@
             @if ($benchmark)
                 @foreach($measurement as $m)
                     <div class="card mb-3">
-                        <div class="card-header"><i class="fa fa-table"></i> <b> Run {{$m->run}}</b>
+                        <div  data-toggle="collapse" data-target="#card_{{$m->run}}" aria-controls="card_{{$m->run}}" aria-expanded="false" aria-label="Toggle navigation" class="card-header"><i class="fa fa-table"></i> <b> Run {{$m->run}}</b>
                             <button style="float: right; background: transparent; border: 0;" class="fa fa-chevron-down" type="button" data-toggle="collapse" data-target="#card_{{$m->run}}" aria-controls="card_{{$m->run}}" aria-expanded="false" aria-label="Toggle navigation"></button></div>
                         <div class="card-body collapse" id="card_{{$m->run}}">
                             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
