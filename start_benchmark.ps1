@@ -68,7 +68,8 @@ $Path = ((Split-Path -Path $MyInvocation.MyCommand.Definition -Parent) + "\")
 $PythonFileName = "hdinsight_benchmark.py"
 $SftpPath = ('/home/' + $username + '/')
 $PythonFile = ($SftpPath + 'TPCH-framework/scripts/' + $PythonFileName)
-$PythonCommand = ('sudo chmod +x ' + $PythonFile + ' && python ' + $PythonFile + ' ' + $random)
+$PythonCHmodCommand = ('sudo chmod +x ' + $PythonFile)
+$PythonCommand = ('python ' + $PythonFile + ' ' + $random)
 
 $AcceptedNodeTypes = "Standard_A3"
 
@@ -413,31 +414,37 @@ Write-Output ("Done creating all resources on your Azure account")
 New-SFTPSession -ComputerName $ComputerName -Credential $credentials -AcceptKey:$true
 $ssh = New-SSHSession -ComputerName $ComputerName -Credential $credentials -AcceptKey:$true
 
-
 Write-Output ("Invoking scripts")
-$PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat)
-
+Invoke-SSHCommand -SSHSession $ssh -Command 'export DEBIAN_FRONTEND=noninteractive'
+Write-Output ("Installing Python modules")
 Invoke-SSHCommand -SSHSession $ssh -Command 'pip install requests'
 Invoke-SSHCommand -SSHSession $ssh -Command 'pip install natsort'
 
+Write-Output ("Installing Microsoft .NET core")
+Invoke-SSHCommand -SSHSession $ssh -Command 'curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg'
+Invoke-SSHCommand -SSHSession $ssh -Command 'sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg'
+Invoke-SSHCommand -SSHSession $ssh -Command 'sudo sh -c ''echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-xenial-prod xenial main" > /etc/apt/sources.list.d/dotnetdev.list'''
 Invoke-SSHCommand -SSHSession $ssh -Command 'sudo apt-get update'
-Invoke-SSHCommand -SSHSession $ssh -Command 'sudo apt-get -y install dotnet-dev-1.1.4'
+Invoke-SSHCommand -SSHSession $ssh -Command 'sudo apt-get -y install dotnet-sdk-2.0.2' -timeout 600
+Invoke-SSHCommand -SSHSession $ssh -Command 'sudo apt-get -y install dotnet-dev-1.1.4' -timeout 600
 
-
+Write-Output ("Installing AZCopy")
 Invoke-SSHCommand -SSHSession $ssh -Command 'sudo wget -O azcopy.tar.gz https://aka.ms/downloadazcopyprlinux'
 Invoke-SSHCommand -SSHSession $ssh -Command 'sudo tar -xf azcopy.tar.gz'
 Invoke-SSHCommand -SSHSession $ssh -Command 'sudo ./install.sh'
 
+Write-Output ("Cloning GIT repo")
 Invoke-SSHCommand -SSHSession $ssh -Command 'git clone https://github.com/enjee/TPCH-framework'
 
-Invoke-SSHCommand -SSHSession $ssh -Command 'size=$1'
-Invoke-SSHCommand -SSHSession $ssh -Command 'sudo ./install.sh'
-Invoke-SSHCommand -SSHSession $ssh -Command 'sourceurl=''https://benchmarkdatasaxion.blob.core.windows.net/''$size''gb'''
-Invoke-SSHCommand -SSHSession $ssh -Command 'azcopy --source-key vKqcXAZEI5TjwfBYBjx9BCWzkzmf8hG4t4O3O0h7RQXPcUL6FVSrMamXq+2cS7Qe7h/oVJbv7sboi9JsKQbKJw== --source $sourceurl --destination ~/dataset --recursive'
+Write-Output ("Copy required datasets from central datastore")
+$SourceUrl = ('https://benchmarkdatasaxion.blob.core.windows.net/' + $Size + 'gb')
+$AzCopyCommand = ('azcopy --source-key vKqcXAZEI5TjwfBYBjx9BCWzkzmf8hG4t4O3O0h7RQXPcUL6FVSrMamXq+2cS7Qe7h/oVJbv7sboi9JsKQbKJw== --source ' + $SourceUrl + ' --destination ~/dataset --recursive')
+Invoke-SSHCommand -SSHSession $ssh -Command $AzCopyCommand
 
-
-
-Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand
+Write-Output ("Running the Python benchmark")
+$PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat + ' ' + $WorkerCount + ' ' + $WorkerNodeType + ' ' + $HeadNodeType)
+Invoke-SSHCommand -SSHSession $ssh -Command $PythonCHmodCommand -timeout 999999
+Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand -timeout 999999
 
 Remove-SFTPSession -SessionId 0
 Remove-SSHSession -SessionId 0
@@ -446,7 +453,7 @@ Write-Output ("Finished executing all scripts through ssh")
 Write-Output "$(Get-Date)"
 Write-Output ("Removing all earlier created resources from your Azure account")
 
-Remove-AzureRmResourceGroup -Name $resourceGroupName -Force
+#Remove-AzureRmResourceGroup -Name $resourceGroupName -Force
 
 Write-Output "$(Get-Date)"
 

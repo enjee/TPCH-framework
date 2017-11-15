@@ -8,13 +8,20 @@ use App\Models\Benchmark;
 use App\Models\Measurement;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Input;
 
 class BenchmarkController extends Controller
 {
     public function timeline()
     {
-        $benchmarks = Benchmark::with('measurements')->get()->reverse();
-        return view('timeline',['benchmarks'=>$benchmarks]);
+        $search_uuid  = Input::get('search_uuid');
+        if($search_uuid != null){
+            $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%".$search_uuid."%" )->get()->reverse();
+        }else{
+            $benchmarks = Benchmark::with('measurements')->get()->reverse();
+        }
+
+        return view('timeline',['benchmarks'=>$benchmarks, 'search_uuid'=>$search_uuid]);
     }
 
     public function api_timeline(){

@@ -99,6 +99,20 @@
     </style>
 </head>
 <body>
+
+    @section('searchbar')
+    <form method="get" action="/timeline" class="form-inline my-2 my-lg-0 mr-lg-2">
+        <div class="input-group">
+            <input name="search_uuid" class="form-control" type="text" placeholder="Search for..." value="{{$search_uuid}}">
+            <span class="input-group-btn">
+                    <button class="btn btn-primary" type="button">
+                      <i class="fa fa-search"></i>
+                    </button>
+                  </span>
+        </div>
+    </form>
+    @stop
+
     @section('content')
         <div class="panel panel-default">
 
