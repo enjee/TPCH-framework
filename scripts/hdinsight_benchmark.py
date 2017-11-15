@@ -107,6 +107,6 @@ for run in range(times):
 		end_time = time.time()
 		data['q' +str(query_num)] = str(round(end_time - start_time, 2))
 	log_file = open('benchmark_output.txt', 'rb').read()
-	data['log_file'] = log_file
+	data['log'] = log_file
 	r = requests.post(url, data = data)
 
