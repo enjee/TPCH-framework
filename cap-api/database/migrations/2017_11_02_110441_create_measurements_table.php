@@ -19,6 +19,7 @@ class CreateMeasurementsTable extends Migration
             $table->bigInteger('run');
             $table->string('uuid');
             $table->boolean('successful');
+            $table->string('log')->nullable();
             $table->bigInteger('q1');
             $table->bigInteger('q2');
             $table->bigInteger('q3');

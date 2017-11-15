@@ -18,6 +18,10 @@ class CreateBenchmarksTable extends Migration
             $table->timestamps();
             $table->string('uuid');
             $table->string('provider');
+            $table->string('head_node_type');
+            $table->string('head_node_count');
+            $table->string('worker_node_type');
+            $table->string('worker_node_count');
             $table->string('test_size');
 
         });

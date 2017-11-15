@@ -20,6 +20,10 @@ class BenchmarkSeeder extends Seeder
                 'updated_at' => Carbon::now(),
                 'uuid' => $uuid,
                 'provider' => 'azure',
+                'head_node_type' => 'A3',
+                'head_node_count' => '2',
+                'worker_node_type' => 'A1',
+                'worker_node_count' => random_int(1, 16),
                 'test_size' => random_int(1, 100) . ' GB'
             ]);
             for($i = 0; $i < 3; $i++){
@@ -27,7 +31,7 @@ class BenchmarkSeeder extends Seeder
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
                     'uuid' => $uuid,
-                    'run' => $i,
+                    'run' => $i + 1,
                     'successful' => true,
                     'q1' => random_int(0, 10000),
                     'q2' => random_int(0, 10000),

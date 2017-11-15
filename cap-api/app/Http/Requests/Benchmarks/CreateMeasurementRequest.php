@@ -3,7 +3,7 @@
 namespace App\Http\Requests\Benchmarks;
 
 use Illuminate\Foundation\Http\FormRequest;
-
+// DEPRECATED
 class CreateMeasurementRequest extends FormRequest
 {
     /**
