@@ -87,7 +87,7 @@ if r.status_code == 200:
 
 # Run .hive files and time every bechmark
 print "Starting the benchmark"
-hive_queries = natsorted(glob.glob("tpch_hive_queries/*.hive"))
+hive_queries = natsorted(glob.glob("TPCH-framework/scripts/tpch_hive_queries/*.hive"))
 run = 0
 
 for run in range(times):
@@ -102,7 +102,7 @@ for run in range(times):
 		query_num += 1
 		start_time = time.time()
 		#Run hive query
-		os.system('hive -f ' + query + ' >> benchmark_output.txt 2>&1')
+		os.system('hive -f ' + query + ' &>> benchmark_output.txt')
 		end_time = time.time()
 		data["q" +str(query_num)] = str(round(end_time - start_time, 2))
 	log_file = open('benchmark_output.txt', 'rb').read()
