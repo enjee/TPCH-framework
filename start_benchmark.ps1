@@ -268,6 +268,7 @@ $Form.BackColor = "#34bce5"
 $Form.TopMost = $true
 $Form.Width = 800
 $Form.Height = 300
+$Form.StartPosition = "CenterScreen"
 
 $start = New-Object system.windows.Forms.Button
 $start.BackColor = "#23f71b"
