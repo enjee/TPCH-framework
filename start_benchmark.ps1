@@ -442,7 +442,7 @@ Invoke-SSHCommand -SSHSession $ssh -Command 'git clone https://github.com/enjee/
 
 Write-Output ("Copy required datasets from central datastore")
 $SourceUrl = ('https://benchmarkdatasaxion.blob.core.windows.net/' + $Size + 'gb')
-$AzCopyCommand = ('azcopy --source-key vKqcXAZEI5TjwfBYBjx9BCWzkzmf8hG4t4O3O0h7RQXPcUL6FVSrMamXq+2cS7Qe7h/oVJbv7sboi9JsKQbKJw== --source ' + $SourceUrl + ' --destination ~/dataset --recursive')
+$AzCopyCommand = ('azcopy --source-key vKqcXAZEI5TjwfBYBjx9BCWzkzmf8hG4t4O3O0h7RQXPcUL6FVSrMamXq+2cS7Qe7h/oVJbv7sboi9JsKQbKJw== --source ' + $SourceUrl + ' --destination ~/dataset --recursive') -timeout 999999
 Invoke-SSHCommand -SSHSession $ssh -Command $AzCopyCommand
 
 Write-Output ("Running the Python benchmark")
