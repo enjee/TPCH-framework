@@ -71,7 +71,10 @@ $PythonFile = ($SftpPath + 'TPCH-framework/scripts/' + $PythonFileName)
 $PythonCHmodCommand = ('sudo chmod +x ' + $PythonFile)
 $PythonCommand = ('python ' + $PythonFile + ' ' + $random)
 
-$AcceptedNodeTypes = "Standard_A3"
+# Test variables
+$AllowedTestSizes = 1, 5, 10
+$MaxRepeatTest = 10
+$AcceptedNodeTypes = "Standard_A3", "Standard_A4", "Standard_A5", "Standard_D1", "Standard_D2", "Standard_D3", "Standard_D4", "Standard_D5"
 
 
 
@@ -125,6 +128,7 @@ $Form.BackColor = "#34bce5"
 $Form.TopMost = $true
 $Form.Width = 500
 $Form.Height = 600
+$Form.StartPosition = "CenterScreen"
 
 $start = New-Object system.windows.Forms.Button
 $start.BackColor = "#23f71b"
@@ -145,7 +149,6 @@ $worker_nodes_label.Font = "Microsoft Sans Serif,10"
 $Form.controls.Add($worker_nodes_label)
 
 $worker_nodes = New-Object system.windows.Forms.ListBox
-$worker_nodes.Text = "Standard_A3"
 $worker_nodes.Width = 150
 $worker_nodes.Height = 100
 $worker_nodes.location = new-object system.drawing.point(150,10)
@@ -155,6 +158,7 @@ for ($i = 0; $i -lt $PossibleNodes.Count ; $i++) {
         [void] $worker_nodes.Items.Add($AddName)
     }
 }
+$worker_nodes.SetSelected(0, $true)
 $Form.controls.Add($worker_nodes)
 
 $head_nodes_label = New-Object system.windows.Forms.Label
@@ -167,7 +171,6 @@ $head_nodes_label.Font = "Microsoft Sans Serif,10"
 $Form.controls.Add($head_nodes_label)
 
 $head_nodes = New-Object system.windows.Forms.ListBox
-$head_nodes.Text = "Standard_A3"
 $head_nodes.Width = 150
 $head_nodes.Height = 100
 $head_nodes.location = new-object system.drawing.point(150,120)
@@ -177,10 +180,10 @@ for ($i = 0; $i -lt $PossibleNodes.Count ; $i++) {
          [void] $head_nodes.Items.Add($AddName)
     }
 }
+$head_nodes.SetSelected(0, $true)
 $Form.controls.Add($head_nodes)
 
 $worker_count = New-Object system.windows.Forms.ListBox
-$worker_count.Text = "4"
 $worker_count.Width = 120
 $worker_count.Height = 60
 $worker_count.location = new-object system.drawing.point(150,250)
@@ -188,6 +191,7 @@ for ($i = 0; $i -le 3 ; $i++) {
     $AddCount = 2,4,8,16
     [void] $worker_count.Items.Add($AddCount[$i])
 }
+$worker_count.SetSelected(0, $true)
 $Form.controls.Add($worker_count)
 
 $worker_count_label = New-Object system.windows.Forms.Label
@@ -201,14 +205,14 @@ $Form.controls.Add($worker_count_label)
 
 
 $repeat_test_count = New-Object system.windows.Forms.ListBox
-$repeat_test_count.Text = "1"
 $repeat_test_count.Width = 120
 $repeat_test_count.Height = 60
 $repeat_test_count.location = new-object system.drawing.point(150,320)
-for ($i = 0; $i -le 9 ; $i++) {
-    $AddCount = 1,2,3,4,5,6,7,8,9,10
+for ($i = 0; $i -lt $MaxRepeatTest ; $i++) {
+    $AddCount = 1..$MaxRepeatTest
     [void] $repeat_test_count.Items.Add($AddCount[$i])
 }
+$repeat_test_count.SetSelected(0, $true)
 $Form.controls.Add($repeat_test_count)
 
 $repeat_test_count_label = New-Object system.windows.Forms.Label
@@ -221,14 +225,14 @@ $repeat_test_count_label.Font = "Microsoft Sans Serif,10"
 $Form.controls.Add($repeat_test_count_label)
 
 $test_size = New-Object system.windows.Forms.ListBox
-$test_size.Text = "1"
 $test_size.Width = 120
 $test_size.Height = 60
 $test_size.location = new-object system.drawing.point(150,390)
-for ($i = 0; $i -le 8 ; $i++) {
-    $AddCount = 1, 5, 10, 20, 50, 100, 200, 500, 1000
+for ($i = 0; $i -lt $AllowedTestSizes.Count ; $i++) {
+    $AddCount = $AllowedTestSizes
     [void] $test_size.Items.Add($AddCount[$i])
 }
+$test_size.SetSelected(0, $true)
 $Form.controls.Add($test_size)
 
 $test_size_label = New-Object system.windows.Forms.Label
@@ -253,8 +257,7 @@ $HeadNodeType = $head_nodes.Text
 $Repeat = $repeat_test_count.Text
 $Size = $test_size.Text
 
-
-
+Write-Output $Size
 
 
 Add-Type -AssemblyName System.Windows.Forms
@@ -458,4 +461,6 @@ Remove-AzureRmResourceGroup -Name $resourceGroupName -Force
 Write-Output "$(Get-Date)"
 
 
-read-Host -Prompt "Press Enter to exit"
+Write-Host "Press any key to exit ..."
+
+$x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
