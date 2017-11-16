@@ -4,3 +4,11 @@
 - Start PowerShell as administrator
 - type: *Set-ExecutionPolicy Unrestricted*
 - Apply settings
+
+### Running the script unattended
+Please be aware of the 'QuickEdit' mode, enabled by default in Powershell.
+This stalls all PowerShell scripts untill a key is pressed. To disable this mode:
+
+- Run a PowerShell scripts
+- Rightclick on the top bar > properties
+- Disable 'QuickEdit Mode' under 'Edit Options'
