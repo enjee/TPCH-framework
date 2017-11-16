@@ -13,8 +13,32 @@
                 @if($benchmark)
                     <div class="card-header"><i class="fa fa-area-chart"></i> Benchmark information</div>
                     <div class="card-body">
-                        <p>Benchmark ran on: {{$benchmark->provider}}</p>
-                        <p>Test size: {{$benchmark->test_size}}</p>
+                        <div class="row" style="color: #868e96">
+                            <div class="col-sm-3">
+                                <h6><i>Benchmark ran on</i></h6>
+                                <h4> {{$benchmark->provider}}</h4>
+                            </div>
+                            <div class="col-sm-3">
+                                <h6><i>Test size</i></h6>
+                                <h4> {{$benchmark->test_size}} GB</h4>
+                            </div>
+                            <div class="col-sm-3">
+                                <h6><i>Head node type</i></h6>
+                                <h4> {{$benchmark->head_node_type}}</h4>
+                            </div>
+                            <div class="col-sm-3">
+                                <h6><i>Head node count</i></h6>
+                                <h4> {{$benchmark->head_node_count}} head nodes</h4>
+                            </div>
+                            <div class="col-sm-3">
+                                <h6><i>Worker node type</i></h6>
+                                <h4> {{$benchmark->worker_node_type}}</h4>
+                            </div>
+                            <div class="col-sm-3">
+                                <h6><i>Worker node count</i></h6>
+                                <h4> {{$benchmark->worker_node_count}}</h4>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-footer small text-muted">Benchmark started at: {{$benchmark->created_at}}</div>
                 @endif
@@ -36,7 +60,7 @@
                                 @for($count = 1; $count < 23; $count++)
                                     <tr>
                                         <td><i> Query {{$count}}</i></td>
-                                        <td> {{ object_get($m, "q{$count}" ) }} milliseconds</td>
+                                        <td> {{ object_get($m, "q{$count}" ) }} seconds</td>
                                     </tr>
                                 @endfor
                                 </tbody>
