@@ -52,7 +52,7 @@ $clusterOS = "Linux"
 $clusterName = ($random + "cluster")
 $ComputerName = ($clusterName + "-ssh.azurehdinsight.net")
 $resourceGroupName = ($random + "group")
-$location = "westeurope"
+$location = "northeurope"
 $defaultStorageAccountName = ($random + "storage")
 
 
