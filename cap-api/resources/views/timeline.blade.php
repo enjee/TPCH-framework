@@ -153,7 +153,7 @@
             }
 
 
-            echo '<p>Average time of this benchmark: '. intval(array_sum($runtimes) / count($runtimes)).' milliseconds</p>
+            echo '<p>Average time of this benchmark: '. intval(array_sum($runtimes) / count($runtimes)).' seconds</p>
                           </table>
                           </div>
                           <div class="benchmark-runtimes" >';
@@ -163,7 +163,7 @@
                         <table style="width:100%">
                             <tr>
                                 <th>Total time of this run</th>
-                                <td>'. $runtimes[$i]. ' ms</td>
+                                <td>'. $runtimes[$i]. ' s</td>
                             </tr>
                         </table>
                     </div>
