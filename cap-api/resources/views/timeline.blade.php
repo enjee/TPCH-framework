@@ -152,22 +152,23 @@
                 $runindex++;
             }
 
-
-            echo '<p>Average time of this benchmark: '. gmdate("H:i:s",intval(array_sum($runtimes) / count($runtimes))).'</p>
+            if(count($runtimes) > 0) {
+                echo '<p>Average time of this benchmark: ' . gmdate("H:i:s", intval(array_sum($runtimes) / count($runtimes))) . '</p>
                           </table>
                           </div>
                           <div class="benchmark-runtimes" >';
-            for($i = 0; $i < count($runtimes); $i++){
-                echo '<div class="benchmark-run" time="' . $runtimes[$i] . '">Run Nr. '. ($i+1) . '
+                for ($i = 0; $i < count($runtimes); $i++) {
+                    echo '<div class="benchmark-run" time="' . $runtimes[$i] . '">Run Nr. ' . ($i + 1) . '
                 <div class="benchmark-details" >
                         <table style="width:100%">
                             <tr>
                                 <th>Total time of this run</th>
-                                <td>'. gmdate("H:i:s",$runtimes[$i]). '</td>
+                                <td>' . gmdate("H:i:s", $runtimes[$i]) . '</td>
                             </tr>
                         </table>
                     </div>
                 </div>';
+                }
             }
                              ?>
 
