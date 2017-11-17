@@ -28,6 +28,10 @@
                         <i class="fa fa-fw fa-dashboard"></i>
                         <span class="nav-link-text">Dashboard</span>
                     </a>
+                    <a class="nav-link" href="/analytics">
+                        <i class="fa fa-fw fa-bar-chart"></i>
+                        <span class="nav-link-text">Analytics</span>
+                    </a>
                     <a class="nav-link" href="https://github.com/enjee/TPCH-framework">
                         <i class="fa fa-fw fa-github"></i>
                         <span class="nav-link-text">Github</span>
