@@ -38,7 +38,7 @@ Route::get('/', '\App\Http\Controllers\Benchmarks\BenchmarkController@timeline')
 
 Route::get('/log/{uuid}/{run}', '\App\Http\Controllers\Benchmarks\BenchmarkController@log');
 
-Route::get('/analytics}', '\App\Http\Controllers\Benchmarks\BenchmarkController@analytics');
+Route::get('/analytics', '\App\Http\Controllers\Benchmarks\BenchmarkController@analytics');
 
 Route::get('/timeline', '\App\Http\Controllers\Benchmarks\BenchmarkController@timeline');
 
