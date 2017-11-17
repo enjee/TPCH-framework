@@ -47,7 +47,11 @@ class BenchmarkController extends Controller
             $runindex++;
         }
 
-        $average_time = array_sum($runtimes) / count($runtimes);
+        if(count($runtimes) > 0) {
+            $average_time = array_sum($runtimes) / count($runtimes);
+        }else{
+            $average_time = 0;
+        }
 
         return view('detailed', ['benchmark' => $benchmark, 'measurement' => $measurements, 'average_time' => $average_time]);
     }
