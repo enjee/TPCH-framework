@@ -131,11 +131,16 @@
                     </div>
                     <div class="timeline-body">
                         <p>Provider: {{ object_get($benchmark, "provider") }}</p>
+                        <p>Head node type: {{ object_get($benchmark, "head_node_type") }}</p>
+                        <p>Amount of head nodes: {{ object_get($benchmark, "head_node_count") }}</p>
+                        <p>Worker node type: {{ object_get($benchmark, "worker_node_type") }}</p>
+                        <p>Amount of worker nodes: {{ object_get($benchmark, "worker_node_count") }}</p>
                         <p>Test size: {{ object_get($benchmark, "test_size") }}</p>
 
 
             <?php
-            $runtimes = array(0,0,0);
+
+           $runtimes = array();
             $runindex = 0;
             foreach (object_get($benchmark, "measurements") as $measurement) {
                 $currentrun = 0;
@@ -143,12 +148,12 @@
                 for ($i = 0; $i < 22; $i++) {
                     $currentrun += object_get($measurement, "q{$i}" );
                 }
-                $runtimes[$runindex] = $currentrun;
+                array_push($runtimes, $currentrun);
                 $runindex++;
             }
 
 
-            echo '<p>Average time of this benchmark: '. intval(($runtimes[0] + $runtimes[1] + $runtimes[2])/3).' milliseconds</p>
+            echo '<p>Average time of this benchmark: '. intval(array_sum($runtimes) / count($runtimes)).' milliseconds</p>
                           </table>
                           </div>
                           <div class="benchmark-runtimes" >';

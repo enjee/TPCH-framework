@@ -9,6 +9,7 @@ use App\Models\Measurement;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Http\Response;
 
 class BenchmarkController extends Controller
 {
@@ -35,6 +36,12 @@ class BenchmarkController extends Controller
         $measurements = Measurement::where(['uuid' => $uuid])->get();
 
         return view('detailed', ['benchmark' => $benchmark, 'measurement' => $measurements]);
+    }
+
+    public function log($uuid, $run){
+        $measurement = $measurements = Measurement::where(['uuid' => $uuid])->where('run', '=', $run)->first();
+
+        return view('log', ['measurement' => $measurement]);
     }
 
     public function benchmark($uuid){
