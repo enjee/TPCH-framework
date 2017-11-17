@@ -103,7 +103,7 @@
         <div class="input-group">
             <input name="search_uuid" class="form-control" type="text" placeholder="Search for..." value="{{$search_uuid}}">
             <span class="input-group-btn">
-                    <button class="btn btn-primary" type="button">
+                    <button class="btn btn-primary" type="Submit">
                       <i class="fa fa-search"></i>
                     </button>
                   </span>
