@@ -35,7 +35,21 @@ class BenchmarkController extends Controller
         $benchmark = Benchmark::with('measurements')->where(['uuid' => $uuid])->first();
         $measurements = Measurement::where(['uuid' => $uuid])->get();
 
-        return view('detailed', ['benchmark' => $benchmark, 'measurement' => $measurements]);
+        $runtimes = array();
+        $runindex = 0;
+        foreach (object_get($benchmark, "measurements") as $measurement) {
+            $currentrun = 0;
+
+            for ($i = 0; $i < 22; $i++) {
+                $currentrun += object_get($measurement, "q{$i}" );
+            }
+            array_push($runtimes, $currentrun);
+            $runindex++;
+        }
+
+        $average_time = array_sum($runtimes) / count($runtimes);
+
+        return view('detailed', ['benchmark' => $benchmark, 'measurement' => $measurements, 'average_time' => $average_time]);
     }
 
     public function log($uuid, $run){

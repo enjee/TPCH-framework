@@ -130,12 +130,32 @@
                         </p>
                     </div>
                     <div class="timeline-body">
-                        <p>Provider: {{ object_get($benchmark, "provider") }}</p>
-                        <p>Head node type: {{ object_get($benchmark, "head_node_type") }}</p>
-                        <p>Amount of head nodes: {{ object_get($benchmark, "head_node_count") }}</p>
-                        <p>Worker node type: {{ object_get($benchmark, "worker_node_type") }}</p>
-                        <p>Amount of worker nodes: {{ object_get($benchmark, "worker_node_count") }}</p>
-                        <p>Test size: {{ object_get($benchmark, "test_size") }} GB</p>
+                        <div class="row" style="color: #868e96">
+                            <div class="col-sm-3">
+                                <h6><i>Benchmark ran on</i></h6>
+                                <h4> {{$benchmark->provider}}</h4>
+                            </div>
+                            <div class="col-sm-3">
+                                <h6><i>Test size</i></h6>
+                                <h4> {{$benchmark->test_size}} GB</h4>
+                            </div>
+                            <div class="col-sm-3">
+                                <h6><i>Head node type</i></h6>
+                                <h4> {{$benchmark->head_node_type}}</h4>
+                            </div>
+                            <div class="col-sm-3">
+                                <h6><i>Head node count</i></h6>
+                                <h4> {{$benchmark->head_node_count}} head nodes</h4>
+                            </div>
+                            <div class="col-sm-3">
+                                <h6><i>Worker node type</i></h6>
+                                <h4> {{$benchmark->worker_node_type}}</h4>
+                            </div>
+                            <div class="col-sm-3">
+                                <h6><i>Worker node count</i></h6>
+                                <h4> {{$benchmark->worker_node_count}} worker nodes</h4>
+                            </div>
+
 
 
             <?php
@@ -153,7 +173,7 @@
             }
 
             if(count($runtimes) > 0) {
-                echo '<p>Average time of this benchmark: ' . gmdate("H:i:s", intval(array_sum($runtimes) / count($runtimes))) . '</p>
+                echo '<div class="col-sm-3"> <h6><i>Average runtime</i></h6> <h4>'  . gmdate("H:i:s", intval(array_sum($runtimes) / count($runtimes))) . '</h4> </div>
                           </table>
                           </div>
                           <div class="benchmark-runtimes" >';

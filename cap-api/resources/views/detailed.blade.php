@@ -38,6 +38,12 @@
                                 <h6><i>Worker node count</i></h6>
                                 <h4> {{$benchmark->worker_node_count}} worker nodes</h4>
                             </div>
+                            <div class="col-sm-3">
+                                <h6><i>Average runtime</i></h6>
+                                <?php
+                                echo '<h4>' .  gmdate("H:i:s", $average_time) .  '</h4>'
+                                ?>
+                            </div>
                         </div>
                     </div>
                     <div class="card-footer small text-muted">Benchmark started at: {{$benchmark->created_at}}</div>
