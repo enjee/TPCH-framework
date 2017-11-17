@@ -7,6 +7,7 @@
 
         <title>TPCH-Benchmark</title>
         <link href="{{ asset('css/bootstrap.css') }}" rel="stylesheet">
+        <link href="{{ asset('css/chart.css') }}" rel="stylesheet">
         <!-- Custom fonts for this template-->
         <link href="{{ asset('font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css">
         <!-- Custom styles for this template-->
@@ -77,6 +78,7 @@
         <!-- Bootstrap core JavaScript-->
         <script src="{{ asset('jquery/jquery.min.js') }}"></script>
         <script src="{{ asset('js/bootstrap.bundle.js') }}"></script>
+        <script src="{{ asset('js/chart.js') }}"></script>
         <!-- Core plugin JavaScript-->
         <script src="{{ asset('jquery-easing/jquery.easing.min.js') }}"></script>
         <!-- Custom scripts for all pages-->
