@@ -132,28 +132,28 @@
                     <div class="timeline-body">
                         <div class="row" style="color: #868e96">
                             <div class="col-sm-3">
-                                <h6><i>Benchmark ran on</i></h6>
-                                <h4> {{$benchmark->provider}}</h4>
+                                <h7><i>Benchmark ran on</i></h7>
+                                <h6><b> {{$benchmark->provider}}</b></h6>
                             </div>
                             <div class="col-sm-3">
-                                <h6><i>Test size</i></h6>
-                                <h4> {{$benchmark->test_size}} GB</h4>
+                                <h7><i>Test size</i></h7>
+                                <h6><b> {{$benchmark->test_size}} GB</b></h6>
                             </div>
                             <div class="col-sm-3">
-                                <h6><i>Head node type</i></h6>
-                                <h4> {{$benchmark->head_node_type}}</h4>
+                                <h7><i>Head node type</i></h7>
+                                <h6><b> {{$benchmark->head_node_type}}</b></h6>
                             </div>
                             <div class="col-sm-3">
-                                <h6><i>Head node count</i></h6>
-                                <h4> {{$benchmark->head_node_count}} head nodes</h4>
+                                <h7><i>Head node count</i></h7>
+                                <h6><b> {{$benchmark->head_node_count}} head nodes</b></h6>
                             </div>
                             <div class="col-sm-3">
-                                <h6><i>Worker node type</i></h6>
-                                <h4> {{$benchmark->worker_node_type}}</h4>
+                                <h7><i>Worker node type</i></h7>
+                                <h6><b> {{$benchmark->worker_node_type}}</b></h6>
                             </div>
                             <div class="col-sm-3">
-                                <h6><i>Worker node count</i></h6>
-                                <h4> {{$benchmark->worker_node_count}} worker nodes</h4>
+                                <h7><i>Worker node count</i></h7>
+                                <h6><b> {{$benchmark->worker_node_count}} worker nodes</b></h6>
                             </div>
 
 
@@ -173,7 +173,7 @@
             }
 
             if(count($runtimes) > 0) {
-                echo '<div class="col-sm-3"> <h6><i>Average runtime</i></h6> <h4>'  . gmdate("H:i:s", intval(array_sum($runtimes) / count($runtimes))) . '</h4> </div>
+                echo '<div class="col-sm-3"> <h7><i>Average runtime</i></h7> <h6><b>'  . gmdate("H:i:s", intval(array_sum($runtimes) / count($runtimes))) . '</b></h6> </div>
                           </table>
                           </div>
                           <div class="benchmark-runtimes" >';
