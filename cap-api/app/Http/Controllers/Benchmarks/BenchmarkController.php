@@ -44,6 +44,10 @@ class BenchmarkController extends Controller
         return view('log', ['measurement' => $measurement]);
     }
 
+    public function analytics(){
+        return view('analytics');
+    }
+
     public function benchmark($uuid){
         $benchmark = Benchmark::with('measurements')->where('uuid', '=', $uuid)->first();
 
