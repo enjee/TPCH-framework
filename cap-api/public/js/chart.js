@@ -3,7 +3,7 @@ $(document).ready(function(){
 
     function columnChart(){
         var item = $('.chart', '.column-chart').find('.item'),
-            itemWidth = 100 / item.length;
+            itemWidth = 100 / 22;
         item.css('width', itemWidth + '%');
 
         $('.column-chart').find('.item-progress').each(function(){
