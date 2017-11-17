@@ -461,7 +461,7 @@ Remove-AzureRmResourceGroup -Name $resourceGroupName -Force
 
 Write-Output "$(Get-Date)"
 
-
+Write-Output ("Find your benchmark at: http://40.115.29.85:8000/detailed/" + $random)
 Write-Host "Press any key to exit ..."
 
 $x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
