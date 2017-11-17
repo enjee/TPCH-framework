@@ -36,7 +36,7 @@
                             </div>
                             <div class="col-sm-3">
                                 <h6><i>Worker node count</i></h6>
-                                <h4> {{$benchmark->worker_node_count}}</h4>
+                                <h4> {{$benchmark->worker_node_count}} worker nodes</h4>
                             </div>
                         </div>
                     </div>

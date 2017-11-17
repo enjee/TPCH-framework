@@ -103,7 +103,7 @@
         <div class="input-group">
             <input name="search_uuid" class="form-control" type="text" placeholder="Search for..." value="{{$search_uuid}}">
             <span class="input-group-btn">
-                    <button class="btn btn-primary" type="button">
+                    <button class="btn btn-primary" type="Submit">
                       <i class="fa fa-search"></i>
                     </button>
                   </span>
@@ -135,7 +135,7 @@
                         <p>Amount of head nodes: {{ object_get($benchmark, "head_node_count") }}</p>
                         <p>Worker node type: {{ object_get($benchmark, "worker_node_type") }}</p>
                         <p>Amount of worker nodes: {{ object_get($benchmark, "worker_node_count") }}</p>
-                        <p>Test size: {{ object_get($benchmark, "test_size") }}</p>
+                        <p>Test size: {{ object_get($benchmark, "test_size") }} GB</p>
 
 
             <?php
@@ -152,22 +152,23 @@
                 $runindex++;
             }
 
-
-            echo '<p>Average time of this benchmark: '. intval(array_sum($runtimes) / count($runtimes)).' milliseconds</p>
+            if(count($runtimes) > 0) {
+                echo '<p>Average time of this benchmark: ' . gmdate("H:i:s", intval(array_sum($runtimes) / count($runtimes))) . '</p>
                           </table>
                           </div>
                           <div class="benchmark-runtimes" >';
-            for($i = 0; $i < count($runtimes); $i++){
-                echo '<div class="benchmark-run" time="' . $runtimes[$i] . '">Run Nr. '. ($i+1) . '
+                for ($i = 0; $i < count($runtimes); $i++) {
+                    echo '<div class="benchmark-run" time="' . $runtimes[$i] . '">Run Nr. ' . ($i + 1) . '
                 <div class="benchmark-details" >
                         <table style="width:100%">
                             <tr>
                                 <th>Total time of this run</th>
-                                <td>'. $runtimes[$i]. ' ms</td>
+                                <td>' . gmdate("H:i:s", $runtimes[$i]) . '</td>
                             </tr>
                         </table>
                     </div>
                 </div>';
+                }
             }
                              ?>
 

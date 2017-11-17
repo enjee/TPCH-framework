@@ -49,13 +49,6 @@
     </nav>
     <div class="content-wrapper">
         <div class="container-fluid">
-            <!-- Breadcrumbs-->
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    <a href="/timeline">Dashboard</a>
-                </li>
-                <li class="breadcrumb-item active">Blank Page</li>
-            </ol>
             @section('content')
 
             @show
