@@ -135,7 +135,7 @@
                         <p>Amount of head nodes: {{ object_get($benchmark, "head_node_count") }}</p>
                         <p>Worker node type: {{ object_get($benchmark, "worker_node_type") }}</p>
                         <p>Amount of worker nodes: {{ object_get($benchmark, "worker_node_count") }}</p>
-                        <p>Test size: {{ object_get($benchmark, "test_size") }}</p>
+                        <p>Test size: {{ object_get($benchmark, "test_size") }} GB</p>
 
 
             <?php
