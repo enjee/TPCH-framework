@@ -21,7 +21,7 @@ function setWidth(benchmark){
     }
     for (var i = 0; i < $(children).length; i++){
         var percentage = ($(children[i]).attr('time') / maxtime) * 100;
-        $(children[i]).attr('style', 'width:' +percentage +  '%; background-color:rgb(' +parseInt(percentage* 175 / 100, 10  ) + ', ' +parseInt(percentage* 255 / 100, 10  ) + ', ' +parseInt(percentage* 175 / 100, 10  ) + ');');
+        $(children[i]).attr('style', 'width:' +percentage +  '%; background-color:rgb(10, ' +parseInt((160 - percentage)* 255 / 100, 10  ) + ', 10);');
 
     }
 
