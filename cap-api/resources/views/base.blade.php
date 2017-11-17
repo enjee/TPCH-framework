@@ -26,7 +26,7 @@
                 <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
                     <a class="nav-link" href="/timeline">
                         <i class="fa fa-fw fa-dashboard"></i>
-                        <span class="nav-link-text">Dashboard</span>
+                        <span class="nav-link-text">Timeline</span>
                     </a>
                     <a class="nav-link" href="/analytics">
                         <i class="fa fa-fw fa-bar-chart"></i>
