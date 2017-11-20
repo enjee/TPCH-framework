@@ -72,7 +72,7 @@ $PythonCHmodCommand = ('sudo chmod +x ' + $PythonFile)
 $PythonCommand = ('python ' + $PythonFile + ' ' + $random)
 
 # Test variables
-$AllowedTestSizes = 1, 5, 10
+$AllowedTestSizes = 1, 5, 10, 100
 $MaxRepeatTest = 10
 $AcceptedNodeTypes = "Standard_A3", "Standard_A4", "Standard_A5", "Standard_D1", "Standard_D2", "Standard_D3", "Standard_D4", "Standard_D5"
 
