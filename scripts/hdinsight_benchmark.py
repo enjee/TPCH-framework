@@ -16,57 +16,57 @@ head_node_count = 2
 
 #place the data files into hadoop
 print "Creating all Hadoop directories"
-print "Creating /" + test_size + "gb_tpch/"
-os.system("hadoop   fs -mkdir -p /" + test_size + "gb_tpch/")
-print "Creating /" + test_size + "gb_tpch/customer"
-os.system("hadoop   fs -mkdir -p /" + test_size + "gb_tpch/customer")
-print "Creating /" + test_size + "gb_tpch/lineitem"
-os.system("hadoop   fs -mkdir -p /" + test_size + "gb_tpch/lineitem")
-print "Creating /" + test_size + "gb_tpch/nation"
-os.system("hadoop   fs -mkdir -p /" + test_size + "gb_tpch/nation")
-print "Creating /" + test_size + "gb_tpch/orders"
-os.system("hadoop   fs -mkdir -p /" + test_size + "gb_tpch/orders")
-print "Creating /" + test_size + "gb_tpch/part"
-os.system("hadoop   fs -mkdir -p /" + test_size + "gb_tpch/part")
-print "Creating /" + test_size + "gb_tpch/partsupp"
-os.system("hadoop   fs -mkdir -p /" + test_size + "gb_tpch/partsupp")
-print "Creating /" + test_size + "gb_tpch/region"
-os.system("hadoop   fs -mkdir -p /" + test_size + "gb_tpch/region")
-print "Creating /" + test_size + "gb_tpch/supplier"
-os.system("hadoop   fs -mkdir -p /" + test_size + "gb_tpch/supplier")
+print "Creating /tpch/"
+os.system("hadoop   fs -mkdir -p /tpch/")
+print "Creating /tpch/customer"
+os.system("hadoop   fs -mkdir -p /tpch/customer")
+print "Creating /tpch/lineitem"
+os.system("hadoop   fs -mkdir -p /tpch/lineitem")
+print "Creating /tpch/nation"
+os.system("hadoop   fs -mkdir -p /tpch/nation")
+print "Creating /tpch/orders"
+os.system("hadoop   fs -mkdir -p /tpch/orders")
+print "Creating /tpch/part"
+os.system("hadoop   fs -mkdir -p /tpch/part")
+print "Creating /tpch/partsupp"
+os.system("hadoop   fs -mkdir -p /tpch/partsupp")
+print "Creating /tpch/region"
+os.system("hadoop   fs -mkdir -p /tpch/region")
+print "Creating /tpch/supplier"
+os.system("hadoop   fs -mkdir -p /tpch/supplier")
 
 print "Place all tables into the Hadoop cluster"
-os.system("hadoop   fs -rm -f /" + test_size + "gb_tpch/customer/customer.tbl")
-print "Placing customer table into /" + test_size + "gb_tpch/customer/"
-os.system("hadoop   fs -copyFromLocal ~/dataset/customer.tbl /" + test_size + "gb_tpch/customer/")
+os.system("hadoop   fs -rm -f /tpch/customer/customer.tbl")
+print "Placing customer table into /tpch/customer/"
+os.system("hadoop   fs -copyFromLocal ~/dataset/customer.tbl /tpch/customer/")
 
-os.system("hadoop   fs -rm -f /" + test_size + "gb_tpch/lineitem/lineitem.tbl")
-print "Placing lineitem table into /" + test_size + "gb_tpch/lineitem/"
-os.system("hadoop   fs -copyFromLocal ~/dataset/lineitem.tbl /" + test_size + "gb_tpch/lineitem/")
+os.system("hadoop   fs -rm -f /tpch/lineitem/lineitem.tbl")
+print "Placing lineitem table into /tpch/lineitem/"
+os.system("hadoop   fs -copyFromLocal ~/dataset/lineitem.tbl /tpch/lineitem/")
 
-os.system("hadoop   fs -rm -f /" + test_size + "gb_tpch/nation/nation.tbl")
-print "Placing nation table into /" + test_size + "gb_tpch/nation/"
-os.system("hadoop   fs -copyFromLocal ~/dataset/nation.tbl /" + test_size + "gb_tpch/nation/")
+os.system("hadoop   fs -rm -f /tpch/nation/nation.tbl")
+print "Placing nation table into /tpch/nation/"
+os.system("hadoop   fs -copyFromLocal ~/dataset/nation.tbl /tpch/nation/")
 
-os.system("hadoop   fs -rm -f /" + test_size + "gb_tpch/orders/orders.tbl")
-print "Placing orders table into /" + test_size + "gb_tpch/orders/"
-os.system("hadoop   fs -copyFromLocal ~/dataset/orders.tbl /" + test_size + "gb_tpch/orders/")
+os.system("hadoop   fs -rm -f /tpch/orders/orders.tbl")
+print "Placing orders table into /tpch/orders/"
+os.system("hadoop   fs -copyFromLocal ~/dataset/orders.tbl /tpch/orders/")
 
-os.system("hadoop   fs -rm -f /" + test_size + "gb_tpch/part/part.tbl")
-print "Placing part table into /" + test_size + "gb_tpch/part/"
-os.system("hadoop   fs -copyFromLocal ~/dataset/part.tbl /" + test_size + "gb_tpch/part/")
+os.system("hadoop   fs -rm -f /tpch/part/part.tbl")
+print "Placing part table into /tpch/part/"
+os.system("hadoop   fs -copyFromLocal ~/dataset/part.tbl /tpch/part/")
 
-os.system("hadoop   fs -rm -f /" + test_size + "gb_tpch/partsupp/partsupp.tbl")
-print "Placing partsupp table into /" + test_size + "gb_tpch/partsupp/"
-os.system("hadoop   fs -copyFromLocal ~/dataset/partsupp.tbl /" + test_size + "gb_tpch/partsupp/")
+os.system("hadoop   fs -rm -f /tpch/partsupp/partsupp.tbl")
+print "Placing partsupp table into /tpch/partsupp/"
+os.system("hadoop   fs -copyFromLocal ~/dataset/partsupp.tbl /tpch/partsupp/")
 
-os.system("hadoop   fs -rm -f /" + test_size + "gb_tpch/region/region.tbl")
-print "Placing region table into /" + test_size + "gb_tpch/region/"
-os.system("hadoop   fs -copyFromLocal ~/dataset/region.tbl /" + test_size + "gb_tpch/region/")
+os.system("hadoop   fs -rm -f /tpch/region/region.tbl")
+print "Placing region table into /tpch/region/"
+os.system("hadoop   fs -copyFromLocal ~/dataset/region.tbl /tpch/region/")
 
-os.system("hadoop   fs -rm -f /" + test_size + "gb_tpch/supplier/supplier.tbl")
-print "Placing supplier table into /" + test_size + "gb_tpch/supplier/"
-os.system("hadoop   fs -copyFromLocal ~/dataset/supplier.tbl /" + test_size + "gb_tpch/supplier/")
+os.system("hadoop   fs -rm -f /tpch/supplier/supplier.tbl")
+print "Placing supplier table into /tpch/supplier/"
+os.system("hadoop   fs -copyFromLocal ~/dataset/supplier.tbl /tpch/supplier/")
 
 
 print "Removing generated tables from the local directory"
