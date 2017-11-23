@@ -486,7 +486,9 @@ footer.sticky-footer {
   }
 
   ul.timeline > li > .timeline-panel {
-    float: right;
+    float: left;
+    left: 85px;
+    width: 250px;
   }
 
   ul.timeline > li > .timeline-panel:before {
