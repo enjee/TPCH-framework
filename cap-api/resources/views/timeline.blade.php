@@ -101,7 +101,7 @@
     @section('searchbar')
     <form method="get" action="/timeline" class="form-inline my-2 my-lg-0 mr-lg-2">
         <div class="input-group">
-            <input name="search_uuid" class="form-control" type="text" placeholder="Search for..." value="{{$search_uuid}}">
+            <input name="search_uuid_tag" class="form-control" type="text" placeholder="Search on tag/uuid..." value="{{$search_uuid_tag}}">
             <span class="input-group-btn">
                     <button class="btn btn-primary" type="Submit">
                       <i class="fa fa-search"></i>
@@ -155,9 +155,10 @@
                                 <h7><i>Worker node count</i></h7>
                                 <h6><b> {{$benchmark->worker_node_count}} worker nodes</b></h6>
                             </div>
-
-
-
+                            <div class="col-sm-3">
+                                <h7><i>Tag</i></h7>
+                                <h6><b> #{{$benchmark->tag}}</b></h6>
+                            </div>
             <?php
 
            $runtimes = array();

@@ -13,6 +13,7 @@ worker_node_count = sys.argv[4]
 worker_node_type = sys.argv[5]
 head_node_type = sys.argv[6]
 head_node_count = 2
+tag = sys.argv[7]
 
 #place the data files into hadoop
 print "Creating all Hadoop directories"
@@ -78,7 +79,7 @@ print "Finished generating tables and storing them in the hadoop filesystem"
 
 
 url = 'http://40.115.29.85:8000/api/benchmark/new'
-data = {"uuid": uuid,"provider":"Azure", "test_size": test_size, "head_node_type": head_node_type, "head_node_count": head_node_count, "worker_node_type": worker_node_type, "worker_node_count": worker_node_count}
+data = {"uuid": uuid,"provider":"Azure", "test_size": test_size, "head_node_type": head_node_type, "head_node_count": head_node_count, "worker_node_type": worker_node_type, "worker_node_count": worker_node_count, "tag": tag}
 r = requests.post(url, data = data)
 
 if r.status_code == 200:

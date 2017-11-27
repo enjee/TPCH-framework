@@ -15,14 +15,14 @@ class BenchmarkController extends Controller
 {
     public function timeline()
     {
-        $search_uuid  = Input::get('search_uuid');
-        if($search_uuid != null){
-            $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%".$search_uuid."%" )->get()->reverse();
+        $search_uuid_tag  = Input::get('search_uuid_tag');
+        if($search_uuid_tag != null){
+            $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%".$search_uuid_tag."%" )->orWhere('tag', 'LIKE', "%".$search_uuid_tag."%" )->get()->reverse();
         }else{
             $benchmarks = Benchmark::with('measurements')->get()->reverse();
         }
 
-        return view('timeline',['benchmarks'=>$benchmarks, 'search_uuid'=>$search_uuid]);
+        return view('timeline',['benchmarks'=>$benchmarks, 'search_uuid_tag'=>$search_uuid_tag]);
     }
 
     public function api_timeline(){
@@ -103,6 +103,7 @@ class BenchmarkController extends Controller
                 $benchmark->worker_node_type = $request->worker_node_type;
                 $benchmark->worker_node_count = $request->worker_node_count;
                 $benchmark->test_size =$request->test_size;
+                $benchmark->tag = $request->tag;
             }
 
         }else{
@@ -121,6 +122,7 @@ class BenchmarkController extends Controller
                 $benchmark->worker_node_type = $data['worker_node_type'];
                 $benchmark->worker_node_count = $data['worker_node_count'];
                 $benchmark->test_size = $data['test_size'];
+                $benchmark->tag = $data['tag'];
             }
         }
 

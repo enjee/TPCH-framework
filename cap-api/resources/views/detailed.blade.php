@@ -39,6 +39,10 @@
                         <h4> {{$benchmark->worker_node_count}} worker nodes</h4>
                     </div>
                     <div class="col-sm-3">
+                        <h6><i>Tag</i></h6>
+                        <h4> #{{$benchmark->tag}}</h4>
+                    </div>
+                    <div class="col-sm-3">
                         <h6><i>Average runtime</i></h6>
                         <?php
                         echo '<h4>' . gmdate("H:i:s", $average_time) . '</h4>'

@@ -24,7 +24,8 @@ class BenchmarkSeeder extends Seeder
                 'head_node_count' => '2',
                 'worker_node_type' => 'A1',
                 'worker_node_count' => random_int(1, 16),
-                'test_size' => random_int(1, 100)
+                'test_size' => random_int(1, 100),
+                'tag' => 'test_tag'
             ]);
             for($i = 0; $i < 3; $i++){
                 DB::table('measurements')->insert([

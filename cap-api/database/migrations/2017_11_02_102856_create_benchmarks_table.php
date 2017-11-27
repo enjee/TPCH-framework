@@ -23,6 +23,7 @@ class CreateBenchmarksTable extends Migration
             $table->string('worker_node_type');
             $table->string('worker_node_count');
             $table->string('test_size');
+            $table->string('tag');
 
         });
     }
