@@ -9,7 +9,6 @@ class Benchmark extends Model
 {
     protected $table = 'benchmarks';
     protected $fillable = ['uuid', 'provider', 'test_size'];
-    protected $hidden = ['uuid'];
 
     public function measurements(){
         return $this->hasMany(Measurement::class, 'uuid', 'uuid');
