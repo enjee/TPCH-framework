@@ -36,6 +36,10 @@ Route::get('/benchmark', function () {
 
 Route::get('/', '\App\Http\Controllers\Benchmarks\BenchmarkController@timeline');
 
+Route::get('/api/search/{search}', '\App\Http\Controllers\Benchmarks\BenchmarkController@search');
+
+Route::get('/api/download/{search}', '\App\Http\Controllers\Benchmarks\BenchmarkController@download');
+
 Route::get('/log/{uuid}/{run}', '\App\Http\Controllers\Benchmarks\BenchmarkController@log');
 
 Route::get('/analytics', '\App\Http\Controllers\Benchmarks\BenchmarkController@analytics');

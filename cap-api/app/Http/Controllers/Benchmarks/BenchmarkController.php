@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 class BenchmarkController extends Controller
 {
@@ -217,4 +218,29 @@ class BenchmarkController extends Controller
             return response()->json('measurement not found', 404);
         }
     }
+
+    public function search($search){
+    $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%".$search."%" )->orWhere('tag', 'LIKE', "%".$search."%" )->get();
+
+    if($benchmarks){
+        return response()->json($benchmarks, 200);
+    } else {
+        return response()->json('benchmark not found', 404);
+    }
+}
+
+    public function download($search){
+        $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%".$search."%" )->orWhere('tag', 'LIKE', "%".$search."%" )->get();
+        $filename = $search . '.json';
+        if($benchmarks){
+            Storage::put($filename, $benchmarks->toJson());
+
+            $path = storage_path('/app/' . $filename);
+
+            return response()->download($path, $filename)->deleteFileAfterSend(true);
+        } else {
+            return response()->json('benchmark not found', 404);
+        }
+    }
+
 }
