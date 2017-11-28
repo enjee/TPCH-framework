@@ -219,8 +219,12 @@ class BenchmarkController extends Controller
         }
     }
 
-    public function search($search){
-    $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%".$search."%" )->orWhere('tag', 'LIKE', "%".$search."%" )->get();
+    public function search($search = null){
+        if($search){
+            $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%".$search."%" )->orWhere('tag', 'LIKE', "%".$search."%" )->get();
+        }else{
+            $benchmarks = Benchmark::with('measurements')->get();
+        }
 
     if($benchmarks){
         return response()->json($benchmarks, 200);
@@ -229,9 +233,16 @@ class BenchmarkController extends Controller
     }
 }
 
-    public function download($search){
-        $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%".$search."%" )->orWhere('tag', 'LIKE', "%".$search."%" )->get();
-        $filename = $search . '.json';
+    public function download($search = null){
+        if($search){
+            $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%".$search."%" )->orWhere('tag', 'LIKE', "%".$search."%" )->get();
+            $filename = $search . '.json';
+        }else{
+            $benchmarks = Benchmark::with('measurements')->get();
+            $filename = 'benchmarks.json';
+        }
+
+
         if($benchmarks){
             Storage::put($filename, $benchmarks->toJson());
 
