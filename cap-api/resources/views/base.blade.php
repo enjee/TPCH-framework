@@ -47,7 +47,7 @@
                 </li>
             </ul>
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
+                <li class="nav-item" style="display: -webkit-box">
                     @section('searchbar')
 
                     @show
