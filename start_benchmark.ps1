@@ -75,6 +75,7 @@ $PythonCommand = ('python ' + $PythonFile + ' ' + $random)
 $AllowedTestSizes = 1, 5, 10, 100
 $MaxRepeatTest = 10
 $AcceptedNodeTypes = "Standard_A3", "Standard_A4", "Standard_A5", "Standard_D3", "Standard_D4", "Standard_D5"
+$Tag = "no-tag"
 
 
 
@@ -244,6 +245,24 @@ $test_size_label.location = new-object system.drawing.point(8,390)
 $test_size_label.Font = "Microsoft Sans Serif,10"
 $Form.controls.Add($test_size_label)
 
+$tag_label = New-Object system.windows.Forms.Label
+$tag_label.Text = "Add tag to benchmark:"
+$tag_label.AutoSize = $true
+$tag_label.Width = 25
+$tag_label.Height = 10
+$tag_label.location = new-object system.drawing.point(8,460)
+$tag_label.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($tag_label)
+
+$tag_box = New-Object system.windows.Forms.TextBox
+$tag_box.Width = 100
+$tag_box.Height = 20
+$tag_box.Text = "no-tag"
+$tag_box.location = new-object system.drawing.point(150,460)
+$tag_box.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($tag_box)
+
+
 
 $start.Add_Click({
     $form.Close()
@@ -256,6 +275,7 @@ $WorkerNodeType = $worker_nodes.Text
 $HeadNodeType = $head_nodes.Text
 $Repeat = $repeat_test_count.Text
 $Size = $test_size.Text
+$Tag = $tag_box.Text  -replace '\s','-'
 
 Write-Output $Size
 
@@ -267,7 +287,7 @@ $Form.Text = "TPCH Benchmark on Azure"
 $Form.BackColor = "#34bce5"
 $Form.TopMost = $true
 $Form.Width = 800
-$Form.Height = 300
+$Form.Height = 340
 $Form.StartPosition = "CenterScreen"
 
 $start = New-Object system.windows.Forms.Button
@@ -275,7 +295,7 @@ $start.BackColor = "#23f71b"
 $start.Text = "Accept and Start"
 $start.Width = 141
 $start.Height = 29
-$start.location = new-object system.drawing.point(300,220)
+$start.location = new-object system.drawing.point(300,240)
 $start.Font = "Microsoft Sans Serif,10,style=Bold"
 $Form.controls.Add($start)
 
@@ -334,11 +354,20 @@ $header_lbl.Font = "Microsoft Sans Serif,10"
 $Form.controls.Add($header_lbl)
 
 $header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "Benchmark tag: " + $Tag
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(9,160)
+$header_lbl.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
 $header_lbl.Text = "At the end of this script, the resources will be removed. Please check if this succeeded to prevent unexpected costs."
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,180)
+$header_lbl.location = new-object system.drawing.point(9,200)
 $header_lbl.Font = "Microsoft Sans Serif,10"
 $Form.controls.Add($header_lbl)
 
@@ -446,7 +475,7 @@ $AzCopyCommand = ('azcopy --source-key vKqcXAZEI5TjwfBYBjx9BCWzkzmf8hG4t4O3O0h7R
 Invoke-SSHCommand -SSHSession $ssh -Command $AzCopyCommand -timeout 999999
 
 Write-Output ("Running the Python benchmark")
-$PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat + ' ' + $WorkerCount + ' ' + $WorkerNodeType + ' ' + $HeadNodeType)
+$PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat + ' ' + $WorkerCount + ' ' + $WorkerNodeType + ' ' + $HeadNodeType + ' ' + $Tag)
 Invoke-SSHCommand -SSHSession $ssh -Command $PythonCHmodCommand -timeout 999999
 Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand -timeout 999999
 
