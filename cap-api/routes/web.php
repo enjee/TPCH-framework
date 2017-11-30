@@ -40,6 +40,8 @@ Route::get('/api/search/{search?}', '\App\Http\Controllers\Benchmarks\BenchmarkC
 
 Route::get('/api/download/{search?}', '\App\Http\Controllers\Benchmarks\BenchmarkController@download');
 
+Route::get('/api/csv/{search?}', '\App\Http\Controllers\Benchmarks\BenchmarkController@download_csv');
+
 Route::get('/log/{uuid}/{run}', '\App\Http\Controllers\Benchmarks\BenchmarkController@log');
 
 Route::get('/analytics', '\App\Http\Controllers\Benchmarks\BenchmarkController@analytics');
