@@ -11,6 +11,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
+use League\Csv\Writer;
+use SplTempFileObject;
 
 class BenchmarkController extends Controller
 {
@@ -243,12 +245,73 @@ class BenchmarkController extends Controller
         }
 
 
-        if($benchmarks){
+        if(count($benchmarks) > 0){
             Storage::put($filename, $benchmarks->toJson());
 
             $path = storage_path('/app/' . $filename);
 
             return response()->download($path, $filename)->deleteFileAfterSend(true);
+        } else {
+            return response()->json('benchmark not found', 404);
+        }
+    }
+
+    public function download_csv($search = null){
+        if($search){
+            $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%".$search."%" )->orWhere('tag', 'LIKE', "%".$search."%" )->get();
+            $filename = $search . '.csv';
+        }else{
+            $benchmarks = Benchmark::with('measurements')->get();
+            $filename = 'benchmarks.csv';
+        }
+
+        if(count($benchmarks) > 0){
+
+            $csv = Writer::createFromFileObject(new SplTempFileObject());
+
+
+            $measurement1 = $benchmarks[0]->measurements()->get();
+
+            if(count($measurement1) == 0){
+                return response()->json('Benchmark contains no measurements, csv cannot be provided', 500);
+            }
+
+            $header_measurements = array_keys($measurement1[0]->toArray());
+
+            $benchmark1 = $benchmarks[0];
+
+
+            unset($benchmark1['measurements']);
+            unset($benchmark1['id']);
+            unset($benchmark1['created_at']);
+            unset($benchmark1['updated_at']);
+            unset($benchmark1['uuid']);
+
+            $header_benchmark = array_keys($benchmark1->toArray());
+
+
+            $headers = array_merge($header_measurements, $header_benchmark);
+
+            $csv->insertOne($headers);
+
+            foreach($measurement1 as $m){
+                $csv->insertOne(array_merge($m->toArray(), $benchmark1->toArray()));
+            }
+
+            foreach($benchmarks as $benchmark){
+                $data_measurements = $benchmark->measurements()->get();
+                unset($benchmark['measurements']);
+                unset($benchmark['id']);
+                unset($benchmark['created_at']);
+                unset($benchmark['updated_at']);
+                unset($benchmark['uuid']);
+                $data = $benchmark->toArray();
+                foreach($data_measurements as $measurement){
+                    $csv->insertOne(array_merge($measurement->toArray(), $data));
+                }
+            }
+
+            $csv->output($filename);
         } else {
             return response()->json('benchmark not found', 404);
         }
