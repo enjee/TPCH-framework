@@ -15,7 +15,7 @@ head_node_type = sys.argv[6]
 head_node_count = 2
 tag = sys.argv[7]
 
-url = '52.169.163.208/api/benchmark/new'
+url = 'http://52.169.163.208/api/benchmark/new'
 data = {"uuid": uuid, "provider": "Azure", "test_size": test_size, "head_node_type": head_node_type,
         "head_node_count": head_node_count, "worker_node_type": worker_node_type,
         "worker_node_count": worker_node_count, "tag": tag}
