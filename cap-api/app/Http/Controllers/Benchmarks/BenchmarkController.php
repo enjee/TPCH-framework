@@ -255,7 +255,9 @@ class BenchmarkController extends Controller
         }
 
 
+
         if (count($benchmarks) > 0) {
+          
             Storage::put($filename, $benchmarks->toJson());
 
             $path = storage_path('/app/' . $filename);
@@ -276,6 +278,7 @@ class BenchmarkController extends Controller
             $filename = 'benchmarks.csv';
         }
 
+
         if (count($benchmarks) > 0) {
 
             $csv = Writer::createFromFileObject(new SplTempFileObject());
@@ -283,14 +286,18 @@ class BenchmarkController extends Controller
 
             $measurement1 = $benchmarks[0]->measurements()->get();
 
+
             if (count($measurement1) == 0) {
+
                 return response()->json('Benchmark contains no measurements, csv cannot be provided', 500);
             }
 
             $header_measurements = array_keys($measurement1[0]->toArray());
+
             if (($key = array_search('log', $header_measurements)) !== false) {
                 unset($header_measurements[$key]);
             }
+
             $benchmark1 = $benchmarks[0];
 
 
@@ -307,12 +314,14 @@ class BenchmarkController extends Controller
 
             $csv->insertOne($headers);
 
+
             foreach ($measurement1 as $m) {
                 unset($m['log']);
                 $csv->insertOne(array_merge($m->toArray(), $benchmark1->toArray()));
             }
 
             foreach ($benchmarks as $benchmark) {
+
                 $data_measurements = $benchmark->measurements()->get();
                 unset($benchmark['measurements']);
                 unset($benchmark['id']);
@@ -320,8 +329,10 @@ class BenchmarkController extends Controller
                 unset($benchmark['updated_at']);
                 unset($benchmark['uuid']);
                 $data = $benchmark->toArray();
+
                 foreach ($data_measurements as $measurement) {
                     unset($measurement['log']);
+
                     $csv->insertOne(array_merge($measurement->toArray(), $data));
                 }
             }
