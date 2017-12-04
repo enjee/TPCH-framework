@@ -93,7 +93,7 @@ run = 0
 
 for run in range(times):
 	log_file = open("benchmark_output.txt", "w")
-	url = 'http://40.115.29.85:8000/api/measurement/new'
+	url = 'http://52.169.163.208/api/measurement/new'
 	data = {"successful":"1", "uuid": str(uuid)}
 	query_num = 0
 	run += 1
