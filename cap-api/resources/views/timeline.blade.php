@@ -109,7 +109,7 @@
                   </span>
         </div>
     </form>
-    <a class="btn btn-info" href="/api/download/{{$search_uuid_tag}}"><i class="fa fa-download"></i></a>
+    <a class="btn btn-info" href="/api/csv/{{$search_uuid_tag}}"><i class="fa fa-download"></i></a>
 
 
     @stop
