@@ -100,6 +100,11 @@ for run in range(times):
 	data["run"] = str(run)
 	for query in hive_queries:
 		print "Starting benchmark"+ query
+		with open(query, 'r') as file :
+			filedata = file.read()
+		newdata = filedata.replace("size_placeholder", test_size)
+		with open(query, 'w') as file:
+			file.write(newdata)
 		query_num += 1
 		start_time = time.time()
 		#Run hive query
