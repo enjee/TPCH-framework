@@ -468,11 +468,11 @@ Write-Output ("Finished executing all scripts through ssh")
 Write-Output "$(Get-Date)"
 Write-Output ("Removing all earlier created resources from your Azure account")
 
-Remove-AzureRmResourceGroup -Name $resourceGroupName -Force
+#Remove-AzureRmResourceGroup -Name $resourceGroupName -Force
 
 Write-Output "$(Get-Date)"
 
-Write-Output ("Find your benchmark at: http://40.115.29.85:8000/detailed/" + $random)
+Write-Output ("Find your benchmark at: http://tpch.ga/detailed/" + $random)
 Write-Host "Press any key to exit ..."
 
 $x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
