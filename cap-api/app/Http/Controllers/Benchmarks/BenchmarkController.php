@@ -36,7 +36,7 @@ class BenchmarkController extends Controller
                     }
                 }
 
-                $benchmarks = $benchmark_array->sort()->reverse();
+                $benchmarks = $benchmark_array->unique()->sort()->reverse();
             }else{
                 $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $search_uuid_tag . "%")->orWhere('tag', 'LIKE', "%" . $search_uuid_tag . "%")->get()->reverse();
             }
@@ -304,7 +304,7 @@ class BenchmarkController extends Controller
                     }
                 }
 
-                $benchmarks = $benchmark_array;
+                $benchmarks = $benchmark_array->unique();
             }else{
                 $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $search . "%")->orWhere('tag', 'LIKE', "%" . $search . "%")->get()->reverse();
             }
