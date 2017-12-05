@@ -1,19 +1,16 @@
-DROP TABLE partsupp;
-DROP TABLE supplier;
-DROP TABLE nation;
 DROP TABLE q11_important_stock;
 DROP TABLE q11_part_tmp;
 DROP TABLE q11_sum_tmp;
 
 -- create tables and load data
-CREATE EXTERNAL TABLE IF NOT EXISTS supplier (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, S_NATIONKEY INT, S_PHONE STRING, S_ACCTBAL DOUBLE, S_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
-LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/supplier.tbl' INTO TABLE supplier;
+CREATE EXTERNAL TABLE IF NOT EXISTS q1l_supplier (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, S_NATIONKEY INT, S_PHONE STRING, S_ACCTBAL DOUBLE, S_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/supplier.tbl' INTO TABLE q1l_supplier;
 
-CREATE EXTERNAL TABLE IF NOT EXISTS nation (N_NATIONKEY INT, N_NAME STRING, N_REGIONKEY INT, N_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
-LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/nation.tbl' INTO TABLE nation;
+CREATE EXTERNAL TABLE IF NOT EXISTS q1l_nation (N_NATIONKEY INT, N_NAME STRING, N_REGIONKEY INT, N_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/nation.tbl' INTO TABLE q1l_nation;
 
-CREATE EXTERNAL TABLE IF NOT EXISTS partsupp (PS_PARTKEY INT, PS_SUPPKEY INT, PS_AVAILQTY INT, PS_SUPPLYCOST DOUBLE, PS_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
-LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/partsupp.tbl' INTO TABLE partsupp;
+CREATE EXTERNAL TABLE IF NOT EXISTS q1l_partsupp (PS_PARTKEY INT, PS_SUPPKEY INT, PS_AVAILQTY INT, PS_SUPPLYCOST DOUBLE, PS_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/partsupp.tbl' INTO TABLE q1l_partsupp;
 
 -- create the target table
 create table q11_important_stock(ps_partkey INT, value DOUBLE);
@@ -25,10 +22,10 @@ insert overwrite table q11_part_tmp
 select 
   ps_partkey, sum(ps_supplycost * ps_availqty) as part_value 
 from
-  nation n join supplier s 
+  q1l_nation n join q1l_supplier s 
   on 
     s.s_nationkey = n.n_nationkey and n.n_name = 'GERMANY'
-  join partsupp ps 
+  join q1l_partsupp ps 
   on 
     ps.ps_suppkey = s.s_suppkey
 group by ps_partkey;

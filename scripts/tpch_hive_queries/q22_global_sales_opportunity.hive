@@ -1,16 +1,16 @@
-DROP TABLE customer;
-DROP TABLE orders;
+DROP TABLE q22_customer;
+DROP TABLE q22_orders;
 DROP TABLE q22_customer_tmp;
 DROP TABLE q22_customer_tmp1;
 DROP TABLE q22_orders_tmp;
 DROP TABLE q22_global_sales_opportunity;
 
 -- create tables and load data
-CREATE EXTERNAL TABLE IF NOT EXISTS customer (C_CUSTKEY INT, C_NAME STRING, C_ADDRESS STRING, C_NATIONKEY INT, C_PHONE STRING, C_ACCTBAL DOUBLE, C_MKTSEGMENT STRING, C_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
-LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/customer.tbl' INTO TABLE customer;
+CREATE EXTERNAL TABLE IF NOT EXISTS q22_customer (C_CUSTKEY INT, C_NAME STRING, C_ADDRESS STRING, C_NATIONKEY INT, C_PHONE STRING, C_ACCTBAL DOUBLE, C_MKTSEGMENT STRING, C_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/customer.tbl' INTO TABLE q22_customer;
 
-CREATE EXTERNAL TABLE IF NOT EXISTS orders (O_ORDERKEY INT, O_CUSTKEY INT, O_ORDERSTATUS STRING, O_TOTALPRICE DOUBLE, O_ORDERDATE STRING, O_ORDERPRIORITY STRING, O_CLERK STRING, O_SHIPPRIORITY INT, O_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
-LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/orders.tbl' INTO TABLE orders;
+CREATE EXTERNAL TABLE IF NOT EXISTS q22_orders (O_ORDERKEY INT, O_CUSTKEY INT, O_ORDERSTATUS STRING, O_TOTALPRICE DOUBLE, O_ORDERDATE STRING, O_ORDERPRIORITY STRING, O_CLERK STRING, O_SHIPPRIORITY INT, O_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/orders.tbl' INTO TABLE q22_orders;
 
 -- create target tables
 create table q22_customer_tmp(c_acctbal double, c_custkey int, cntrycode string);
@@ -23,7 +23,7 @@ insert overwrite table q22_customer_tmp
 select 
   c_acctbal, c_custkey, substr(c_phone, 1, 2) as cntrycode
 from 
-  customer
+  q22_customer
 where 
   substr(c_phone, 1, 2) = '13' or
   substr(c_phone, 1, 2) = '31' or
@@ -45,7 +45,7 @@ insert overwrite table q22_orders_tmp
 select 
   o_custkey 
 from 
-  orders
+  q22_orders
 group by 
   o_custkey;
 
