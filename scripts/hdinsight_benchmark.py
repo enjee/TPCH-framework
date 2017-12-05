@@ -33,8 +33,7 @@ run = 0
 for run in range(times):
     os.system('hadoop fs -rm -r  -f /hive/warehouse')
     log_file = open("benchmark_output.txt", "w")
-    table_creation_file = open("table_creation_output.txt", "w")
-    os.system('hive -f TPCH-framework/scripts/prepare_tables.hive &>> table_crewation_output.txt')
+    os.system('hive -f TPCH-framework/scripts/prepare_tables.hive &>> table_creation_output.txt')
     url = 'http://52.169.163.208/api/measurement/new'
     data = {"successful": "1", "uuid": str(uuid)}
     query_num = 0
