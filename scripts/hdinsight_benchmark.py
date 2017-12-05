@@ -26,25 +26,28 @@ if r.status_code == 200:
     sys.exit()
 
 # Run .hive files and time every bechmark
-print "Starting the benchmark"
 hive_queries = natsorted(glob.glob("TPCH-framework/scripts/tpch_hive_queries/*.hive"))
 run = 0
+for query in hive_queries:
+    with open(query, 'r') as file:
+        filedata = file.read()
+    newdata = filedata.replace("size_placeholder", test_size)
+    with open(query, 'w') as file:
+        file.write(newdata)
 
+print "Starting the benchmark"
 for run in range(times):
     os.system('hadoop fs -rm -r  -f /hive/warehouse')
     log_file = open("benchmark_output.txt", "w")
+    os.system('hive -f TPCH-framework/scripts/prepare_tables.hive &>> table_creation_output.txt')
     url = 'http://52.169.163.208/api/measurement/new'
     data = {"successful": "1", "uuid": str(uuid)}
     query_num = 0
     run += 1
     data["run"] = str(run)
+
     for query in hive_queries:
         print "Starting benchmark" + query
-        with open(query, 'r') as file:
-            filedata = file.read()
-        newdata = filedata.replace("size_placeholder", test_size)
-        with open(query, 'w') as file:
-            file.write(newdata)
         query_num += 1
         start_time = time.time()
         # Run hive query

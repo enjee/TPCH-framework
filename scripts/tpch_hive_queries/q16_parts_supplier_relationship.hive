@@ -1,24 +1,3 @@
-DROP TABLE q16_partsupp;
-DROP TABLE q16_part;
-DROP TABLE q16_supplier;
-DROP TABLE q16_parts_supplier_relationship;
-DROP TABLE q16_tmp;
-DROP TABLE q16_supplier_tmp;
-
--- create the tables and load the data
-CREATE EXTERNAL TABLE IF NOT EXISTS q16_part (P_PARTKEY INT, P_NAME STRING, P_MFGR STRING, P_BRAND STRING, P_TYPE STRING, P_SIZE INT, P_CONTAINER STRING, P_RETAILPRICE DOUBLE, P_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
-LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/part.tbl' INTO TABLE q16_part;
-
-CREATE EXTERNAL TABLE IF NOT EXISTS q16_partsupp (PS_PARTKEY INT, PS_SUPPKEY INT, PS_AVAILQTY INT, PS_SUPPLYCOST DOUBLE, PS_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
-LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/partsupp.tbl' INTO TABLE q16_partsupp;
-
-CREATE EXTERNAL TABLE IF NOT EXISTS q16_supplier (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, S_NATIONKEY INT, S_PHONE STRING, S_ACCTBAL DOUBLE, S_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
-LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/supplier.tbl' INTO TABLE q16_supplier;
-
--- create the result table
-create table q16_parts_supplier_relationship(p_brand string, p_type string, p_size int, q16_supplier_cnt int);
-create table q16_tmp(p_brand string, p_type string, p_size int, ps_suppkey int);
-create table q16_supplier_tmp(s_suppkey int);
 
 -- the query
 insert overwrite table q16_supplier_tmp

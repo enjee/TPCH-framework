@@ -1,14 +1,3 @@
-DROP TABLE q13_customer_distribution;
-
--- create the tables and load the data
-CREATE EXTERNAL TABLE IF NOT EXISTS q13_customer (C_CUSTKEY INT, C_NAME STRING, C_ADDRESS STRING, C_NATIONKEY INT, C_PHONE STRING, C_ACCTBAL DOUBLE, C_MKTSEGMENT STRING, C_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
-LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/customer.tbl' INTO TABLE q13_customer;
-
-CREATE EXTERNAL TABLE IF NOT EXISTS q13_orders (O_ORDERKEY INT, O_CUSTKEY INT, O_ORDERSTATUS STRING, O_TOTALPRICE DOUBLE, O_ORDERDATE STRING, O_ORDERPRIORITY STRING, O_CLERK STRING, O_SHIPPRIORITY INT, O_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
-LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/orders.tbl' INTO TABLE q13_orders;
-
--- create the result table
-create table q13_customer_distribution (c_count int, custdist int);
 
 -- the query
 insert overwrite table q13_customer_distribution
