@@ -20,7 +20,26 @@ class BenchmarkController extends Controller
     {
         $search_uuid_tag = Input::get('search_uuid_tag');
         if ($search_uuid_tag != null) {
-            $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $search_uuid_tag . "%")->orWhere('tag', 'LIKE', "%" . $search_uuid_tag . "%")->get()->reverse();
+            if(strpos($search_uuid_tag, ',') !== false){
+
+                $trimmed_search = str_replace(" ", "", $search_uuid_tag);
+                $search_array = explode(",", $trimmed_search);
+                $benchmark_array = collect(new Benchmark);
+                foreach ($search_array as $search){
+
+                    $benchmark = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $search . "%")->orWhere('tag', 'LIKE', "%" . $search . "%")->get();
+
+                    if(count($benchmark) > 0){
+                        foreach($benchmark as $b){
+                            $benchmark_array->push($b);
+                        }
+                    }
+                }
+
+                $benchmarks = $benchmark_array->sort()->reverse();
+            }else{
+                $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $search_uuid_tag . "%")->orWhere('tag', 'LIKE', "%" . $search_uuid_tag . "%")->get()->reverse();
+            }
         } else {
             $benchmarks = Benchmark::with('measurements')->get()->reverse();
         }
@@ -269,7 +288,26 @@ class BenchmarkController extends Controller
     public function download_csv($search = null)
     {
         if ($search) {
-            $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $search . "%")->orWhere('tag', 'LIKE', "%" . $search . "%")->get();
+            if(strpos($search, ',') !== false){
+
+                $trimmed_search = str_replace(" ", "", $search);
+                $search_array = explode(",", $trimmed_search);
+                $benchmark_array = collect(new Benchmark);
+                foreach ($search_array as $s){
+
+                    $benchmark = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $s . "%")->orWhere('tag', 'LIKE', "%" . $s . "%")->get();
+
+                    if(count($benchmark) > 0){
+                        foreach($benchmark as $b){
+                            $benchmark_array->push($b);
+                        }
+                    }
+                }
+
+                $benchmarks = $benchmark_array;
+            }else{
+                $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $search . "%")->orWhere('tag', 'LIKE', "%" . $search . "%")->get()->reverse();
+            }
             $filename = $search . '.csv';
         } else {
             $benchmarks = Benchmark::with('measurements')->get();
