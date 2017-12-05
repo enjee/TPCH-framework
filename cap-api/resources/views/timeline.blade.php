@@ -11,6 +11,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
     <script src="{{ asset('js/colorDiv.js') }}"></script>
+    <script src="{{asset('js/labelmanager.js') }}"></script>
 
     <!-- Styles -->
     <style>
@@ -94,14 +95,20 @@
             display: inline-block;
             width: 98%;
         }
+
+        .label{
+            color: whitesmoke;
+            background-color: #1b1e21; border-radius: 3px; padding: 2px 7px; margin: 5px;
+        }
     </style>
 </head>
 <body>
 
-    @section('searchbar')
-    <form method="get" action="/timeline" class="form-inline my-2 my-lg-0 mr-lg-2">
+@section('searchbar')
+<div id="labels"></div>
+    <form id="searchbar" method="get" action="/timeline" class="form-inline my-2 my-lg-0 mr-lg-2">
         <div class="input-group">
-            <input name="search_uuid_tag" class="form-control" type="text" placeholder="Search on tag/uuid..." value="{{$search_uuid_tag}}">
+            <input id="searchfield" name="search_uuid_tag" class="form-control" type="text" placeholder="Search on tag/uuid..." value="{{$search_uuid_tag}}">
             <span class="input-group-btn">
                     <button class="btn btn-primary" type="Submit">
                       <i class="fa fa-search"></i>
@@ -109,7 +116,7 @@
                   </span>
         </div>
     </form>
-    <a class="btn btn-info" href="/api/csv/{{$search_uuid_tag}}"><i class="fa fa-download"></i></a>
+    <a class="btn btn-info" href="/api/csv/{{$search_uuid_tag}}"><i class="fa fa-download"></i></br></a>
 
 
     @stop
