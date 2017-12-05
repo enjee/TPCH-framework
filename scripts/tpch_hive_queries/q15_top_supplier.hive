@@ -1,21 +1,3 @@
-DROP TABLE q15_lineitem;
-DROP TABLE q15_supplier;
-DROP TABLE q15_revenue;
-DROP TABLE q15_max_revenue;
-DROP TABLE q15_top_supplier;
-
--- create the tables and load the data
-CREATE EXTERNAL TABLE IF NOT EXISTS q15_lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
-LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl' INTO TABLE q15_lineitem;
-
-CREATE EXTERNAL TABLE IF NOT EXISTS q15_supplier (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, S_NATIONKEY INT, S_PHONE STRING, S_ACCTBAL DOUBLE, S_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
-LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/supplier.tbl' INTO TABLE q15_supplier;
-
--- create result tables
-create table q15_revenue(supplier_no int, total_revenue double); 
-create table q15_max_revenue(max_revenue double); 
-create table q15_top_supplier(s_suppkey int, s_name string, s_address string, s_phone string, total_revenue double);
-
 
 set mapred.min.split.size=536870912;
 

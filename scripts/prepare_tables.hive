@@ -1,0 +1,446 @@
+DROP TABLE q1_pricing_summary_report;
+
+-- create tables and load data
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q1_lineitem
+    (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING)
+    ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH
+    'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl'
+    INTO TABLE q1_lineitem;
+
+-- create the target table
+CREATE TABLE q1_pricing_summary_report ( L_RETURNFLAG STRING, L_LINESTATUS STRING, SUM_QTY DOUBLE, SUM_BASE_PRICE DOUBLE, SUM_DISC_PRICE DOUBLE, SUM_CHARGE DOUBLE, AVE_QTY DOUBLE, AVE_PRICE DOUBLE, AVE_DISC DOUBLE, COUNT_ORDER INT);
+
+
+DROP TABLE q2_minimum_cost_supplier;
+DROP TABLE q2_minimum_cost_supplier_tmp1;
+DROP TABLE q2_minimum_cost_supplier_tmp2;
+
+-- create the tables and load the data
+CREATE EXTERNAL TABLE IF NOT EXISTS q2_part (P_PARTKEY INT, P_NAME STRING, P_MFGR STRING, P_BRAND STRING, P_TYPE STRING, P_SIZE INT, P_CONTAINER STRING, P_RETAILPRICE DOUBLE, P_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/part.tbl' INTO TABLE q2_part;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q2_supplier (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, S_NATIONKEY INT, S_PHONE STRING, S_ACCTBAL DOUBLE, S_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/supplier.tbl' INTO TABLE q2_supplier;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q2_partsupp (PS_PARTKEY INT, PS_SUPPKEY INT, PS_AVAILQTY INT, PS_SUPPLYCOST DOUBLE, PS_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/partsupp.tbl' INTO TABLE q2_partsupp;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q2_nation (N_NATIONKEY INT, N_NAME STRING, N_REGIONKEY INT, N_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/nation.tbl' INTO TABLE q2_nation;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q2_region (R_REGIONKEY INT, R_NAME STRING, R_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/region.tbl' INTO TABLE q2_region;
+
+-- create result tables
+create table q2_minimum_cost_supplier_tmp1 (s_acctbal double, s_name string, n_name string, p_partkey int, ps_supplycost double, p_mfgr string, s_address string, s_phone string, s_comment string);
+create table q2_minimum_cost_supplier_tmp2 (p_partkey int, ps_min_supplycost double);
+create table q2_minimum_cost_supplier (s_acctbal double, s_name string, n_name string, p_partkey int, p_mfgr string, s_address string, s_phone string, s_comment string);
+
+
+
+DROP TABLE q3_shipping_priority;
+
+-- create tables and load data
+CREATE EXTERNAL TABLE IF NOT EXISTS q3_lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl' INTO TABLE q3_lineitem;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q3_orders (O_ORDERKEY INT, O_CUSTKEY INT, O_ORDERSTATUS STRING, O_TOTALPRICE DOUBLE, O_ORDERDATE STRING, O_ORDERPRIORITY STRING, O_CLERK STRING, O_SHIPPRIORITY INT, O_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/orders.tbl' INTO TABLE q3_orders;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q3_customer (C_CUSTKEY INT, C_NAME STRING, C_ADDRESS STRING, C_NATIONKEY INT, C_PHONE STRING, C_ACCTBAL DOUBLE, C_MKTSEGMENT STRING, C_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/customer.tbl' INTO TABLE q3_customer;
+
+-- create the target table
+create table q3_shipping_priority (l_orderkey int, revenue double, o_orderdate string, o_shippriority int);
+
+set mapred.min.split.size=536870912;
+set hive.exec.reducers.bytes.per.reducer=1024000000;
+
+DROP TABLE q4_order_priority_tmp;
+DROP TABLE q4_order_priority;
+
+-- create tables and load data
+CREATE EXTERNAL TABLE IF NOT EXISTS q4_orders (O_ORDERKEY INT, O_CUSTKEY INT, O_ORDERSTATUS STRING, O_TOTALPRICE DOUBLE, O_ORDERDATE STRING, O_ORDERPRIORITY STRING, O_CLERK STRING, O_SHIPPRIORITY INT, O_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/orders.tbl' INTO TABLE q4_orders;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q4_lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl' INTO TABLE q4_lineitem;
+
+-- create the target table
+CREATE TABLE q4_order_priority_tmp (O_ORDERKEY INT);
+CREATE TABLE q4_order_priority (O_ORDERPRIORITY STRING, ORDER_COUNT INT);
+
+
+DROP TABLE q5_customer;
+DROP TABLE q5_orders;
+DROP TABLE q5_lineitem;
+DROP TABLE q5_supplier;
+DROP TABLE q5_nation;
+DROP TABLE q5_region;
+DROP TABLE q5_local_supplier_volume;
+
+-- create tables and load data
+CREATE EXTERNAL TABLE IF NOT EXISTS q5_customer (C_CUSTKEY INT, C_NAME STRING, C_ADDRESS STRING, C_NATIONKEY INT, C_PHONE STRING, C_ACCTBAL DOUBLE, C_MKTSEGMENT STRING, C_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/customer.tbl' INTO TABLE q5_customer;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q5_lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl' INTO TABLE q5_lineitem;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q5_orders (O_ORDERKEY INT, O_CUSTKEY INT, O_ORDERSTATUS STRING, O_TOTALPRICE DOUBLE, O_ORDERDATE STRING, O_ORDERPRIORITY STRING, O_CLERK STRING, O_SHIPPRIORITY INT, O_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/orders.tbl' INTO TABLE q5_orders;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q5_supplier (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, S_NATIONKEY INT, S_PHONE STRING, S_ACCTBAL DOUBLE, S_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/supplier.tbl' INTO TABLE q5_supplier;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q5_nation (N_NATIONKEY INT, N_NAME STRING, N_REGIONKEY INT, N_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/nation.tbl' INTO TABLE q5_nation;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q5_region (R_REGIONKEY INT, R_NAME STRING, R_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/region.tbl' INTO TABLE q5_region;
+
+-- create the target table
+create table q5_local_supplier_volume (N_NAME STRING, REVENUE DOUBLE);
+
+
+DROP TABLE q6_lineitem;
+DROP TABLE q6_forecast_revenue_change;
+
+-- create tables and load data
+CREATE EXTERNAL TABLE IF NOT EXISTS q6_lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl' INTO TABLE q6_lineitem;
+
+-- create the target table
+create table q6_forecast_revenue_change (revenue double);
+
+
+DROP TABLE q7_volume_shipping;
+DROP TABLE q7_volume_shipping_tmp;
+
+-- create tables and load data
+CREATE EXTERNAL TABLE IF NOT EXISTS q7_customer (C_CUSTKEY INT, C_NAME STRING, C_ADDRESS STRING, C_NATIONKEY INT, C_PHONE STRING, C_ACCTBAL DOUBLE, C_MKTSEGMENT STRING, C_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://1gb@benchmarkdatasaxion.blob.core.windows.net/customer.tbl' INTO TABLE q7_customer;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q7_lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://1gb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl' INTO TABLE q7_lineitem;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q7_orders (O_ORDERKEY INT, O_CUSTKEY INT, O_q7_ordersTATUS STRING, O_TOTALPRICE DOUBLE, O_ORDERDATE STRING, O_ORDERPRIORITY STRING, O_CLERK STRING, O_SHIPPRIORITY INT, O_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://1gb@benchmarkdatasaxion.blob.core.windows.net/orders.tbl' INTO TABLE q7_orders;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q7_supplier (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, S_NATIONKEY INT, S_PHONE STRING, S_ACCTBAL DOUBLE, S_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://1gb@benchmarkdatasaxion.blob.core.windows.net/supplier.tbl' INTO TABLE q7_supplier;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q7_nation (N_NATIONKEY INT, N_NAME STRING, N_REGIONKEY INT, N_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://1gb@benchmarkdatasaxion.blob.core.windows.net/nation.tbl' INTO TABLE q7_nation;
+
+-- create the target table
+create table q7_volume_shipping (supp_nation string, cust_nation string, l_year int, revenue double);
+create table q7_volume_shipping_tmp(supp_nation string, cust_nation string, s_nationkey int, c_nationkey int);
+
+
+DROP TABLE q8_national_market_share;
+
+-- create the tables and load the data
+CREATE EXTERNAL TABLE IF NOT EXISTS q8_part (P_PARTKEY INT, P_NAME STRING, P_MFGR STRING, P_BRAND STRING, P_TYPE STRING, P_SIZE INT, P_CONTAINER STRING, P_RETAILPRICE DOUBLE, P_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/part.tbl' INTO TABLE q8_part;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q8_customer (C_CUSTKEY INT, C_NAME STRING, C_ADDRESS STRING, C_NATIONKEY INT, C_PHONE STRING, C_ACCTBAL DOUBLE, C_MKTSEGMENT STRING, C_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/customer.tbl' INTO TABLE q8_customer;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q8_lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl' INTO TABLE q8_lineitem;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q8_orders (O_ORDERKEY INT, O_CUSTKEY INT, O_ORDERSTATUS STRING, O_TOTALPRICE DOUBLE, O_ORDERDATE STRING, O_ORDERPRIORITY STRING, O_CLERK STRING, O_SHIPPRIORITY INT, O_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/orders.tbl' INTO TABLE q8_orders;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q8_supplier (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, S_NATIONKEY INT, S_PHONE STRING, S_ACCTBAL DOUBLE, S_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/supplier.tbl' INTO TABLE q8_supplier;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q8_nation (N_NATIONKEY INT, N_NAME STRING, N_REGIONKEY INT, N_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/nation.tbl' INTO TABLE q8_nation;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q8_region (R_REGIONKEY INT, R_NAME STRING, R_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/region.tbl' INTO TABLE q8_region;
+
+-- create the result table
+create table q8_national_market_share(o_year string, mkt_share double);
+
+
+DROP TABLE q9_product_type_profit;
+
+-- create the tables and load the data
+CREATE EXTERNAL TABLE IF NOT EXISTS q9_part (P_PARTKEY INT, P_NAME STRING, P_MFGR STRING, P_BRAND STRING, P_TYPE STRING, P_SIZE INT, P_CONTAINER STRING, P_RETAILPRICE DOUBLE, P_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/part.tbl' INTO TABLE q9_part;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q9_lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl' INTO TABLE q9_lineitem;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q9_orders (O_ORDERKEY INT, O_CUSTKEY INT, O_ORDERSTATUS STRING, O_TOTALPRICE DOUBLE, O_ORDERDATE STRING, O_ORDERPRIORITY STRING, O_CLERK STRING, O_SHIPPRIORITY INT, O_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/orders.tbl' INTO TABLE q9_orders;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q9_supplier (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, S_NATIONKEY INT, S_PHONE STRING, S_ACCTBAL DOUBLE, S_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/supplier.tbl' INTO TABLE q9_supplier;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q9_partsupp (PS_PARTKEY INT, PS_SUPPKEY INT, PS_AVAILQTY INT, PS_SUPPLYCOST DOUBLE, PS_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/partsupp.tbl' INTO TABLE q9_partsupp;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q9_nation (N_NATIONKEY INT, N_NAME STRING, N_REGIONKEY INT, N_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/nation.tbl' INTO TABLE q9_nation;
+
+
+-- create the result table
+create table q9_product_type_profit (nation string, o_year string, sum_profit double);
+
+
+
+DROP TABLE q10_returned_item;
+
+-- create the tables and load the data
+CREATE EXTERNAL TABLE IF NOT EXISTS q10_lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl' INTO TABLE q10_lineitem;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q10_orders (O_ORDERKEY INT, O_CUSTKEY INT, O_ORDERSTATUS STRING, O_TOTALPRICE DOUBLE, O_ORDERDATE STRING, O_ORDERPRIORITY STRING, O_CLERK STRING, O_SHIPPRIORITY INT, O_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/orders.tbl' INTO TABLE q10_orders;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q10_customer (C_CUSTKEY INT, C_NAME STRING, C_ADDRESS STRING, C_NATIONKEY INT, C_PHONE STRING, C_ACCTBAL DOUBLE, C_MKTSEGMENT STRING, C_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/customer.tbl' INTO TABLE q10_customer;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q10_nation (N_NATIONKEY INT, N_NAME STRING, N_REGIONKEY INT, N_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/nation.tbl' INTO TABLE q10_nation;
+
+-- create the result table
+create table q10_returned_item (c_custkey int, c_name string, revenue double, c_acctbal string, n_name string, c_address string, c_phone string, c_comment string);
+
+
+DROP TABLE q11_important_stock;
+DROP TABLE q11_part_tmp;
+DROP TABLE q11_sum_tmp;
+
+-- create tables and load data
+CREATE EXTERNAL TABLE IF NOT EXISTS q1l_supplier (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, S_NATIONKEY INT, S_PHONE STRING, S_ACCTBAL DOUBLE, S_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/supplier.tbl' INTO TABLE q1l_supplier;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q1l_nation (N_NATIONKEY INT, N_NAME STRING, N_REGIONKEY INT, N_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/nation.tbl' INTO TABLE q1l_nation;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q1l_partsupp (PS_PARTKEY INT, PS_SUPPKEY INT, PS_AVAILQTY INT, PS_SUPPLYCOST DOUBLE, PS_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/partsupp.tbl' INTO TABLE q1l_partsupp;
+
+-- create the target table
+create table q11_important_stock(ps_partkey INT, value DOUBLE);
+create table q11_part_tmp(ps_partkey int, part_value double);
+create table q11_sum_tmp(total_value double);
+
+
+DROP TABLE q12_lineitem;
+DROP TABLE q12_orders;
+DROP TABLE q12_shipping;
+
+-- create the tables and load the data
+CREATE EXTERNAL TABLE IF NOT EXISTS q12_lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl' INTO TABLE q12_lineitem;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q12_orders (O_ORDERKEY INT, O_CUSTKEY INT, O_ORDERSTATUS STRING, O_TOTALPRICE DOUBLE, O_ORDERDATE STRING, O_ORDERPRIORITY STRING, O_CLERK STRING, O_SHIPPRIORITY INT, O_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/orders.tbl' INTO TABLE q12_orders;
+
+-- create the result table
+create table q12_shipping(l_shipmode string, high_line_count double, low_line_count double);
+
+DROP TABLE q13_customer_distribution;
+
+-- create the tables and load the data
+CREATE EXTERNAL TABLE IF NOT EXISTS q13_customer (C_CUSTKEY INT, C_NAME STRING, C_ADDRESS STRING, C_NATIONKEY INT, C_PHONE STRING, C_ACCTBAL DOUBLE, C_MKTSEGMENT STRING, C_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/customer.tbl' INTO TABLE q13_customer;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q13_orders (O_ORDERKEY INT, O_CUSTKEY INT, O_ORDERSTATUS STRING, O_TOTALPRICE DOUBLE, O_ORDERDATE STRING, O_ORDERPRIORITY STRING, O_CLERK STRING, O_SHIPPRIORITY INT, O_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/orders.tbl' INTO TABLE q13_orders;
+
+-- create the result table
+create table q13_customer_distribution (c_count int, custdist int);
+
+
+DROP TABLE q14_promotion_effect;
+
+-- create the tables and load the data
+CREATE EXTERNAL TABLE IF NOT EXISTS q14_lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl' INTO TABLE q14_lineitem;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q14_part (P_PARTKEY INT, P_NAME STRING, P_MFGR STRING, P_BRAND STRING, P_TYPE STRING, P_SIZE INT, P_CONTAINER STRING, P_RETAILPRICE DOUBLE, P_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/part.tbl' INTO TABLE q14_part;
+
+-- create the result table
+create table q14_promotion_effect(promo_revenue double);
+
+
+DROP TABLE q15_lineitem;
+DROP TABLE q15_supplier;
+DROP TABLE q15_revenue;
+DROP TABLE q15_max_revenue;
+DROP TABLE q15_top_supplier;
+
+-- create the tables and load the data
+CREATE EXTERNAL TABLE IF NOT EXISTS q15_lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl' INTO TABLE q15_lineitem;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q15_supplier (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, S_NATIONKEY INT, S_PHONE STRING, S_ACCTBAL DOUBLE, S_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/supplier.tbl' INTO TABLE q15_supplier;
+
+-- create result tables
+create table q15_revenue(supplier_no int, total_revenue double);
+create table q15_max_revenue(max_revenue double);
+create table q15_top_supplier(s_suppkey int, s_name string, s_address string, s_phone string, total_revenue double);
+
+
+DROP TABLE q16_partsupp;
+DROP TABLE q16_part;
+DROP TABLE q16_supplier;
+DROP TABLE q16_parts_supplier_relationship;
+DROP TABLE q16_tmp;
+DROP TABLE q16_supplier_tmp;
+
+-- create the tables and load the data
+CREATE EXTERNAL TABLE IF NOT EXISTS q16_part (P_PARTKEY INT, P_NAME STRING, P_MFGR STRING, P_BRAND STRING, P_TYPE STRING, P_SIZE INT, P_CONTAINER STRING, P_RETAILPRICE DOUBLE, P_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/part.tbl' INTO TABLE q16_part;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q16_partsupp (PS_PARTKEY INT, PS_SUPPKEY INT, PS_AVAILQTY INT, PS_SUPPLYCOST DOUBLE, PS_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/partsupp.tbl' INTO TABLE q16_partsupp;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q16_supplier (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, S_NATIONKEY INT, S_PHONE STRING, S_ACCTBAL DOUBLE, S_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/supplier.tbl' INTO TABLE q16_supplier;
+
+-- create the result table
+create table q16_parts_supplier_relationship(p_brand string, p_type string, p_size int, q16_supplier_cnt int);
+create table q16_tmp(p_brand string, p_type string, p_size int, ps_suppkey int);
+create table q16_supplier_tmp(s_suppkey int);
+
+
+
+DROP TABLE q17_lineitem;
+DROP TABLE q17_part;
+DROP TABLE q17_small_quantity_order_revenue;
+DROP TABLE q17_lineitem_tmp;
+
+-- create the tables and load the data
+CREATE EXTERNAL TABLE IF NOT EXISTS q17_lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl' INTO TABLE q17_lineitem;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q17_part (P_PARTKEY INT, P_NAME STRING, P_MFGR STRING, P_BRAND STRING, P_TYPE STRING, P_SIZE INT, P_CONTAINER STRING, P_RETAILPRICE DOUBLE, P_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/part.tbl' INTO TABLE q17_part;
+
+-- create the result table
+create table q17_small_quantity_order_revenue (avg_yearly double);
+create table q17_lineitem_tmp (t_partkey int, t_avg_quantity double);
+
+
+DROP TABLE q18_lineitem;
+DROP TABLE q18_orders;
+DROP TABLE q18_customer;
+DROP TABLE q18_tmp;
+DROP TABLE q18_large_volume_customer;
+
+-- create the tables and load the data
+create external table q18_lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl' INTO TABLE q18_lineitem;
+
+create external table q18_orders (O_ORDERKEY INT, O_CUSTKEY INT, O_ORDERSTATUS STRING, O_TOTALPRICE DOUBLE, O_ORDERDATE STRING, O_ORDERPRIORITY STRING, O_CLERK STRING, O_SHIPPRIORITY INT, O_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/orders.tbl' INTO TABLE q18_orders;
+
+create external table q18_customer (C_CUSTKEY INT, C_NAME STRING, C_ADDRESS STRING, C_NATIONKEY INT, C_PHONE STRING, C_ACCTBAL DOUBLE, C_MKTSEGMENT STRING, C_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/customer.tbl' INTO TABLE q18_customer;
+
+-- create the result tables
+create table q18_tmp(l_orderkey int, t_sum_quantity double);
+create table q18_large_volume_customer(c_name string, c_custkey int, o_orderkey int, o_orderdate string, o_totalprice double, sum_quantity double);
+
+
+DROP TABLE q19_lineitem;
+DROP TABLE q19_part;
+DROP TABLE q19_discounted_revenue;
+
+-- create the tables and load the data
+CREATE EXTERNAL TABLE IF NOT EXISTS q19_lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl' INTO TABLE q19_lineitem;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q19_part (P_PARTKEY INT, P_NAME STRING, P_MFGR STRING, P_BRAND STRING, P_TYPE STRING, P_SIZE INT, P_CONTAINER STRING, P_RETAILPRICE DOUBLE, P_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/part.tbl' INTO TABLE q19_part;
+
+-- create the result table
+create table q19_discounted_revenue(revenue double);
+
+
+DROP TABLE q20_partsupp;
+DROP TABLE q20_lineitem;
+DROP TABLE q20_supplier;
+DROP TABLE q20_nation;
+DROP TABLE q20_tmp1;
+DROP TABLE q20_tmp2;
+DROP TABLE q20_tmp3;
+DROP TABLE q20_tmp4;
+DROP TABLE q20_potential_part_promotion;
+
+-- create tables and load data
+CREATE EXTERNAL TABLE IF NOT EXISTS q20_lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl' INTO TABLE q20_lineitem;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q20_supplier (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, S_NATIONKEY INT, S_PHONE STRING, S_ACCTBAL DOUBLE, S_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/supplier.tbl' INTO TABLE q20_supplier;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q20_nation (N_NATIONKEY INT, N_NAME STRING, N_REGIONKEY INT, N_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/nation.tbl' INTO TABLE q20_nation;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q20_partsupp (PS_PARTKEY INT, PS_SUPPKEY INT, PS_AVAILQTY INT, PS_SUPPLYCOST DOUBLE, PS_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/partsupp.tbl' INTO TABLE q20_partsupp;
+
+-- create the target table
+create table q20_tmp1(p_partkey int);
+create table q20_tmp2(l_partkey int, l_suppkey int, sum_quantity double);
+create table q20_tmp3(ps_suppkey int, ps_availqty int, sum_quantity double);
+create table q20_tmp4(ps_suppkey int);
+create table q20_potential_part_promotion(s_name string, s_address string);
+
+DROP TABLE q21_orders;
+DROP TABLE q21_lineitem;
+DROP TABLE q21_supplier;
+DROP TABLE q21_nation;
+DROP TABLE q21_tmp1;
+DROP TABLE q21_tmp2;
+DROP TABLE q21_suppliers_who_kept_orders_waiting;
+
+-- create tables and load data
+CREATE EXTERNAL TABLE IF NOT EXISTS q21_lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT, L_LINENUMBER INT, L_QUANTITY DOUBLE, L_EXTENDEDPRICE DOUBLE, L_DISCOUNT DOUBLE, L_TAX DOUBLE, L_RETURNFLAG STRING, L_LINESTATUS STRING, L_SHIPDATE STRING, L_COMMITDATE STRING, L_RECEIPTDATE STRING, L_SHIPINSTRUCT STRING, L_SHIPMODE STRING, L_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/lineitem.tbl' INTO TABLE q21_lineitem;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q21_orders (O_ORDERKEY INT, O_CUSTKEY INT, O_ORDERSTATUS STRING, O_TOTALPRICE DOUBLE, O_ORDERDATE STRING, O_ORDERPRIORITY STRING, O_CLERK STRING, O_SHIPPRIORITY INT, O_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/orders.tbl' INTO TABLE q21_orders;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q21_supplier (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, S_NATIONKEY INT, S_PHONE STRING, S_ACCTBAL DOUBLE, S_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/supplier.tbl' INTO TABLE q21_supplier;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q21_nation (N_NATIONKEY INT, N_NAME STRING, N_REGIONKEY INT, N_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/nation.tbl' INTO TABLE q21_nation;
+
+-- create target tables
+create table q21_tmp1(l_orderkey int, count_suppkey int, max_suppkey int);
+create table q21_tmp2(l_orderkey int, count_suppkey int, max_suppkey int);
+create table q21_suppliers_who_kept_orders_waiting(s_name string, numwait int);
+
+DROP TABLE q22_customer;
+DROP TABLE q22_orders;
+DROP TABLE q22_customer_tmp;
+DROP TABLE q22_customer_tmp1;
+DROP TABLE q22_orders_tmp;
+DROP TABLE q22_global_sales_opportunity;
+
+-- create tables and load data
+CREATE EXTERNAL TABLE IF NOT EXISTS q22_customer (C_CUSTKEY INT, C_NAME STRING, C_ADDRESS STRING, C_NATIONKEY INT, C_PHONE STRING, C_ACCTBAL DOUBLE, C_MKTSEGMENT STRING, C_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/customer.tbl' INTO TABLE q22_customer;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q22_orders (O_ORDERKEY INT, O_CUSTKEY INT, O_ORDERSTATUS STRING, O_TOTALPRICE DOUBLE, O_ORDERDATE STRING, O_ORDERPRIORITY STRING, O_CLERK STRING, O_SHIPPRIORITY INT, O_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/orders.tbl' INTO TABLE q22_orders;
+
+-- create target tables
+create table q22_customer_tmp(c_acctbal double, c_custkey int, cntrycode string);
+create table q22_customer_tmp1(avg_acctbal double);
+create table q22_orders_tmp(o_custkey int);
+create table q22_global_sales_opportunity(cntrycode string, numcust int, totacctbal double);
