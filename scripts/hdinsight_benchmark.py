@@ -28,12 +28,11 @@ if r.status_code == 200:
 # Run .hive files and time every bechmark
 hive_queries = natsorted(glob.glob("TPCH-framework/scripts/tpch_hive_queries/*.hive"))
 run = 0
-for query in hive_queries:
-    with open(query, 'r') as file:
-        filedata = file.read()
-    newdata = filedata.replace("size_placeholder", test_size)
-    with open(query, 'w') as file:
-        file.write(newdata)
+with open("TPCH-framework/scripts/prepare_tables.hive", 'r') as file:
+    filedata = file.read()
+newdata = filedata.replace("size_placeholder", test_size)
+with open("TPCH-framework/scripts/prepare_tables.hive", 'w') as file:
+    file.write(newdata)
 
 print "Starting the benchmark"
 for run in range(times):
