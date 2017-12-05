@@ -5,7 +5,7 @@ set mapred.min.split.size=536870912;
 insert overwrite table q20_tmp1
 select distinct p_partkey
 from
-  part 
+  q20_part
 where 
   p_name like 'forest%';
 

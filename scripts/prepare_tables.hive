@@ -370,6 +370,7 @@ create table q19_discounted_revenue(revenue double);
 
 
 DROP TABLE q20_partsupp;
+DROP TABLE q20_part;
 DROP TABLE q20_lineitem;
 DROP TABLE q20_supplier;
 DROP TABLE q20_nation;
@@ -391,6 +392,9 @@ LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.window
 
 CREATE EXTERNAL TABLE IF NOT EXISTS q20_partsupp (PS_PARTKEY INT, PS_SUPPKEY INT, PS_AVAILQTY INT, PS_SUPPLYCOST DOUBLE, PS_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
 LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/partsupp.tbl' INTO TABLE q20_partsupp;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS q20_part (P_PARTKEY INT, P_NAME STRING, P_MFGR STRING, P_BRAND STRING, P_TYPE STRING, P_SIZE INT, P_CONTAINER STRING, P_RETAILPRICE DOUBLE, P_COMMENT STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '|';
+LOAD DATA INPATH 'wasb://size_placeholdergb@benchmarkdatasaxion.blob.core.windows.net/part.tbl' INTO TABLE q20_part;
 
 -- create the target table
 create table q20_tmp1(p_partkey int);
