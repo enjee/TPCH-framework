@@ -31,6 +31,7 @@ hive_queries = natsorted(glob.glob("TPCH-framework/scripts/tpch_hive_queries/*.h
 run = 0
 
 for run in range(times):
+    os.system('hadoop fs -rm -r  -f /hive/warehouse')
     log_file = open("benchmark_output.txt", "w")
     url = 'http://52.169.163.208/api/measurement/new'
     data = {"successful": "1", "uuid": str(uuid)}
