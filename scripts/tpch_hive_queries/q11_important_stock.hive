@@ -4,10 +4,10 @@ insert overwrite table q11_part_tmp
 select 
   ps_partkey, sum(ps_supplycost * ps_availqty) as part_value 
 from
-  q1l_nation n join q1l_supplier s 
+  q11_nation n join q11_supplier s 
   on 
     s.s_nationkey = n.n_nationkey and n.n_name = 'GERMANY'
-  join q1l_partsupp ps 
+  join q11_partsupp ps 
   on 
     ps.ps_suppkey = s.s_suppkey
 group by ps_partkey;
