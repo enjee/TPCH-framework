@@ -12,7 +12,7 @@ from
       n1.n_name as supp_nation, n2.n_name as cust_nation, n1.n_nationkey as s_nationkey,      
       n2.n_nationkey as c_nationkey
 from 
-  q7_nation n1 join q7_nation n2 
+  nation n1 join nation n2
   on 
     n1.n_name = 'FRANCE' and n2.n_name = 'GERMANY'
     UNION ALL
@@ -20,7 +20,7 @@ select
   n1.n_name as supp_nation, n2.n_name as cust_nation, n1.n_nationkey as s_nationkey, 
   n2.n_nationkey as c_nationkey
 from 
-  q7_nation n1 join q7_nation n2 
+  nation n1 join nation n2
   on 
     n2.n_name = 'FRANCE' and n1.n_name = 'GERMANY'
 ) a;
@@ -36,11 +36,11 @@ from
     from
       q7_volume_shipping_tmp t join
         (select l_shipdate, l_extendedprice, l_discount, c_nationkey, s_nationkey 
-         from q7_supplier s join
+         from supplier s join
            (select l_shipdate, l_extendedprice, l_discount, l_suppkey, c_nationkey 
-            from q7_customer c join
+            from customer c join
               (select l_shipdate, l_extendedprice, l_discount, l_suppkey, o_custkey 
-               from q7_orders o join q7_lineitem l 
+               from orders o join lineitem l
                on 
                  o.o_orderkey = l.l_orderkey and l.l_shipdate >= '1995-01-01' 
                  and l.l_shipdate <= '1996-12-31'

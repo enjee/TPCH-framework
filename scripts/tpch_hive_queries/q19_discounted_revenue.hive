@@ -7,7 +7,7 @@ insert overwrite table q19_discounted_revenue
 select
   sum(l_extendedprice * (1 - l_discount) ) as revenue
 from
-  q19_lineitem l join q19_part p
+  lineitem l join part p
   on 
     p.p_partkey = l.l_partkey    
 where

@@ -4,7 +4,7 @@ insert overwrite table q22_customer_tmp
 select 
   c_acctbal, c_custkey, substr(c_phone, 1, 2) as cntrycode
 from 
-  q22_customer
+  customer
 where 
   substr(c_phone, 1, 2) = '13' or
   substr(c_phone, 1, 2) = '31' or
@@ -26,7 +26,7 @@ insert overwrite table q22_orders_tmp
 select 
   o_custkey 
 from 
-  q22_orders
+  orders
 group by 
   o_custkey;
 

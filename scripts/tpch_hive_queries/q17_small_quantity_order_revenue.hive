@@ -4,7 +4,7 @@ insert overwrite table q17_lineitem_tmp
 select 
   l_partkey as t_partkey, 0.2 * avg(l_quantity) as t_avg_quantity
 from 
-  q17_lineitem
+  lineitem
 group by l_partkey;
 
 insert overwrite table q17_small_quantity_order_revenue
@@ -16,7 +16,7 @@ from
      (select
         l_quantity, l_partkey, l_extendedprice
       from
-        q17_part p join q17_lineitem l
+        part p join lineitem l
         on
           p.p_partkey = l.l_partkey
           and p.p_brand = 'Brand#23'
