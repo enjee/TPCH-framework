@@ -28,10 +28,10 @@ if r.status_code == 200:
 # Run .hive files and time every bechmark
 hive_queries = natsorted(glob.glob("TPCH-framework/scripts/tpch_hive_queries/*.hive"))
 run = 0
-with open("TPCH-framework/scripts/prepare_tables.hive", 'r') as file:
+with open("TPCH-framework/scripts/import_dataset.hive", 'r') as file:
     filedata = file.read()
 newdata = filedata.replace("size_placeholder", test_size)
-with open("TPCH-framework/scripts/prepare_tables.hive", 'w') as file:
+with open("TPCH-framework/scripts/import_dataset.hive", 'w') as file:
     file.write(newdata)
 
 os.system('hive -f TPCH-framework/scripts/import_dataset.hive &>> table_creation_output.txt')
