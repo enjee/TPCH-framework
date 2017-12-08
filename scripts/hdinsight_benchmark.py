@@ -34,9 +34,10 @@ newdata = filedata.replace("size_placeholder", test_size)
 with open("TPCH-framework/scripts/prepare_tables.hive", 'w') as file:
     file.write(newdata)
 
+os.system('hive -f TPCH-framework/scripts/import_dataset.hive &>> table_creation_output.txt')
+
 print "Starting the benchmark"
 for run in range(times):
-    os.system('hadoop fs -rm -r  -f /hive/warehouse')
     log_file = open("benchmark_output.txt", "w")
     os.system('hive -f TPCH-framework/scripts/prepare_tables.hive &>> table_creation_output.txt')
     url = 'http://52.169.163.208/api/measurement/new'
