@@ -4,7 +4,7 @@ insert overwrite table q16_supplier_tmp
 select 
   s_suppkey
 from 
-  q16_supplier
+  supplier
 where 
   not s_comment like '%Customer%Complaints%';
 
@@ -12,7 +12,7 @@ insert overwrite table q16_tmp
 select 
   p_brand, p_type, p_size, ps_suppkey
 from 
-  q16_partsupp ps join q16_part p 
+  partsupp ps join part p
   on 
     p.p_partkey = ps.ps_partkey and p.p_brand <> 'Brand#45' 
     and not p.p_type like 'MEDIUM POLISHED%'

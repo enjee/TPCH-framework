@@ -4,14 +4,14 @@ insert overwrite table q21_tmp1
 select
   l_orderkey, count(distinct l_suppkey), max(l_suppkey) as max_suppkey
 from
-  q21_lineitem
+  lineitem
 group by l_orderkey;
 
 insert overwrite table q21_tmp2
 select
   l_orderkey, count(distinct l_suppkey), max(l_suppkey) as max_suppkey
 from
-  q21_lineitem
+  lineitem
 where
   l_receiptdate > l_commitdate
 group by l_orderkey;
@@ -29,14 +29,14 @@ from
             q21_tmp1 t1 join
             (select s_name, l_orderkey, l_suppkey
              from 
-               q21_orders o join
+               orders o join
                (select s_name, l_orderkey, l_suppkey
                 from
-                  q21_nation n join q21_supplier s
+                  nation n join supplier s
                   on
                     s.s_nationkey = n.n_nationkey
                     and n.n_name = 'SAUDI ARABIA'
-                  join q21_lineitem l
+                  join lineitem l
                   on
                     s.s_suppkey = l.l_suppkey
                 where

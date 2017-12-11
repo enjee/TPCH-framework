@@ -6,7 +6,7 @@ insert overwrite table q15_revenue
 select 
   l_suppkey as q15_supplier_no, sum(l_extendedprice * (1 - l_discount)) as total_revenue
 from 
-  q15_lineitem
+  lineitem
 where 
   l_shipdate >= '1996-01-01' and l_shipdate < '1996-04-01'
 group by l_suppkey;
@@ -20,7 +20,7 @@ from
 insert overwrite table q15_top_supplier
 select 
   s_suppkey, s_name, s_address, s_phone, total_revenue
-from q15_supplier s join q15_revenue r 
+from supplier s join q15_revenue r
   on 
     s.s_suppkey = r.supplier_no
   join q15_max_revenue m 

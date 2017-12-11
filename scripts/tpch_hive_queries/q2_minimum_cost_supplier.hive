@@ -4,16 +4,16 @@ insert overwrite table q2_minimum_cost_supplier_tmp1
 select 
   s.s_acctbal, s.s_name, n.n_name, p.p_partkey, ps.ps_supplycost, p.p_mfgr, s.s_address, s.s_phone, s.s_comment 
 from 
-  q2_nation n join q2_region r 
+  nation n join region r
   on 
     n.n_regionkey = r.r_regionkey and r.r_name = 'EUROPE' 
-  join q2_supplier s 
+  join supplier s
   on 
 s.s_nationkey = n.n_nationkey 
-  join q2_partsupp ps 
+  join partsupp ps
   on  
 s.s_suppkey = ps.ps_suppkey 
-  join q2_part p 
+  join part p
   on 
     p.p_partkey = ps.ps_partkey and p.p_size = 15 and p.p_type like '%BRASS' ;
 

@@ -15,7 +15,7 @@ head_node_type = sys.argv[6]
 head_node_count = 2
 tag = sys.argv[7]
 
-url = 'http://52.169.163.208/api/benchmark/new'
+url = 'http://13.79.186.204/api/benchmark/new'
 data = {"uuid": uuid, "provider": "Azure", "test_size": test_size, "head_node_type": head_node_type,
         "head_node_count": head_node_count, "worker_node_type": worker_node_type,
         "worker_node_count": worker_node_count, "tag": tag}
@@ -28,18 +28,19 @@ if r.status_code == 200:
 # Run .hive files and time every bechmark
 hive_queries = natsorted(glob.glob("TPCH-framework/scripts/tpch_hive_queries/*.hive"))
 run = 0
-with open("TPCH-framework/scripts/prepare_tables.hive", 'r') as file:
+with open("TPCH-framework/scripts/import_dataset.hive", 'r') as file:
     filedata = file.read()
 newdata = filedata.replace("size_placeholder", test_size)
-with open("TPCH-framework/scripts/prepare_tables.hive", 'w') as file:
+with open("TPCH-framework/scripts/import_dataset.hive", 'w') as file:
     file.write(newdata)
+
+os.system('hive -f TPCH-framework/scripts/import_dataset.hive &>> table_creation_output.txt')
 
 print "Starting the benchmark"
 for run in range(times):
-    os.system('hadoop fs -rm -r  -f /hive/warehouse')
     log_file = open("benchmark_output.txt", "w")
     os.system('hive -f TPCH-framework/scripts/prepare_tables.hive &>> table_creation_output.txt')
-    url = 'http://52.169.163.208/api/measurement/new'
+    url = 'http://13.79.186.204/api/measurement/new'
     data = {"successful": "1", "uuid": str(uuid)}
     query_num = 0
     run += 1
