@@ -41,6 +41,8 @@ else
 ##############################
 
 # Randomize this run
+Write-Output("added minutes " + $hours)
+
 $random = -join ((48..57) + (97..122) | Get-Random -Count 16 | % {[char]$_})
 $random = "a" + $random
 Write-Output ("This script execution has been randomized with: " + $random)
@@ -384,11 +386,16 @@ $Form.Dispose()
 ##############################
 
 # Create the resource group
+$start = Get-Date -format HH:mm:ss
+
+$start_minute = (Get-Date).Minute;
+$start_minute = $start_minute/1;
+
 Write-Output ("Creating the resource group " + $resourceGroupName + " on your account")
 if (!(Get-AzureRmResourceGroup -Name $resourceGroupName -EA 0)) {
     New-AzureRmResourceGroup -Name $resourceGroupName -Location $location
 }
-
+$start_date = (Get-Date).Hour;
 # Create an Azure storage account and container
 Write-Output ("Creating the Azure storage account and container " + $defaultStorageAccountName + " on your account")
 New-AzureRmStorageAccount `
@@ -469,6 +476,46 @@ Write-Output "$(Get-Date)"
 Write-Output ("Removing all earlier created resources from your Azure account")
 
 Remove-AzureRmResourceGroup -Name $resourceGroupName -Force
+
+$end = Get-Date -format HH:mm:ss
+
+$TimeDiff = New-TimeSpan $start $end
+
+$hours = $TimeDiff.Hours;
+
+$added_minutes = $start_minute + $TimeDiff.Minutes;
+
+if( $added_minutes -gt 60 ) {
+
+$hours = $hours + 2;
+
+}else{
+
+$hours = $hours + 1;
+
+}
+
+switch($HeadNodeType) {
+	"Standard_A3" {$HeadNodeCost = (( 2 * 0.27) * $hours) }
+	"Standard_A4" {$HeadNodeCost = (( 2 * 0.54) * $hours) }
+	"Standard_A5" {$HeadNodeCost = (( 2 * 0.296) * $hours) }
+	"Standard_D3" {$HeadNodeCost = (( 2 * 0.525) * $hours) }
+	"Standard_D4" {$HeadNodeCost = (( 2 * 1.049) * $hours) }
+	"Standard_D5" {$HeadNodeCost = (( 2 * 2.097) * $hours) }
+}
+
+switch($WorkerNodeType) {
+	"Standard_A3" {$WorkerNodeCost = (( $WorkerCount * 0.27) * $hours) }
+	"Standard_A4" {$WorkerNodeCost = (( $WorkerCount * 0.54) * $hours) }
+	"Standard_A5" {$WorkerNodeCost = (( $WorkerCount * 0.296) * $hours) }
+	"Standard_D3" {$WorkerNodeCost = (( $WorkerCount * 0.525) * $hours) }
+	"Standard_D4" {$WorkerNodeCost = (( $WorkerCount * 1.049) * $hours) }
+	"Standard_D5" {$WorkerNodeCost = (( $WorkerCount * 2.097) * $hours) }
+}
+
+$cost = $HeadNodeCost + $WorkerNodeCost;
+
+Write-Output ($cost)
 
 Write-Output "$(Get-Date)"
 
