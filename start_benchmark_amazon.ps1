@@ -65,17 +65,18 @@ $random = -join ((48..57) + (97..122) | Get-Random -Count 16 | % {[char]$_})
 $random = "aws" + $random
 Write-Output ("Random cluster name is: " + $random)
 
+$filename = $random + ".pem"
 $myPSKeyPair = New-EC2KeyPair -KeyName $random
-$myPSKeyPair.KeyMaterial | Out-File -Encoding ascii myPSKeyPair.pem
+$myPSKeyPair.KeyMaterial | Out-File -Encoding ascii $filename
 
 Write-Output ("Creating the EMR cluster on your account")
 $job_id = Start-EMRJobFlow -Name $random `
                   -Instances_MasterInstanceType "m4.large" `
                   -Instances_SlaveInstanceType "m4.large" `
-                  -Instances_KeepJobFlowAliveWhenNoSteps $true `
+                  -Instances_KeepJobFlowAliveWhenNoStep $true `
                   -Instances_InstanceCount 2 `
                   -Instances_Ec2SubnetId "subnet-af4fbcd2" `
-                  -Instances_Ec2KeyName $myPSKeyPair `
+                  -Instances_Ec2KeyName $random `
                   -ReleaseLabel "emr-5.10.0" `
                   -JobFlowRole "EMR_EC2_DefaultRole" `
                   -ServiceRole "EMR_DefaultRole" `
@@ -99,8 +100,9 @@ $cluster = Get-EMRCluster -ClusterId $job_id
 ##############################
 
 $client = ("hadoop@" + $cluster.MasterPublicDnsName)
-
-$ssh = New-SSHSession $client -KeyFile ".\myPSKeyPair.pem"
+$file = ".\" + $filename
+Write-Output("Using " + $file + "to start ssh session")
+$ssh = New-SSHSession -ComputerName $client -KeyFile $file
 
 Write-Output ("Invoking scripts")
 Invoke-SSHCommand -SSHSession $ssh -Command 'export DEBIAN_FRONTEND=noninteractive'
@@ -111,10 +113,10 @@ Invoke-SSHCommand -SSHSession $ssh -Command 'pip install natsort'
 Write-Output ("Cloning GIT repo")
 Invoke-SSHCommand -SSHSession $ssh -Command 'git clone -b development https://github.com/enjee/TPCH-framework'
 
-Write-Output ("Running the Python benchmark")
-$PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat + ' ' + $WorkerCount + ' ' + $WorkerNodeType + ' ' + $HeadNodeType + ' ' + $Tag)
-Invoke-SSHCommand -SSHSession $ssh -Command $PythonCHmodCommand -timeout 999999
-Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand -timeout 999999
+#Write-Output ("Running the Python benchmark")
+#$PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat + ' ' + $WorkerCount + ' ' + $WorkerNodeType + ' ' + $HeadNodeType + ' ' + $Tag)
+#Invoke-SSHCommand -SSHSession $ssh -Command $PythonCHmodCommand -timeout 999999
+#Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand -timeout 999999
 
 Remove-SSHSession -SessionId 0
 
