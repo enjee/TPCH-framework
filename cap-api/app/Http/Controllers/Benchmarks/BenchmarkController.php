@@ -370,4 +370,17 @@ class BenchmarkController extends Controller
         }
     }
 
+    public function update_pricing($uuid, $cost){
+        $benchmark = Benchmark::where('uuid', '=', $uuid)->first();
+
+        if($benchmark){
+            $benchmark->cost = $cost;
+
+            $benchmark->save();
+            return response()->json($benchmark, 200);
+        }else{
+            return response()->json('benchmark not found', 404);
+        }
+    }
+
 }

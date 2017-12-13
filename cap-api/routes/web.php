@@ -64,3 +64,7 @@ Route::get('/api/benchmark/delete/{uuid}', '\App\Http\Controllers\Benchmarks\Ben
 
 Route::get('/api/measurement/delete/{uuid}/{run}', '\App\Http\Controllers\Benchmarks\BenchmarkController@delete_measurement');
 
+Route::get('/api/pricing/{uuid}/{cost}', '\App\Http\Controllers\Benchmarks\BenchmarkController@update_pricing');
+
+
+

@@ -24,6 +24,7 @@ class CreateBenchmarksTable extends Migration
             $table->string('worker_node_count');
             $table->string('test_size');
             $table->string('tag')->nullable();
+            $table->string('cost')->nullable();
 
         });
     }

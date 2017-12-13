@@ -169,6 +169,12 @@
                                 <h7><i>Tag</i></h7>
                                 <h6><b> #{{$benchmark->tag}}</b></h6>
                             </div>
+                            @if($benchmark->cost)
+                            <div class="col-sm-3">
+                                <h7><i>Cost</i></h7>
+                                <h6><b> €{{$benchmark->cost}}</b></h6>
+                            </div>
+                            @endif
             <?php
 
            $runtimes = array();

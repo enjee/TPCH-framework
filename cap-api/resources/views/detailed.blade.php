@@ -42,6 +42,12 @@
                         <h6><i>Tag</i></h6>
                         <h4> #{{$benchmark->tag}}</h4>
                     </div>
+                    @if($benchmark->cost)
+                    <div class="col-sm-3">
+                        <h6><i>Cost</i></h6>
+                        <h4><b> €{{$benchmark->cost}}</b></h4>
+                    </div>
+                    @endif
                     <div class="col-sm-3">
                         <h6><i>Average runtime</i></h6>
                         <?php
