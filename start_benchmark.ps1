@@ -475,6 +475,10 @@ Write-Output ("Removing all earlier created resources from your Azure account")
 
 Remove-AzureRmResourceGroup -Name $resourceGroupName -Force
 
+############################################
+# CALCULATE AMOUNT OF BILLED HOURS         #
+############################################
+
 $end = Get-Date -format HH:mm:ss
 
 $TimeDiff = New-TimeSpan $start $end
@@ -492,6 +496,10 @@ $hours = $hours + 2;
 $hours = $hours + 1;
 
 }
+
+##############################################
+# CALCULATE COST OF THIS BENCHMARK           #
+##############################################
 
 switch($HeadNodeType) {
 	"Standard_A3" {$HeadNodeCost = (( 2 * 0.27) * $hours) }
