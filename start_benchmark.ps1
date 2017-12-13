@@ -41,8 +41,6 @@ else
 ##############################
 
 # Randomize this run
-Write-Output("added minutes " + $hours)
-
 $random = -join ((48..57) + (97..122) | Get-Random -Count 16 | % {[char]$_})
 $random = "a" + $random
 Write-Output ("This script execution has been randomized with: " + $random)
@@ -515,7 +513,8 @@ switch($WorkerNodeType) {
 
 $cost = $HeadNodeCost + $WorkerNodeCost;
 
-Write-Output ($cost)
+Invoke-RestMethod -Uri http://13.79.186.204/api/pricing/$random/$cost
+
 
 Write-Output "$(Get-Date)"
 
