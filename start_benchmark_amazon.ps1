@@ -69,6 +69,23 @@ $filename = $random + ".pem"
 $myPSKeyPair = New-EC2KeyPair -KeyName $random
 $myPSKeyPair.KeyMaterial | Out-File -Encoding ascii $filename
 
+# Enable ssh access
+$groupid = New-EC2SecurityGroup -GroupName $random -GroupDescription "EC2-Classic from PowerShell"
+$ip1 = new-object Amazon.EC2.Model.IpPermission 
+$ip1.IpProtocol = "tcp" 
+$ip1.FromPort = 22 
+$ip1.ToPort = 22 
+$ip1.IpRanges.Add("203.0.113.25/32") 
+
+$ip2 = new-object Amazon.EC2.Model.IpPermission 
+$ip2.IpProtocol = "tcp" 
+$ip2.FromPort = 3389 
+$ip2.ToPort = 3389 
+$ip2.IpRanges.Add("203.0.113.25/32") 
+
+Grant-EC2SecurityGroupIngress -GroupId $groupid -IpPermissions @( $ip1, $ip2 )	
+
+
 Write-Output ("Creating the EMR cluster on your account")
 $job_id = Start-EMRJobFlow -Name $random `
                   -Instances_MasterInstanceType "m4.large" `
@@ -80,7 +97,9 @@ $job_id = Start-EMRJobFlow -Name $random `
                   -ReleaseLabel "emr-5.10.0" `
                   -JobFlowRole "EMR_EC2_DefaultRole" `
                   -ServiceRole "EMR_DefaultRole" `
-                  -VisibleToAllUsers $true
+                  -VisibleToAllUsers $true `
+				  -Instances_AdditionalMasterSecurityGroup $groupid
+
 
 Write-Output ("Cluster with id " + $job_id + "is being created")
 
