@@ -54,17 +54,26 @@ if (!(Get-Module -ListAvailable -Name Posh-SSH)) {
     Write-Output "Posh-SSH is already present"
 }
 
-$access_key = "XXXX"
-$secret_key = "XXXX"
+# Keys
+$access_key = "AKIAJGHXB6PSFLUTAA3Q"
+$secret_key = "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"
 Set-AWSCredential -AccessKey $access_key -SecretKey $secret_key -StoreAs AwsProfile
 Initialize-AWSDefaults -ProfileName AwsProfile -Region eu-central-1
 
+# Files
+$Path = ((Split-Path -Path $MyInvocation.MyCommand.Definition -Parent) + "\")
+$PythonFileName = "hdinsight_benchmark.py"
+$SftpPath = ('/home/' + $username + '/')
+$PythonFile = ($SftpPath + 'TPCH-framework/scripts/' + $PythonFileName)
+$PythonCHmodCommand = ('sudo chmod +x ' + $PythonFile)
+$PythonCommand = ('python ' + $PythonFile + ' ' + $random)
 
 # Create random cluster name
 $random = -join ((48..57) + (97..122) | Get-Random -Count 16 | % {[char]$_})
 $random = "aws" + $random
 Write-Output ("Random cluster name is: " + $random)
 
+$hive = new-object Amazon.ElasticMapReduce.Model.Application "mapr-m3"
 $filename = $random + ".pem"
 $myPSKeyPair = New-EC2KeyPair -KeyName $random
 $myPSKeyPair.KeyMaterial | Out-File -Encoding ascii $filename
@@ -77,20 +86,22 @@ $job_id = Start-EMRJobFlow -Name $random `
                   -Instances_InstanceCount 2 `
                   -Instances_Ec2SubnetId "subnet-af4fbcd2" `
                   -Instances_Ec2KeyName $random `
+                  -Application $hive `
                   -ReleaseLabel "emr-5.10.0" `
                   -JobFlowRole "EMR_EC2_DefaultRole" `
                   -ServiceRole "EMR_DefaultRole" `
                   -VisibleToAllUsers $true
 
-Write-Output ("Cluster with id " + $job_id + "is being created")
+Write-Output ("Cluster with id " + $job_id + " is being created")
 
 # Wait until cluster is created
 do {
     Start-Sleep 10
     $waitingiswaiting = Get-EMRClusterList -ClusterState "STARTING"
     $waitcnt = $waitcnt + 10
-    #Write-Host "Starting..." $waitcnt
+    Write-Output("Starting..." + $waitcnt)
 }while($waitingiswaiting.Count -eq 1)
+
 
 # Get cluster information
 $cluster = Get-EMRCluster -ClusterId $job_id
@@ -98,29 +109,35 @@ $cluster = Get-EMRCluster -ClusterId $job_id
 ##############################
 # SSH INTO SERVER            #
 ##############################
+$ComputerName = $cluster.MasterPublicDnsName
+$UserName = "hadoop"
+$KeyFile = ".\" + $filename
+$nopasswd = new-object System.Security.SecureString
+$Crendtial = New-Object System.Management.Automation.PSCredential ($UserName, $nopasswd)
 
-$client = ("hadoop@" + $cluster.MasterPublicDnsName)
-$file = ".\" + $filename
-Write-Output("Using " + $file + "to start ssh session")
-$ssh = New-SSHSession -ComputerName $client -KeyFile $file
+Write-Output("Using keyfile to start ssh session")
+$ssh = New-SSHSession -ComputerName $ComputerName -Credential $Crendtial -KeyFile $KeyFile -AcceptKey:$true
 
 Write-Output ("Invoking scripts")
 Invoke-SSHCommand -SSHSession $ssh -Command 'export DEBIAN_FRONTEND=noninteractive'
+
 Write-Output ("Installing Python modules")
+Invoke-SSHCommand -SSHSession $ssh -Command 'yes | sudo yum install git'
 Invoke-SSHCommand -SSHSession $ssh -Command 'pip install requests'
 Invoke-SSHCommand -SSHSession $ssh -Command 'pip install natsort'
 
 Write-Output ("Cloning GIT repo")
 Invoke-SSHCommand -SSHSession $ssh -Command 'git clone -b development https://github.com/enjee/TPCH-framework'
 
-#Write-Output ("Running the Python benchmark")
+Write-Output ("Running the Python benchmark")
 #$PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat + ' ' + $WorkerCount + ' ' + $WorkerNodeType + ' ' + $HeadNodeType + ' ' + $Tag)
-#Invoke-SSHCommand -SSHSession $ssh -Command $PythonCHmodCommand -timeout 999999
-#Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand -timeout 999999
+$PythonCommand = ($PythonCommand + ' ' + 1 + ' ' + 1 + ' ' + 1 + ' ' + 1 + ' ' + 1 + ' ' + "asad")
+Invoke-SSHCommand -SSHSession $ssh -Command $PythonCHmodCommand -timeout 999999
+Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand -timeout 999999
 
 Remove-SSHSession -SessionId 0
 
 
-#Remove-EC2KeyPair -KeyName $random
-#Stop-EMRJobFlow-JobFlowId $job_id
+Remove-EC2KeyPair -KeyName $random
+Stop-EMRJobFlow-JobFlowId $job_id
 
