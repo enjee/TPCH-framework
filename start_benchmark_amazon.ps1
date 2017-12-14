@@ -55,8 +55,8 @@ if (!(Get-Module -ListAvailable -Name Posh-SSH)) {
 }
 
 # Keys
-$access_key = "AKIAJGHXB6PSFLUTAA3Q"
-$secret_key = "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"
+$access_key = "XXXX"
+$secret_key = "XXXX"
 Set-AWSCredential -AccessKey $access_key -SecretKey $secret_key -StoreAs AwsProfile
 Initialize-AWSDefaults -ProfileName AwsProfile -Region eu-central-1
 
@@ -108,7 +108,7 @@ $job_id = Start-EMRJobFlow -Name $random `
                   -JobFlowRole "EMR_EC2_DefaultRole" `
                   -ServiceRole "EMR_DefaultRole" `
                   -VisibleToAllUsers $true `
-				  -Instances_AdditionalMasterSecurityGroup $groupid
+				          -Instances_AdditionalMasterSecurityGroup $groupid
 
 
 Write-Output ("Cluster with id " + $job_id + " is being created")
