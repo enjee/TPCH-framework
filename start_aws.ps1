@@ -55,8 +55,8 @@ if (!(Get-Module -ListAvailable -Name Posh-SSH)) {
 }
 
 # Keys
-$access_key = "XXXX"
-$secret_key = "XXXX"
+$access_key = "AKIAJUDIT6LYIQYB3SUQ"
+$secret_key = "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"
 Set-AWSCredential -AccessKey $access_key -SecretKey $secret_key -StoreAs AwsProfile
 Initialize-AWSDefaults -ProfileName AwsProfile -Region eu-central-1
 
