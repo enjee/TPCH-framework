@@ -96,7 +96,7 @@ $ip2.IpRanges.Add("0.0.0.0/0")
 
 
 
-Grant-EC2SecurityGroupIngress -GroupId $groupid -IpPermissions @( $ip1, $ip2, $ip3, $ip4 )	
+Grant-EC2SecurityGroupIngress -GroupId $groupid -IpPermissions @( $ip1, $ip2 )	
 
 
 Write-Output ("Creating the EMR cluster on your account")
@@ -129,20 +129,7 @@ do {
 # Get cluster information
 $cluster = Get-EMRCluster -ClusterId $job_id
 
-## For setting up interactive hive environment - first flow
-$stepFactory = New-Object  Amazon.ElasticMapReduce.Model.StepFactory
-$hiveSetupStep = $stepFactory.NewInstallHiveStep([Amazon.ElasticMapReduce.Model.StepFactory+HiveVersion]::Hive_Latest)
-$hiveStepConfig = CreateStepConfig "Test Interactive Hive" $hiveSetupStep
-Add-EMRJobFlowStep -JobFlowId $jobid -Steps $hiveStepConfig
-
 $waitcnt = 0
-
-do {
-    Start-Sleep 10
-    $running = Get-EMRJobFlow -JobFlowStates ("RUNNING") -JobFlowId $jobid
-    $waitcnt = $waitcnt + 10
-    Write-Host "Setting up Hive..." $waitcnt
-}while($running.Count -eq 1)
 
 ##############################
 # SSH INTO SERVER            #
@@ -162,7 +149,7 @@ Invoke-SSHCommand -SSHSession $ssh -Command 'export DEBIAN_FRONTEND=noninteracti
 Write-Output ("Installing Python modules")
 Invoke-SSHCommand -SSHSession $ssh -Command 'yes | sudo yum install git'
 Invoke-SSHCommand -SSHSession $ssh -Command 'pip install requests'
-Invoke-SSHCommand -SSHSession $ssh -Command 'pip install natsort'
+Invoke-SSHCommand -SSHSession $ssh -Command 'sudo pip install natsort'
 
 Write-Output ("Cloning GIT repo")
 Invoke-SSHCommand -SSHSession $ssh -Command 'git clone -b development https://github.com/enjee/TPCH-framework'
