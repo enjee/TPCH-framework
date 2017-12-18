@@ -73,7 +73,8 @@ $random = -join ((48..57) + (97..122) | Get-Random -Count 16 | % {[char]$_})
 $random = "aws" + $random
 Write-Output ("Random cluster name is: " + $random)
 
-$hive = new-object Amazon.ElasticMapReduce.Model.Application "mapr-m3"
+$hive = new-object Amazon.ElasticMapReduce.Model.Application
+$hive.Name = "Hive"
 $filename = $random + ".pem"
 $myPSKeyPair = New-EC2KeyPair -KeyName $random
 $myPSKeyPair.KeyMaterial | Out-File -Encoding ascii $filename
