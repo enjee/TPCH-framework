@@ -55,8 +55,8 @@ if (!(Get-Module -ListAvailable -Name Posh-SSH)) {
 }
 
 # Keys
-$access_key = "XXXX"
-$secret_key = "XXXX"
+$access_key = "AKIAJUDIT6LYIQYB3SUQ"
+$secret_key = "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"
 Set-AWSCredential -AccessKey $access_key -SecretKey $secret_key -StoreAs AwsProfile
 Initialize-AWSDefaults -ProfileName AwsProfile -Region eu-central-1
 
@@ -85,13 +85,13 @@ $ip1 = new-object Amazon.EC2.Model.IpPermission
 $ip1.IpProtocol = "tcp" 
 $ip1.FromPort = 22 
 $ip1.ToPort = 22 
-$ip1.IpRanges.Add("203.0.113.25/32") 
+$ip1.IpRanges.Add("0.0.0.0/0, ::/0") 
 
 $ip2 = new-object Amazon.EC2.Model.IpPermission 
 $ip2.IpProtocol = "tcp" 
 $ip2.FromPort = 3389 
 $ip2.ToPort = 3389 
-$ip2.IpRanges.Add("203.0.113.25/32") 
+$ip2.IpRanges.Add("0.0.0.0/0, ::/0") 
 
 Grant-EC2SecurityGroupIngress -GroupId $groupid -IpPermissions @( $ip1, $ip2 )	
 
