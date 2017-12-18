@@ -55,8 +55,8 @@ if (!(Get-Module -ListAvailable -Name Posh-SSH)) {
 }
 
 # Keys
-$access_key = "AKIAJUDIT6LYIQYB3SUQ"
-$secret_key = "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"
+$access_key = "XXXX"
+$secret_key = "XXXX"
 Set-AWSCredential -AccessKey $access_key -SecretKey $secret_key -StoreAs AwsProfile
 Initialize-AWSDefaults -ProfileName AwsProfile -Region eu-central-1
 
@@ -85,15 +85,18 @@ $ip1 = new-object Amazon.EC2.Model.IpPermission
 $ip1.IpProtocol = "tcp" 
 $ip1.FromPort = 22 
 $ip1.ToPort = 22 
-$ip1.IpRanges.Add("0.0.0.0/0, ::/0") 
+$ip1.IpRanges.Add("0.0.0.0/0")
+
 
 $ip2 = new-object Amazon.EC2.Model.IpPermission 
 $ip2.IpProtocol = "tcp" 
 $ip2.FromPort = 3389 
 $ip2.ToPort = 3389 
-$ip2.IpRanges.Add("0.0.0.0/0, ::/0") 
+$ip2.IpRanges.Add("0.0.0.0/0") 
 
-Grant-EC2SecurityGroupIngress -GroupId $groupid -IpPermissions @( $ip1, $ip2 )	
+
+
+Grant-EC2SecurityGroupIngress -GroupId $groupid -IpPermissions @( $ip1, $ip2, $ip3, $ip4 )	
 
 
 Write-Output ("Creating the EMR cluster on your account")
@@ -125,6 +128,21 @@ do {
 
 # Get cluster information
 $cluster = Get-EMRCluster -ClusterId $job_id
+
+## For setting up interactive hive environment - first flow
+$stepFactory = New-Object  Amazon.ElasticMapReduce.Model.StepFactory
+$hiveSetupStep = $stepFactory.NewInstallHiveStep([Amazon.ElasticMapReduce.Model.StepFactory+HiveVersion]::Hive_Latest)
+$hiveStepConfig = CreateStepConfig "Test Interactive Hive" $hiveSetupStep
+Add-EMRJobFlowStep -JobFlowId $jobid -Steps $hiveStepConfig
+
+$waitcnt = 0
+
+do {
+    Start-Sleep 10
+    $running = Get-EMRJobFlow -JobFlowStates ("RUNNING") -JobFlowId $jobid
+    $waitcnt = $waitcnt + 10
+    Write-Host "Setting up Hive..." $waitcnt
+}while($running.Count -eq 1)
 
 ##############################
 # SSH INTO SERVER            #
