@@ -14,9 +14,10 @@ worker_node_type = sys.argv[5]
 head_node_type = sys.argv[6]
 head_node_count = 2
 tag = sys.argv[7]
+provider = sys.argv[8]
 
 url = 'http://13.79.186.204/api/benchmark/new'
-data = {"uuid": uuid, "provider": "Azure", "test_size": test_size, "head_node_type": head_node_type,
+data = {"uuid": uuid, "provider": provider, "test_size": test_size, "head_node_type": head_node_type,
         "head_node_count": head_node_count, "worker_node_type": worker_node_type,
         "worker_node_count": worker_node_count, "tag": tag}
 r = requests.post(url, data=data)
