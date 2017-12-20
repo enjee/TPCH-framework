@@ -1,41 +1,16 @@
+##############################
+# Get arguments              #
+##############################
+$Size = $args[0]
+$Repeat = $args[1]
+$WorkerCount = $args[2]
+$WorkerNodeType = $args[3]
+$HeadNodeType = $args[4]
+$Tag = $args[5]
 
-# Get the ID and security principal of the current user account
-$myWindowsID=[System.Security.Principal.WindowsIdentity]::GetCurrent()
-$myWindowsPrincipal=new-object System.Security.Principal.WindowsPrincipal($myWindowsID)
-
-# Get the security principal for the Administrator role
-$adminRole=[System.Security.Principal.WindowsBuiltInRole]::Administrator
-
-# Check to see if we are currently running "as Administrator"
-if ($myWindowsPrincipal.IsInRole($adminRole))
-   {
-   # We are running "as Administrator" - so change the title and background color to indicate this
-   $Host.UI.RawUI.WindowTitle = $myInvocation.MyCommand.Definition + "(Elevated)"
-   $Host.UI.RawUI.BackgroundColor = "DarkCyan"
-   $Host.UI.RawUI.ForegroundColor = "white"
-   clear-host
-   }
-else
-   {
-   # We are not running "as Administrator" - so relaunch as administrator
-
-   # Create a new process object that starts PowerShell
-   $newProcess = new-object System.Diagnostics.ProcessStartInfo "PowerShell";
-
-   # Specify the current script path and name as a parameter
-   $newProcess.Arguments = $myInvocation.MyCommand.Definition;
-
-   # Indicate that the process should be elevated
-   $newProcess.Verb = "runas";
-
-   # Start the new process
-   [System.Diagnostics.Process]::Start($newProcess);
-
-   # Exit from the current, unelevated, process
-   exit
-   }
-
-
+##############################
+# Install needed modules     #
+##############################
 Write-Output "Checking for AWS PowerShell"
 if (!(Get-Module -ListAvailable -Name AWSPowerShell)) {
     Install-Module -Name AWSPowerShell
@@ -54,9 +29,75 @@ if (!(Get-Module -ListAvailable -Name Posh-SSH)) {
     Write-Output "Posh-SSH is already present"
 }
 
+##############################
+# Login GUI                  #
+##############################
+Add-Type -AssemblyName System.Windows.Forms
+
+$Form = New-Object system.Windows.Forms.Form
+$Form.Text = "Authenticate for Amazon"
+$Form.TopMost = $true
+$Form.Width = 500
+$Form.Height = 300
+$Form.StartPosition = "CenterScreen"
+
+$access_key_label = New-Object system.windows.Forms.Label
+$access_key_label.Text = "Access key: "
+$access_key_label.AutoSize = $true
+$access_key_label.Width = 25
+$access_key_label.Height = 10
+$access_key_label.location = new-object system.drawing.point(130,100)
+$access_key_label.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($access_key_label)
+
+$access = New-Object system.windows.Forms.TextBox
+$access.Width = 150
+$access.Height = 20
+$access.location = new-object system.drawing.point(260,100)
+$access.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($access)
+
+$secret_key_label = New-Object system.windows.Forms.Label
+$secret_key_label.Text = "Secret key: "
+$secret_key_label.AutoSize = $true
+$secret_key_label.Width = 25
+$secret_key_label.Height = 10
+$secret_key_label.location = new-object system.drawing.point(130,150)
+$secret_key_label.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($secret_key_label)
+
+#$secret = New-Object Windows.Forms.MaskedTextBox
+$secret = New-Object Windows.Forms.TextBox
+$secret.Width = 150
+$secret.Height = 20
+#$secret.PasswordChar = '*'
+$secret.location = new-object system.drawing.point(260,150)
+$secret.Font = "Microsoft Sans Serif,10"
+$Form.controls.Add($secret)
+
+$start = New-Object system.windows.Forms.Button
+$start.Text = "Authenticate"
+$start.Width = 141
+$start.Height = 29
+$start.location = new-object system.drawing.point(200,200)
+$Form.controls.Add($start)
+
+$start.Add_Click({
+    $form.Close()
+})
+[System.Windows.Forms.Application]::EnableVisualStyles();
+[void]$Form.ShowDialog()
+$Form.Dispose()
+
+#$secstr = $secret_key.Text | ConvertTo-SecureString -AsPlainText -Force
+
+##############################
+# ALL CONSTANTS & VARIABLES  #
+##############################
+
 # Keys
-$access_key = "XXXX"
-$secret_key = "XXXX"
+$access_key = $access.Text
+$secret_key = $secret.Text
 Set-AWSCredential -AccessKey $access_key -SecretKey $secret_key -StoreAs AwsProfile
 Initialize-AWSDefaults -ProfileName AwsProfile -Region eu-central-1
 
@@ -94,17 +135,17 @@ $ip2.FromPort = 3389
 $ip2.ToPort = 3389 
 $ip2.IpRanges.Add("0.0.0.0/0") 
 
-
-
 Grant-EC2SecurityGroupIngress -GroupId $groupid -IpPermissions @( $ip1, $ip2 )	
 
-
+##############################
+# Create EMR cluster         #
+##############################
 Write-Output ("Creating the EMR cluster on your account")
 $job_id = Start-EMRJobFlow -Name $random `
-                  -Instances_MasterInstanceType "m4.large" `
-                  -Instances_SlaveInstanceType "m4.large" `
+                  -Instances_MasterInstanceType $HeadNodeType `
+                  -Instances_SlaveInstanceType $WorkerNodeType `
                   -Instances_KeepJobFlowAliveWhenNoStep $true `
-                  -Instances_InstanceCount 2 `
+                  -Instances_InstanceCount $WorkerCount `
                   -Instances_Ec2SubnetId "subnet-af4fbcd2" `
                   -Instances_Ec2KeyName $random `
                   -Application $hive `
@@ -155,14 +196,13 @@ Write-Output ("Cloning GIT repo")
 Invoke-SSHCommand -SSHSession $ssh -Command 'git clone -b development https://github.com/enjee/TPCH-framework'
 
 Write-Output ("Running the Python benchmark")
-#$PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat + ' ' + $WorkerCount + ' ' + $WorkerNodeType + ' ' + $HeadNodeType + ' ' + $Tag)
-$PythonCommand = ($PythonCommand + ' ' + 1 + ' ' + 1 + ' ' + 1 + ' ' + 1 + ' ' + 1 + ' ' + "asad")
+$PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat + ' ' + $WorkerCount + ' ' + $WorkerNodeType + ' ' + $HeadNodeType + ' ' + $Tag + " Amazon")
 Invoke-SSHCommand -SSHSession $ssh -Command $PythonCHmodCommand -timeout 999999
 Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand -timeout 999999
 
 Remove-SSHSession -SessionId 0
 
 
-Remove-EC2KeyPair -KeyName $random
-Stop-EMRJobFlow-JobFlowId $job_id
+#Remove-EC2KeyPair -KeyName $random
+#Stop-EMRJobFlow-JobFlowId $job_id
 
