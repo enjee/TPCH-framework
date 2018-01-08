@@ -208,7 +208,15 @@ Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand -timeout 999999
 
 Remove-SSHSession -SessionId 0
 
-Remove-EC2SecurityGroup -GroupName $random
-Remove-EC2KeyPair -KeyName $random
-Stop-EMRJobFlow-JobFlowId $job_id
+Stop-EMRJobFlow -JobFlowId $job_id -Force
 
+# Wait until cluster is terminated
+do {
+    Start-Sleep 10
+    $state = Get-EMRCluster -ClusterId $job_id
+    $waitcnt = $waitcnt + 10
+    Write-Output("Terminating..." + $waitcnt)
+}while($state.Status.State -eq "TERMINATING")
+
+Remove-EC2SecurityGroup -GroupName $random -Force
+Remove-EC2KeyPair -KeyName $random -Force
