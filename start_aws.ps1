@@ -66,11 +66,10 @@ $secret_key_label.location = new-object system.drawing.point(130,150)
 $secret_key_label.Font = "Microsoft Sans Serif,10"
 $Form.controls.Add($secret_key_label)
 
-#$secret = New-Object Windows.Forms.MaskedTextBox
-$secret = New-Object Windows.Forms.TextBox
+$secret = New-Object Windows.Forms.MaskedTextBox
 $secret.Width = 150
 $secret.Height = 20
-#$secret.PasswordChar = '*'
+$secret.PasswordChar = '*'
 $secret.location = new-object system.drawing.point(260,150)
 $secret.Font = "Microsoft Sans Serif,10"
 $Form.controls.Add($secret)
@@ -97,7 +96,9 @@ $Form.Dispose()
 
 # Keys
 $access_key = $access.Text
-$secret_key = $secret.Text
+$secret_key_secure =  $secret.Text | ConvertTo-SecureString -AsPlainText -Force
+$BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secret_key_secure)
+$secret_key = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 Set-AWSCredential -AccessKey $access_key -SecretKey $secret_key -StoreAs AwsProfile
 Initialize-AWSDefaults -ProfileName AwsProfile -Region eu-central-1
 
@@ -136,6 +137,12 @@ $ip2.IpRanges.Add("0.0.0.0/0")
 
 Grant-EC2SecurityGroupIngress -GroupId $groupid -IpPermissions @( $ip1, $ip2 )	
 
+$subnet_filter =  new-object Amazon.EC2.Model.Filter
+$subnet_filter.name = "availabilityZone"
+$subnet_filter.values = "eu-central-1b"
+$subnet = Get-EC2Subnet -Filter $subnet_filter
+
+
 ##############################
 # Create EMR cluster         #
 ##############################
@@ -145,7 +152,7 @@ $job_id = Start-EMRJobFlow -Name $random `
                   -Instances_SlaveInstanceType $WorkerNodeType `
                   -Instances_KeepJobFlowAliveWhenNoStep $true `
                   -Instances_InstanceCount $WorkerCount `
-                  -Instances_Ec2SubnetId "subnet-af4fbcd2" `
+                  -Instances_Ec2SubnetId $subnet.SubnetId `
                   -Instances_Ec2KeyName $random `
                   -Application $hive `
                   -ReleaseLabel "emr-5.10.0" `
@@ -160,10 +167,10 @@ Write-Output ("Cluster with id " + $job_id + " is being created")
 # Wait until cluster is created
 do {
     Start-Sleep 10
-    $waitingiswaiting = Get-EMRClusterList -ClusterState "STARTING"
+    $state = Get-EMRCluster -ClusterId $job_id
     $waitcnt = $waitcnt + 10
     Write-Output("Starting..." + $waitcnt)
-}while($waitingiswaiting.Count -eq 1)
+}while($state.Status.State -eq "STARTING")
 
 
 # Get cluster information
@@ -201,7 +208,7 @@ Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand -timeout 999999
 
 Remove-SSHSession -SessionId 0
 
-
-#Remove-EC2KeyPair -KeyName $random
-#Stop-EMRJobFlow-JobFlowId $job_id
+Remove-EC2SecurityGroup -GroupName $random
+Remove-EC2KeyPair -KeyName $random
+Stop-EMRJobFlow-JobFlowId $job_id
 
