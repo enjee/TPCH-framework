@@ -101,18 +101,17 @@ $secret_key = $secret.Text
 Set-AWSCredential -AccessKey $access_key -SecretKey $secret_key -StoreAs AwsProfile
 Initialize-AWSDefaults -ProfileName AwsProfile -Region eu-central-1
 
-# Files
-$Path = ((Split-Path -Path $MyInvocation.MyCommand.Definition -Parent) + "\")
-$PythonFileName = "hdinsight_benchmark.py"
-$SftpPath = ('/home/' + $username + '/')
-$PythonFile = ($SftpPath + 'TPCH-framework/scripts/' + $PythonFileName)
-$PythonCHmodCommand = ('sudo chmod +x ' + $PythonFile)
-$PythonCommand = ('python ' + $PythonFile + ' ' + $random)
-
 # Create random cluster name
 $random = -join ((48..57) + (97..122) | Get-Random -Count 16 | % {[char]$_})
 $random = "aws" + $random
 Write-Output ("Random cluster name is: " + $random)
+
+# Files
+$Path = ((Split-Path -Path $MyInvocation.MyCommand.Definition -Parent) + "\")
+$PythonFileName = "hdinsight_benchmark.py"
+$PythonFile = ('TPCH-framework/scripts/' + $PythonFileName)
+$PythonCHmodCommand = ('sudo chmod +x ' + $PythonFile)
+$PythonCommand = ('python ' + $PythonFile + ' ' + $random)
 
 $hive = new-object Amazon.ElasticMapReduce.Model.Application
 $hive.Name = "Hive"
