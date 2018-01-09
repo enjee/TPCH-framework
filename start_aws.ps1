@@ -142,6 +142,19 @@ $subnet_filter.name = "availabilityZone"
 $subnet_filter.values = "eu-central-1b"
 $subnet = Get-EC2Subnet -Filter $subnet_filter
 
+##############################################
+# removing previous & creating new IAM role  #
+##############################################
+
+$rolename = 'Test-Federation-Role'
+Get-IAMInstanceProfileForRole -RoleName $rolename | Remove-IAMRoleFromInstanceProfile -RoleName $rolename | Remove-IAMInstanceProfile
+Get-IAMAttachedRolePolicies -RoleName $rolename | Unregister-IAMRolePolicy -RoleName $rolename
+Remove-IAMRole -RoleName $rolename
+$accid = Get-IAMAccountAlias
+
+
+$policyFilePath = $PSScriptRoot + '\policies\trustpolicyforfederation.json'
+$iamrole = New-IAMRole -RoleName $rolename -AssumeRolePolicyDocument (Get-Content -raw $policyFilePath)
 
 ##############################
 # Create EMR cluster         #
