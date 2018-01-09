@@ -88,7 +88,6 @@ $start.Add_Click({
 [void]$Form.ShowDialog()
 $Form.Dispose()
 
-#$secstr = $secret_key.Text | ConvertTo-SecureString -AsPlainText -Force
 
 ##############################
 # ALL CONSTANTS & VARIABLES  #
@@ -114,20 +113,24 @@ $PythonFile = ('TPCH-framework/scripts/' + $PythonFileName)
 $PythonCHmodCommand = ('sudo chmod +x ' + $PythonFile)
 $PythonCommand = ('python ' + $PythonFile + ' ' + $random)
 
+#start time for calculating cost
+$start = Get-Date -format HH:mm:ss
+
+###################################
+# Enable ssh access and make Hive #
+###################################
 $hive = new-object Amazon.ElasticMapReduce.Model.Application
 $hive.Name = "Hive"
 $filename = $random + ".pem"
 $myPSKeyPair = New-EC2KeyPair -KeyName $random
 $myPSKeyPair.KeyMaterial | Out-File -Encoding ascii $filename
 
-# Enable ssh access
 $groupid = New-EC2SecurityGroup -GroupName $random -GroupDescription "EC2-Classic from PowerShell"
 $ip1 = new-object Amazon.EC2.Model.IpPermission 
 $ip1.IpProtocol = "tcp" 
 $ip1.FromPort = 22 
 $ip1.ToPort = 22 
 $ip1.IpRanges.Add("0.0.0.0/0")
-
 
 $ip2 = new-object Amazon.EC2.Model.IpPermission 
 $ip2.IpProtocol = "tcp" 
@@ -137,6 +140,9 @@ $ip2.IpRanges.Add("0.0.0.0/0")
 
 Grant-EC2SecurityGroupIngress -GroupId $groupid -IpPermissions @( $ip1, $ip2 )	
 
+##############################
+# Get subnet                 #
+##############################
 $subnet_filter =  new-object Amazon.EC2.Model.Filter
 $subnet_filter.name = "availabilityZone"
 $subnet_filter.values = "eu-central-1b"
@@ -218,5 +224,44 @@ do {
     Write-Output("Terminating..." + $waitcnt)
 }while($state.Status.State -eq "TERMINATING")
 
-Remove-EC2SecurityGroup -GroupName $random -Force
 Remove-EC2KeyPair -KeyName $random -Force
+Remove-EC2SecurityGroup -GroupName $random -Force
+
+############################################
+# CALCULATE AMOUNT OF BILLED HOURS         #
+############################################
+
+$end = Get-Date -format HH:mm:ss
+
+$TimeDiff = New-TimeSpan $start $end
+
+$seconds = $TimeDiff.totalSeconds;
+$hours = $seconds/60/60; 
+
+##############################################
+# CALCULATE COST OF THIS BENCHMARK           #
+##############################################
+
+switch($HeadNodeType) {
+  "m4.large" {$HeadNodeCost = (0.125 * $hours) }
+  "m4.xlarge" {$HeadNodeCost = (0.25 * $hours) }
+  "m4.2xlarge" {$HeadNodeCost = (0.5 * $hours) }
+  }
+
+switch($WorkerNodeType) {
+  "m4.large" {$WorkerNodeCost = (( $WorkerCount * 0.125) * $hours) }
+  "m4.xlarge" {$WorkerNodeCost = (( $WorkerCount * 0.25) * $hours) }
+  "m4.2xlarge" {$WorkerNodeCost = (( $WorkerCount * 0.5) * $hours) }
+}
+
+$cost = $HeadNodeCost + $WorkerNodeCost;
+
+Invoke-RestMethod -Uri http://13.79.186.204/api/pricing/$random/$cost
+
+
+Write-Output "$(Get-Date)"
+
+Write-Output ("Find your benchmark at: http://tpch.ga/detailed/" + $random)
+Write-Host "Press any key to exit ..."
+
+$x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
