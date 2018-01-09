@@ -248,8 +248,7 @@ $end = Get-Date -format HH:mm:ss
 
 $TimeDiff = New-TimeSpan $start $end
 
-$seconds = $TimeDiff.totalSeconds;
-$hours = $seconds/60/60; 
+$hours = $TimeDiff.totalHours;
 
 ##############################################
 # CALCULATE COST OF THIS BENCHMARK           #
@@ -267,7 +266,7 @@ switch($WorkerNodeType) {
   "m4.2xlarge" {$WorkerNodeCost = (( $WorkerCount * 0.5) * $hours) }
 }
 
-$cost = $HeadNodeCost + $WorkerNodeCost;
+$cost = [Math]::Round($HeadNodeCost + $WorkerNodeCost,3);
 
 Invoke-RestMethod -Uri http://13.79.186.204/api/pricing/$random/$cost
 
