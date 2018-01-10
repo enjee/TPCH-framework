@@ -237,6 +237,11 @@ do {
     Write-Output("Terminating..." + $waitcnt)
 }while($state.Status.State -eq "TERMINATING")
 
+
+do{
+  $ec2insances = Get-EMRInstances -ClusterId $job_id -InstanceState "TERMINATED"
+}while($ec2instances.Count < 3)
+
 Remove-EC2KeyPair -KeyName $random -Force
 Remove-EC2SecurityGroup -GroupName $random -Force
 
