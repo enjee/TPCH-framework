@@ -170,7 +170,7 @@ Write-Output ("Cloning GIT repo")
 Invoke-SSHCommand -SSHSession $ssh -Command 'git clone -b development https://github.com/enjee/TPCH-framework'
 
 Write-Output ("Running the Python benchmark")
-$PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat + ' ' + $WorkerCount + ' ' + $WorkerNodeType + ' ' + $HeadNodeType + ' ' + $Tag + "Azure")
+$PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat + ' ' + $WorkerCount + ' ' + $WorkerNodeType + ' ' + $HeadNodeType + ' ' + $Tag + " Azure")
 Invoke-SSHCommand -SSHSession $ssh -Command $PythonCHmodCommand -timeout 999999
 Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand -timeout 999999
 
@@ -181,7 +181,7 @@ Write-Output ("Finished executing all scripts through ssh")
 Write-Output "$(Get-Date)"
 Write-Output ("Removing all earlier created resources from your Azure account")
 
-Remove-AzureRmResourceGroup -Name $resourceGroupName -Force
+#Remove-AzureRmResourceGroup -Name $resourceGroupName -Force
 
 ############################################
 # CALCULATE AMOUNT OF BILLED HOURS         #
