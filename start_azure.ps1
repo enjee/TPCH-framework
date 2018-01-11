@@ -191,19 +191,7 @@ $end = Get-Date -format HH:mm:ss
 
 $TimeDiff = New-TimeSpan $start $end
 
-$hours = $TimeDiff.Hours;
-
-$added_minutes = $start_minute + $TimeDiff.Minutes;
-
-if( $added_minutes -gt 60 ) {
-
-$hours = $hours + 2;
-
-}else{
-
-$hours = $hours + 1;
-
-}
+$hours = $TimeDiff.totalHours;
 
 ##############################################
 # CALCULATE COST OF THIS BENCHMARK           #

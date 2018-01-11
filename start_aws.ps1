@@ -234,13 +234,16 @@ do {
     Start-Sleep 10
     $state = Get-EMRCluster -ClusterId $job_id
     $waitcnt = $waitcnt + 10
-    Write-Output("Terminating..." + $waitcnt)
+    Write-Output("Terminating cluster..." + $waitcnt)
 }while($state.Status.State -eq "TERMINATING")
 
 
 do{
-  $ec2insances = Get-EMRInstances -ClusterId $job_id -InstanceState "TERMINATED"
-}while($ec2instances.Count < 3)
+Start-Sleep 10
+    $ec2insances = Get-EMRInstances -ClusterId $job_id -InstanceState "RUNNING"
+    $waitcount = $waitcount + 10
+    Write-Output("Terminating ec2 instance..." + $waitcount)
+}while($ec2instances.Count -gt 0)
 
 Remove-EC2KeyPair -KeyName $random -Force
 Remove-EC2SecurityGroup -GroupName $random -Force
