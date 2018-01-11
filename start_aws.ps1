@@ -152,15 +152,32 @@ $subnet = Get-EC2Subnet -Filter $subnet_filter
 # removing previous & creating new IAM role  #
 ##############################################
 
-$rolename = 'Test-Federation-Role'
-Get-IAMInstanceProfileForRole -RoleName $rolename | Remove-IAMRoleFromInstanceProfile -RoleName $rolename | Remove-IAMInstanceProfile
-Get-IAMAttachedRolePolicies -RoleName $rolename | Unregister-IAMRolePolicy -RoleName $rolename
-Remove-IAMRole -RoleName $rolename
-$accid = Get-IAMAccountAlias
+$jfrole = 'EMR_EC2_DefaultRole'
+$srole = 'EMR_DefaultRole'
 
+Get-IAMInstanceProfileForRole -RoleName $jfrole | Remove-IAMRoleFromInstanceProfile -RoleName $jfrole | Remove-IAMInstanceProfile
+Get-IAMAttachedRolePolicies -RoleName $jfrole | Unregister-IAMRolePolicy -RoleName $jfrole
+Remove-IAMRole -RoleName $jfrole
+#$accid = Get-IAMAccountAlias
 
-$policyFilePath = $PSScriptRoot + '\policies\trustpolicyforfederation.json'
-$iamrole = New-IAMRole -RoleName $rolename -AssumeRolePolicyDocument (Get-Content -raw $policyFilePath)
+Get-IAMInstanceProfileForRole -RoleName $srole | Remove-IAMRoleFromInstanceProfile -RoleName $srole | Remove-IAMInstanceProfile
+Get-IAMAttachedRolePolicies -RoleName $srole | Unregister-IAMRolePolicy -RoleName $srole
+Remove-IAMRole -RoleName $srole
+
+$EMRpolicyFilePath = $PSScriptRoot + '\policies\emrpolicy.json'
+$EC2policyFilePath = $PSScriptRoot + '\policies\ec2policy.json'
+$iamrole = New-IAMRole -RoleName $jfrole -AssumeRolePolicyDocument (Get-Content -raw $EC2policyFilePath)
+Write-Output ($policyFilePath)
+$iamrole = New-IAMRole -RoleName $srole -AssumeRolePolicyDocument (Get-Content -raw $EMRpolicyFilePath)
+Register-IAMRolePolicy -RoleName $jfrole -PolicyArn "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role"
+Register-IAMRolePolicy -RoleName $srole -PolicyArn "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole"
+#Start-Sleep 1000
+
+		$instanceprofilename = "EMR_EC2_DefaultRole"
+		$accid = @(get-ec2securitygroup -GroupNames "default")[0].OwnerId
+		$path = "arn:aws:iam::" + $accid + ":instance-profile/EMR_EC2_DefaultRole"
+		New-IAMInstanceProfile -InstanceProfileName $instanceprofilename -Path "/"
+		Add-IAMRoleToInstanceProfile -InstanceProfileName $instanceprofilename -RoleName $srole
 
 ##############################
 # Create EMR cluster         #
@@ -171,12 +188,12 @@ $job_id = Start-EMRJobFlow -Name $random `
                   -Instances_SlaveInstanceType $WorkerNodeType `
                   -Instances_KeepJobFlowAliveWhenNoStep $true `
                   -Instances_InstanceCount $WorkerCount `
-                  -Instances_Ec2SubnetId $subnet.SubnetId `
+                  -Instances_Ec2SubnetId $subnet.SubnetId[1] `
                   -Instances_Ec2KeyName $random `
                   -Application $hive `
                   -ReleaseLabel "emr-5.10.0" `
-                  -JobFlowRole "EMR_EC2_DefaultRole" `
-                  -ServiceRole "EMR_DefaultRole" `
+                  -JobFlowRole $jfrole `
+				  -ServiceRole $srole `
                   -VisibleToAllUsers $true `
 				          -Instances_AdditionalMasterSecurityGroup $groupid
 
@@ -227,7 +244,7 @@ Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand -timeout 999999
 
 Remove-SSHSession -SessionId 0
 
-Stop-EMRJobFlow -JobFlowId $job_id -Force
+#Stop-EMRJobFlow -JobFlowId $job_id -Force
 
 # Wait until cluster is terminated
 do {
