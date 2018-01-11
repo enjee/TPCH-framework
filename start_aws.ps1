@@ -143,10 +143,17 @@ Grant-EC2SecurityGroupIngress -GroupId $groupid -IpPermissions @( $ip1, $ip2 )
 ##############################
 # Get subnet                 #
 ##############################
-$subnet_filter =  new-object Amazon.EC2.Model.Filter
-$subnet_filter.name = "availabilityZone"
-$subnet_filter.values = "eu-central-1b"
-$subnet = Get-EC2Subnet -Filter $subnet_filter
+$vpc_filter = new-object Amazon.EC2.Model.Filter
+$vpc_filter.name = "isDefault"
+$vpc_filter.values = "true"
+$vpc = Get-EC2Vpc -Filter $vpc_filter
+$subnet_filter_zone =  new-object Amazon.EC2.Model.Filter
+$subnet_filter_zone.name = "availabilityZone"
+$subnet_filter_zone.values = "eu-central-1b"
+$subnet_filter_vpc =  new-object Amazon.EC2.Model.Filter
+$subnet_filter_vpc.name = "vpc-id"
+$subnet_filter_vpc.values = $vpc.VpcId
+$subnet = Get-EC2Subnet -Filter $subnet_filter_zone, $subnet_filter_vpc
 
 ##############################################
 # removing previous & creating new IAM role  #
@@ -188,7 +195,7 @@ $job_id = Start-EMRJobFlow -Name $random `
                   -Instances_SlaveInstanceType $WorkerNodeType `
                   -Instances_KeepJobFlowAliveWhenNoStep $true `
                   -Instances_InstanceCount $WorkerCount `
-                  -Instances_Ec2SubnetId $subnet.SubnetId[1] `
+                  -Instances_Ec2SubnetId $subnet.SubnetId `
                   -Instances_Ec2KeyName $random `
                   -Application $hive `
                   -ReleaseLabel "emr-5.10.0" `
