@@ -1,22 +1,23 @@
 <!doctype html>
-<html lang="{{ app()->getLocale() }}">
-<head>
-    @extends('base')
-</head>
 <body>
+@extends('base')
 
-@section('content')
-<div class="row">
-
-    <div class="col-12">
-        <div class="card mb-3">
-            Analytics placeholder
+</div><div class="content-wrapper">
+    <div class="container-fluid">
+        <div id="main">
+            <svg width="960" height="500"></svg>
         </div>
-    </div>
 </div>
-@stop
 
 
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+    <script type="text/javascript">
+
+        var azure = {!! $azure !!}
+
+    </script>
+<script src="{{ asset('js/analytics.js') }}"></script>
 
 </body>
 </html>
