@@ -41,6 +41,8 @@ $Form.Width = 500
 $Form.Height = 300
 $Form.StartPosition = "CenterScreen"
 
+$error_label = New-Object system.windows.Forms.ErrorProvider
+
 $access_key_label = New-Object system.windows.Forms.Label
 $access_key_label.Text = "Access key: "
 $access_key_label.AutoSize = $true
@@ -82,24 +84,40 @@ $start.location = new-object system.drawing.point(200,200)
 $Form.controls.Add($start)
 
 $start.Add_Click({
+  $access_key = $access.Text
+  $secret_key_secure =  $secret.Text | ConvertTo-SecureString -AsPlainText -Force
+  $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secret_key_secure)
+  $secret_key = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+  Set-AWSCredential -AccessKey $access_key -SecretKey $secret_key -StoreAs AwsProfile
+  Initialize-AWSDefaults -ProfileName AwsProfile -Region eu-central-1
+  $global:authorization = Get-IAMAccountAuthorizationDetail
+  
+  
+  if(-not $global:authorization.HttpStatusCode -eq "OK")
+  {
+    $error_label.SetError($this, "Invalid access or secret key");
+  }else{
     $form.Close()
+  }
+
+    
 })
 [System.Windows.Forms.Application]::EnableVisualStyles();
 [void]$Form.ShowDialog()
 $Form.Dispose()
 
 
+if(-not $global:authorization.HttpStatusCode -eq "OK")
+  {
+    Write-Host "Can not execute script, wrong access/secret key. Press any key to exit ..."
+    $x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    exit
+
+  }
+
 ##############################
 # ALL CONSTANTS & VARIABLES  #
 ##############################
-
-# Keys
-$access_key = $access.Text
-$secret_key_secure =  $secret.Text | ConvertTo-SecureString -AsPlainText -Force
-$BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secret_key_secure)
-$secret_key = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
-Set-AWSCredential -AccessKey $access_key -SecretKey $secret_key -StoreAs AwsProfile
-Initialize-AWSDefaults -ProfileName AwsProfile -Region eu-central-1
 
 # Create random cluster name
 $random = -join ((48..57) + (97..122) | Get-Random -Count 16 | % {[char]$_})
@@ -268,7 +286,7 @@ Start-Sleep 10
     $waitcount = $waitcount + 10
     Write-Output("Terminating ec2 instance..." + $waitcount)
 }while($ec2instances.Count -gt 0)
-
+Start-Sleep 20
 Remove-EC2KeyPair -KeyName $random -Force
 Remove-EC2SecurityGroup -GroupName $random -Force
 
