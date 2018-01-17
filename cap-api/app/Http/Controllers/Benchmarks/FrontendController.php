@@ -54,7 +54,7 @@ class FrontendController extends Controller
 
         $azure = $this->analytics_json("Azure");
         dd(json_encode($azure));
-        return view('analytics');
+        return view('analytics', ['azure' => $azure]);
     }
 
     public function analytics_json($provider){
