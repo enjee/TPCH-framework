@@ -189,7 +189,7 @@ Register-IAMRolePolicy -RoleName $srole -PolicyArn "arn:aws:iam::aws:policy/serv
 		Add-IAMRoleToInstanceProfile -InstanceProfileName $instanceprofilename -RoleName $srole
 
 		
-				$configuration = '[{"classification":"core-site", "properties":{}, "configurations":[{"classification":"export", "properties":{"AWS_ACCESS_KEY_ID":"' + access_key + '", "AWS_SECRET_ACCESS_KEY":"'+$secret_key+'"}, "configurations":[]}]}]'
+				$configuration = '[{"classification":"core-site", "properties":{"AWS_ACCESS_KEY_ID":"' + access_key + '", "AWS_SECRET_ACCESS_KEY":"'+$secret_key+'"}, "configurations":[{"classification":"export", "properties":{"AWS_ACCESS_KEY_ID":"' + access_key + '", "AWS_SECRET_ACCESS_KEY":"'+$secret_key+'"}, "configurations":[]}]}]'
 
 ##############################
 # Create EMR cluster         #
@@ -243,8 +243,8 @@ $ssh = New-SSHSession -ComputerName $ComputerName -Credential $Crendtial -KeyFil
 Write-Output ("Invoking scripts")
 Invoke-SSHCommand -SSHSession $ssh -Command 'export DEBIAN_FRONTEND=noninteractive'
 
-Invoke-SSHCommand -SSHSession $ssh -Command 'export AWS_ACCESS_KEY_ID=' + $access_key
-Invoke-SSHCommand -SSHSession $ssh -Command 'export AWS_SECRET_ACCESS_KEY=' +$secret_key
+#Invoke-SSHCommand -SSHSession $ssh -Command 'export AWS_ACCESS_KEY_ID=' + $access_key
+#Invoke-SSHCommand -SSHSession $ssh -Command 'export AWS_SECRET_ACCESS_KEY=' +$secret_key
 Write-Output ("Installing Python modules")
 Invoke-SSHCommand -SSHSession $ssh -Command 'yes | sudo yum install git'
 Invoke-SSHCommand -SSHSession $ssh -Command 'pip install requests'
