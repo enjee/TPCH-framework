@@ -13,6 +13,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use League\Csv\Writer;
 use SplTempFileObject;
+use stdClass;
 
 class FrontendController extends Controller
 {
@@ -50,7 +51,47 @@ class FrontendController extends Controller
 
     public function analytics()
     {
-        return view('analytics');
+
+        $azure = json_encode($this->analytics_json("Azure"));
+       // dd(json_encode($azure));
+        return view('analytics', ['azure' => $azure]);
+    }
+
+    public function analytics_json($provider){
+        $benchmarks = Benchmark::with('measurements')->where('provider', '=', $provider)->where('test_size', '=', 1)->get();
+
+        if($benchmarks->count() < 1){
+            return null;
+        }
+
+        $measurements = [];
+        foreach($benchmarks as $b){
+            array_push($measurements, $b->measurements());
+        }
+        $measurement_count = 0;
+        foreach($measurements as $m){
+            $measurement_count += $m->get()->count();
+        }
+        $total = 0;
+        for($i = 0; $i < count($measurements); $i++){
+            $current_measurements = $measurements[$i]->get();
+            for($j = 0; $j < count($current_measurements); $j++){
+                $measurement = $current_measurements[$j];
+                $measurement_total = 0;
+                for($k = 0; $k < 22; $k++){
+                    $measurement_total += object_get($measurement, "q{$k}" );
+                }
+                $total += $measurement_total;
+            }
+        }
+
+        $total = intval((($total / $measurement_count) / 60));
+
+        $provider = new stdClass;
+        $provider->provider = "Azure";
+        $provider->time_elapsed = $total;
+
+        return $provider;
     }
 
     public function log($uuid, $run)

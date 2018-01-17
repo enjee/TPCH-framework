@@ -85,8 +85,8 @@ $Form.Dispose()
 
 if($global:provider -eq "Azure")
   {
-    $AcceptedNodeTypes = "Standard_A3", "Standard_A4", "Standard_A5", "Standard_D3", "Standard_D4", "Standard_D5"
-    $PossibleNodes = "Standard_A3", "Standard_A4", "Standard_A5", "Standard_D3", "Standard_D4", "Standard_D5"
+    $AcceptedNodeTypes = "Standard_A3", "Standard_A4", "Standard_A6", "Standard_D3", "Standard_D4", "Standard_D12"
+    $PossibleNodes = "Standard_A3", "Standard_A4", "Standard_A6", "Standard_D3", "Standard_D4", "Standard_D12"
   }
 else
   {

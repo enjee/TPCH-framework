@@ -46,7 +46,7 @@ $PythonCommand = ('python ' + $PythonFile + ' ' + $random)
 # Test variables
 $AllowedTestSizes = 1, 5, 10, 100
 $MaxRepeatTest = 10
-$AcceptedNodeTypes = "Standard_A3", "Standard_A4", "Standard_A5", "Standard_D3", "Standard_D4", "Standard_D5"
+$AcceptedNodeTypes = "Standard_A3", "Standard_A4", "Standard_A6", "Standard_D3", "Standard_D4", "Standard_D12"
 $Tag = "no-tag"
 
 
@@ -198,21 +198,23 @@ $hours = $TimeDiff.totalHours;
 ##############################################
 
 switch($HeadNodeType) {
-	"Standard_A3" {$HeadNodeCost = (( 2 * 0.27) * $hours) }
-	"Standard_A4" {$HeadNodeCost = (( 2 * 0.54) * $hours) }
-	"Standard_A5" {$HeadNodeCost = (( 2 * 0.296) * $hours) }
-	"Standard_D3" {$HeadNodeCost = (( 2 * 0.525) * $hours) }
-	"Standard_D4" {$HeadNodeCost = (( 2 * 1.049) * $hours) }
-	"Standard_D5" {$HeadNodeCost = (( 2 * 2.097) * $hours) }
+	"Standard_A3" {$HeadNodeCost = (( 2 * 0.21) * $hours) }
+	"Standard_A4" {$HeadNodeCost = (( 2 * 0.52) * $hours) }
+	"Standard_A6" {$HeadNodeCost = (( 2 * 0.43) * $hours) }
+	"Standard_A7" {$HeadNodeCost = (( 2 * 0.85) * $hours) }
+	"Standard_D3" {$HeadNodeCost = (( 2 * 0.25) * $hours) }
+	"Standard_D4" {$HeadNodeCost = (( 2 * 0.50) * $hours) }
+	"Standard_D12" {$HeadNodeCost = (( 2 * 0.32) * $hours) }
 }
 
 switch($WorkerNodeType) {
-	"Standard_A3" {$WorkerNodeCost = (( $WorkerCount * 0.27) * $hours) }
-	"Standard_A4" {$WorkerNodeCost = (( $WorkerCount * 0.54) * $hours) }
-	"Standard_A5" {$WorkerNodeCost = (( $WorkerCount * 0.296) * $hours) }
-	"Standard_D3" {$WorkerNodeCost = (( $WorkerCount * 0.525) * $hours) }
-	"Standard_D4" {$WorkerNodeCost = (( $WorkerCount * 1.049) * $hours) }
-	"Standard_D5" {$WorkerNodeCost = (( $WorkerCount * 2.097) * $hours) }
+	"Standard_A3" {$WorkerNodeCost = (( $WorkerCount * 0.26) * $hours) }
+	"Standard_A4" {$WorkerNodeCost = (( $WorkerCount * 0.52) * $hours) }
+	"Standard_A6" {$WorkerNodeCost = (( $WorkerCount * 0.43) * $hours) }
+	"Standard_A7" {$WorkerNodeCost = (( $WorkerCount * 0.85) * $hours) }
+	"Standard_D3" {$WorkerNodeCost = (( $WorkerCount * 0.25) * $hours) }
+	"Standard_D4" {$WorkerNodeCost = (( $WorkerCount * 0.50) * $hours) }
+	"Standard_D12" {$WorkerNodeCost = (( $WorkerCount * 0.32) * $hours) }
 }
 
 $cost = $HeadNodeCost + $WorkerNodeCost;
