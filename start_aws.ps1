@@ -164,12 +164,12 @@ $srole = 'EMR_DefaultRole'
 
 Get-IAMInstanceProfileForRole -RoleName $jfrole | Remove-IAMRoleFromInstanceProfile -RoleName $jfrole | Remove-IAMInstanceProfile
 Get-IAMAttachedRolePolicies -RoleName $jfrole | Unregister-IAMRolePolicy -RoleName $jfrole
-Remove-IAMRole -RoleName $jfrole
+Remove-IAMRole -RoleName $jfrole -force
 #$accid = Get-IAMAccountAlias
 
 Get-IAMInstanceProfileForRole -RoleName $srole | Remove-IAMRoleFromInstanceProfile -RoleName $srole | Remove-IAMInstanceProfile
 Get-IAMAttachedRolePolicies -RoleName $srole | Unregister-IAMRolePolicy -RoleName $srole
-Remove-IAMRole -RoleName $srole
+Remove-IAMRole -RoleName $srole -force
 
 $EMRpolicyFilePath = $PSScriptRoot + '\policies\emrpolicy.json'
 $EC2policyFilePath = $PSScriptRoot + '\policies\ec2policy.json'
@@ -177,6 +177,8 @@ $iamrole = New-IAMRole -RoleName $jfrole -AssumeRolePolicyDocument (Get-Content 
 Write-Output ($policyFilePath)
 $iamrole = New-IAMRole -RoleName $srole -AssumeRolePolicyDocument (Get-Content -raw $EMRpolicyFilePath)
 Register-IAMRolePolicy -RoleName $jfrole -PolicyArn "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role"
+Register-IAMRolePolicy -RoleName $jfrole -PolicyArn "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+Register-IAMRolePolicy -RoleName $srole -PolicyArn "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 Register-IAMRolePolicy -RoleName $srole -PolicyArn "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole"
 #Start-Sleep 1000
 
@@ -185,6 +187,9 @@ Register-IAMRolePolicy -RoleName $srole -PolicyArn "arn:aws:iam::aws:policy/serv
 		$path = "arn:aws:iam::" + $accid + ":instance-profile/EMR_EC2_DefaultRole"
 		New-IAMInstanceProfile -InstanceProfileName $instanceprofilename -Path "/"
 		Add-IAMRoleToInstanceProfile -InstanceProfileName $instanceprofilename -RoleName $srole
+
+		
+				$configuration = '[{"classification":"core-site", "properties":{}, "configurations":[{"classification":"export", "properties":{"AWS_ACCESS_KEY_ID":"' + access_key + '", "AWS_SECRET_ACCESS_KEY":"'+$secret_key+'"}, "configurations":[]}]}]'
 
 ##############################
 # Create EMR cluster         #
@@ -195,12 +200,14 @@ $job_id = Start-EMRJobFlow -Name $random `
                   -Instances_SlaveInstanceType $WorkerNodeType `
                   -Instances_KeepJobFlowAliveWhenNoStep $true `
                   -Instances_InstanceCount $WorkerCount `
-                  -Instances_Ec2SubnetId $subnet.SubnetId `
+                  -Instances_Ec2SubnetId $subnet.SubnetId[1] `
                   -Instances_Ec2KeyName $random `
                   -Application $hive `
-                  -ReleaseLabel "emr-5.10.0" `
+                  -ReleaseLabel "emr-5.11.0" `
                   -JobFlowRole $jfrole `
 				  -ServiceRole $srole `
+				  -configuration $configuration `
+
                   -VisibleToAllUsers $true `
 				          -Instances_AdditionalMasterSecurityGroup $groupid
 
@@ -236,6 +243,8 @@ $ssh = New-SSHSession -ComputerName $ComputerName -Credential $Crendtial -KeyFil
 Write-Output ("Invoking scripts")
 Invoke-SSHCommand -SSHSession $ssh -Command 'export DEBIAN_FRONTEND=noninteractive'
 
+Invoke-SSHCommand -SSHSession $ssh -Command 'export AWS_ACCESS_KEY_ID=' + $access_key
+Invoke-SSHCommand -SSHSession $ssh -Command 'export AWS_SECRET_ACCESS_KEY=' +$secret_key
 Write-Output ("Installing Python modules")
 Invoke-SSHCommand -SSHSession $ssh -Command 'yes | sudo yum install git'
 Invoke-SSHCommand -SSHSession $ssh -Command 'pip install requests'
