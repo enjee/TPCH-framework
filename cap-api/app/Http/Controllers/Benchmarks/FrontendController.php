@@ -51,37 +51,47 @@ class FrontendController extends Controller
 
     public function analytics()
     {
-        $azure_benchmarks = Benchmark::with('measurements')->where('provider', '=', 'Azure')->where('test_size', '=', 1)->get();
 
-        $azure_measurements = [];
-        foreach($azure_benchmarks as $b){
-            array_push($azure_measurements, $b->measurements());
+        $azure = json_encode($this->analytics_json("Azure"));
+       // dd(json_encode($azure));
+        return view('analytics', ['azure' => $azure]);
+    }
+
+    public function analytics_json($provider){
+        $benchmarks = Benchmark::with('measurements')->where('provider', '=', $provider)->where('test_size', '=', 1)->get();
+
+        if($benchmarks->count() < 1){
+            return null;
+        }
+
+        $measurements = [];
+        foreach($benchmarks as $b){
+            array_push($measurements, $b->measurements());
         }
         $measurement_count = 0;
-        foreach($azure_measurements as $m){
+        foreach($measurements as $m){
             $measurement_count += $m->get()->count();
         }
-        $azure_total = 0;
-        for($i = 0; $i < count($azure_measurements); $i++){
-            $current_measurements = $azure_measurements[$i]->get();
+        $total = 0;
+        for($i = 0; $i < count($measurements); $i++){
+            $current_measurements = $measurements[$i]->get();
             for($j = 0; $j < count($current_measurements); $j++){
                 $measurement = $current_measurements[$j];
                 $measurement_total = 0;
                 for($k = 0; $k < 22; $k++){
                     $measurement_total += object_get($measurement, "q{$k}" );
                 }
-                $azure_total += $measurement_total;
+                $total += $measurement_total;
             }
         }
 
-        $azure_total = intval((($azure_total / $measurement_count) / 60));
+        $total = intval((($total / $measurement_count) / 60));
 
-        $azure = new stdClass;
-        $azure->provider = "Azure";
-        $azure->time_elapsed = $azure_total;
+        $provider = new stdClass;
+        $provider->provider = "Azure";
+        $provider->time_elapsed = $total;
 
-        dd(json_encode($azure));
-        return view('analytics');
+        return $provider;
     }
 
     public function log($uuid, $run)
