@@ -119,6 +119,14 @@ if(-not $global:authorization.HttpStatusCode -eq "OK")
 # ALL CONSTANTS & VARIABLES  #
 ##############################
 
+$access_key = $access.Text
+$secret_key_secure =  $secret.Text | ConvertTo-SecureString -AsPlainText -Force
+$BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secret_key_secure)
+$secret_key = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+Set-AWSCredential -AccessKey $access_key -SecretKey $secret_key -StoreAs AwsProfile
+Initialize-AWSDefaults -ProfileName AwsProfile -Region eu-central-1
+
+
 # Create random cluster name
 $random = -join ((48..57) + (97..122) | Get-Random -Count 16 | % {[char]$_})
 $random = "aws" + $random
@@ -218,7 +226,7 @@ $job_id = Start-EMRJobFlow -Name $random `
                   -Instances_SlaveInstanceType $WorkerNodeType `
                   -Instances_KeepJobFlowAliveWhenNoStep $true `
                   -Instances_InstanceCount $WorkerCount `
-                  -Instances_Ec2SubnetId $subnet.SubnetId[1] `
+                  -Instances_Ec2SubnetId $subnet.SubnetId `
                   -Instances_Ec2KeyName $random `
                   -Application $hive `
                   -ReleaseLabel "emr-5.11.0" `
