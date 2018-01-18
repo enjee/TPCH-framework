@@ -67,6 +67,8 @@ Route::get('/api/measurement/delete/{uuid}/{run}', '\App\Http\Controllers\Benchm
 
 Route::get('/api/pricing/{uuid}/{cost}', '\App\Http\Controllers\Benchmarks\ApiController@update_pricing');
 
+Route::get('/api/overhead/{uuid}/{overhead}', '\App\Http\Controllers\Benchmarks\ApiController@update_overhead');
+
 Route::get('/api/download/{search?}', '\App\Http\Controllers\Benchmarks\ApiController@download');
 
 
