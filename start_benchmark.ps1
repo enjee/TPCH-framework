@@ -22,7 +22,7 @@ else
    $newProcess = new-object System.Diagnostics.ProcessStartInfo "PowerShell";
 
    # Specify the current script path and name as a parameter
-   $newProcess.Arguments = $myInvocation.MyCommand.Definition;
+   $newProcess.Arguments = $myInvocation.MyCommand.Path -replace ' ', '` ';
 
    # Indicate that the process should be elevated
    $newProcess.Verb = "runas";
@@ -365,10 +365,10 @@ $Form.Dispose()
 if($global:provider -eq "Azure")
   {
     $PSScriptRoot
-    & "$PSScriptRoot\start_azure.ps1" $size $repeat $WorkerCount $WorkerNodeType $HeadNodeType $tag
+    & "$PSScriptRoot\scripts\start_azure.ps1" $size $repeat $WorkerCount $WorkerNodeType $HeadNodeType $tag
   }
 else
   {
     $PSScriptRoot
-    & "$PSScriptRoot\start_aws.ps1" $size $repeat $WorkerCount $WorkerNodeType $HeadNodeType $tag
+    & "$PSScriptRoot\scripts\start_aws.ps1" $size $repeat $WorkerCount $WorkerNodeType $HeadNodeType $tag
   }

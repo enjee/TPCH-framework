@@ -169,6 +169,11 @@ Invoke-SSHCommand -SSHSession $ssh -Command 'pip install natsort'
 Write-Output ("Cloning GIT repo")
 Invoke-SSHCommand -SSHSession $ssh -Command 'git clone -b development https://github.com/enjee/TPCH-framework'
 
+
+$endBeforeScript = Get-Date -format HH:mm:ss
+$startupTime = New-TimeSpan $start $endBeforeScript
+$startupMinutes = $startupTime.totalMinutes;
+
 Write-Output ("Running the Python benchmark")
 $PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat + ' ' + $WorkerCount + ' ' + $WorkerNodeType + ' ' + $HeadNodeType + ' ' + $Tag + " Azure")
 Invoke-SSHCommand -SSHSession $ssh -Command $PythonCHmodCommand -timeout 999999
@@ -220,6 +225,7 @@ switch($WorkerNodeType) {
 $cost = $HeadNodeCost + $WorkerNodeCost;
 
 Invoke-RestMethod -Uri http://13.79.186.204/api/pricing/$random/$cost
+Invoke-RestMethod -Uri http://13.79.186.204/api/overhead/$random/$startupMinutes
 
 
 Write-Output "$(Get-Date)"
