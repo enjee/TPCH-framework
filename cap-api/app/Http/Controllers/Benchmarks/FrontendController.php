@@ -49,16 +49,24 @@ class FrontendController extends Controller
     }
 
 
-    public function analytics()
+    public function analytics($size)
     {
+        if($size < 1){
+            $size = 0;
+        }
 
-        $azure = json_encode($this->analytics_json("Azure"));
+        $azure = json_encode($this->analytics_json("Azure", $size));
        // dd(json_encode($azure));
         return view('analytics', ['azure' => $azure]);
     }
 
-    public function analytics_json($provider){
-        $benchmarks = Benchmark::with('measurements')->where('provider', '=', $provider)->where('test_size', '=', 1)->get();
+    public function analytics_json($provider, $size){
+        if($size < 1){
+            $benchmarks = Benchmark::with('measurements')->where('provider', '=', $provider)->get();
+        }else{
+            $benchmarks = Benchmark::with('measurements')->where('provider', '=', $provider)->where('test_size', '=', $size)->get();
+        }
+
 
         if($benchmarks->count() < 1){
             return null;
@@ -73,6 +81,7 @@ class FrontendController extends Controller
             $measurement_count += $m->get()->count();
         }
         $total = 0;
+        $total_overhead = 0;
         for($i = 0; $i < count($measurements); $i++){
             $current_measurements = $measurements[$i]->get();
             for($j = 0; $j < count($current_measurements); $j++){
@@ -82,14 +91,16 @@ class FrontendController extends Controller
                     $measurement_total += object_get($measurement, "q{$k}" );
                 }
                 $total += $measurement_total;
+                $total_overhead += $measurement->overhead;
             }
         }
 
         $total = intval((($total / $measurement_count) / 60));
-
+        $total_overhead = intval(($total / $measurement_count));
         $provider = new stdClass;
         $provider->provider = "Azure";
         $provider->time_elapsed = $total;
+        $provider->total_overhead = $total_overhead;
 
         return $provider;
     }
