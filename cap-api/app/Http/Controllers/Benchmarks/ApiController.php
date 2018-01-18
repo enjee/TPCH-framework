@@ -216,4 +216,17 @@ class ApiController extends Controller
         }
     }
 
+    public function update_overhead($uuid, $overhead){
+        $benchmark = Benchmark::where('uuid', '=', $uuid)->first();
+
+        if($benchmark){
+            $benchmark->overhead = $overhead;
+
+            $benchmark->save();
+            return response()->json($benchmark, 200);
+        }else{
+            return response()->json('benchmark not found', 404);
+        }
+    }
+
 }

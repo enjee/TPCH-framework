@@ -15,6 +15,7 @@
     <script type="text/javascript">
 
         var azure = {!! $azure !!}
+        var amazon = {!! $amazon !!}
 
     </script>
 <script src="{{ asset('js/analytics.js') }}"></script>
