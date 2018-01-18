@@ -365,10 +365,10 @@ $Form.Dispose()
 if($global:provider -eq "Azure")
   {
     $PSScriptRoot
-    & "$PSScriptRoot\start_azure.ps1" $size $repeat $WorkerCount $WorkerNodeType $HeadNodeType $tag
+    & "$PSScriptRoot\scripts\start_azure.ps1" $size $repeat $WorkerCount $WorkerNodeType $HeadNodeType $tag
   }
 else
   {
     $PSScriptRoot
-    & "$PSScriptRoot\start_aws.ps1" $size $repeat $WorkerCount $WorkerNodeType $HeadNodeType $tag
+    & "$PSScriptRoot\scripts\start_aws.ps1" $size $repeat $WorkerCount $WorkerNodeType $HeadNodeType $tag
   }
