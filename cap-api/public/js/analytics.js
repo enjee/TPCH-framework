@@ -19,8 +19,9 @@ var y = d3.scaleLinear()
 var z = d3.scaleOrdinal()
     .range(["#b73946", "#1677cb", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
+console.log(azure);
 // load the csv and create the chart
-d3.csv("age-groups.csv", function(d, i, columns) {
+d3.json(JSON.parse(azure), function(d, i, columns) {
     for (i = 1, t = 0; i < columns.length; ++i) t += d[columns[i]] = +d[columns[i]];
     d.total = t;
     console.log(d);

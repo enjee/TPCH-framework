@@ -49,14 +49,9 @@ class FrontendController extends Controller
     }
 
 
-    public function analytics($size)
+    public function analytics($size = 0)
     {
-        if($size < 1){
-            $size = 0;
-        }
-
         $azure = json_encode($this->analytics_json("Azure", $size));
-       // dd(json_encode($azure));
         return view('analytics', ['azure' => $azure]);
     }
 
@@ -97,11 +92,7 @@ class FrontendController extends Controller
 
         $total = intval((($total / $measurement_count) / 60));
         $total_overhead = intval(($total / $measurement_count));
-        $provider = new stdClass;
-        $provider->provider = "Azure";
-        $provider->time_elapsed = $total;
-        $provider->total_overhead = $total_overhead;
-
+        $provider = array("provider" => "Azure", "time_elapsed" => $total, "total_overhead" => $total_overhead);
         return $provider;
     }
 
