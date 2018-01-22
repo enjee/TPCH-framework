@@ -11,14 +11,16 @@
         Select testset size
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" href="analytics/1">1 GB</a>
-        <a class="dropdown-item" href="analytics/10">10 GB</a>
-        <a class="dropdown-item" href="analytics/100">100 GB</a>
-        <a class="dropdown-item" href="analytics/1000">1000 GB</a>
+          <a class="dropdown-item" href="javascript:redraw(0)">All sizes</a>
+          <a class="dropdown-item" href="javascript:redraw(1)">1 GB</a>
+          <a class="dropdown-item" href="javascript:redraw(10)">10 GB</a>
+          <a class="dropdown-item" href="javascript:redraw(100)">100 GB</a>
+          <a class="dropdown-item" href="javascript:redraw(1000)">1000 GB</a>
       </div>
 
 
         <div id="main">
+            <h1 id="barchart-header">Benchmark Times Per Provider</h1>
             <svg width="960" height="500"></svg>
         </div>
 </div>
@@ -26,11 +28,6 @@
 
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script type="text/javascript">
-
-        var azure = {!! $azure !!}
-
-    </script>
 <script src="{{ asset('js/analytics.js') }}"></script>
 
 </body>

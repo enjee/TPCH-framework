@@ -51,8 +51,30 @@ class FrontendController extends Controller
 
     public function analytics($size = 0)
     {
-        $azure = json_encode($this->analytics_json("Azure", $size));
-        return view('analytics', ['azure' => $azure]);
+        $sizes = ['0', '1', '10', '100', '1000'];
+        $providers = ['Azure', 'Amazon'];
+
+        foreach($sizes as $s){
+
+                $path = "analytics-" . $s . ".csv";
+                $csv = Writer::createFromPath( $path, "w");
+
+                $csv->insertOne(["Provider", "Time Elapsed In Minutes", "Overhead In Minutes"]);
+
+            foreach($providers as $p) {
+                $row = $this->analytics_json($p, $s);
+
+                if ($row) {
+                    $csv->insertOne($row);
+                } else {
+                    $csv->insertOne([$p . '- No data available', 0, 0]);
+                }
+            }
+        }
+
+
+
+        return view('analytics');
     }
 
     public function analytics_json($provider, $size){
@@ -63,20 +85,25 @@ class FrontendController extends Controller
         }
 
 
+
         if($benchmarks->count() < 1){
             return null;
         }
 
+        $total_overhead = 0;
+
+
         $measurements = [];
         foreach($benchmarks as $b){
             array_push($measurements, $b->measurements());
+            $total_overhead += $b->overhead;
         }
         $measurement_count = 0;
         foreach($measurements as $m){
             $measurement_count += $m->get()->count();
         }
         $total = 0;
-        $total_overhead = 0;
+
         for($i = 0; $i < count($measurements); $i++){
             $current_measurements = $measurements[$i]->get();
             for($j = 0; $j < count($current_measurements); $j++){
@@ -86,14 +113,14 @@ class FrontendController extends Controller
                     $measurement_total += object_get($measurement, "q{$k}" );
                 }
                 $total += $measurement_total;
-                $total_overhead += $measurement->overhead;
             }
         }
 
+
         $total = intval((($total / $measurement_count) / 60));
-        $total_overhead = intval(($total / $measurement_count));
-        $provider = array("provider" => "Azure", "time_elapsed" => $total, "total_overhead" => $total_overhead);
-        return $provider;
+        $total_overhead = ($total_overhead / $benchmarks->count());
+        $provider_data = array("provider" => $provider, "time_elapsed" => $total, "total_overhead" => $total_overhead);
+        return $provider_data;
     }
 
     public function log($uuid, $run)
