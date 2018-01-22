@@ -6,13 +6,34 @@ blade_dir = os.path.dirname(os.path.abspath(__file__)) + "/../cap-api/resources/
 target_dir = os.path.dirname(os.path.abspath(__file__)) + "/../../TPCH-analytics/"
 if not os.path.isdir(target_dir):
     os.mkdir(target_dir)
+if not os.path.isdir(target_dir):
     os.mkdir(target_dir + "js")
+if not os.path.isdir(target_dir + "js"):
     os.mkdir(target_dir + "css")
+if not os.path.isdir(target_dir + "jquery"):
+    os.mkdir(target_dir + "jquery")
+if not os.path.isdir(target_dir + "jquery-easing"):
+    os.mkdir(target_dir + "jquery-easing")
 
 for root, dirs, files in os.walk(public_dir + "js"):
     for filename in files:
         s = open(public_dir + "js/" + filename).read()
         f = open(target_dir + "js/" + filename, 'w')
+        f.write(s)
+        f.close()
+
+for root, dirs, files in os.walk(public_dir + "jquery"):
+    for filename in files:
+        s = open(public_dir + "jquery/" + filename).read()
+        f = open(target_dir + "jquery/" + filename, 'w')
+        f.write(s)
+        f.close()
+
+
+for root, dirs, files in os.walk(public_dir + "jquery-easing"):
+    for filename in files:
+        s = open(public_dir + "jquery-easing/" + filename).read()
+        f = open(target_dir + "jquery-easing/" + filename, 'w')
         f.write(s)
         f.close()
 
