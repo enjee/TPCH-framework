@@ -49,30 +49,61 @@ class FrontendController extends Controller
     }
 
 
-    public function analytics()
+    public function analytics($size = 0)
     {
+        $sizes = ['0', '1', '10', '100', '1000'];
+        $providers = ['Azure', 'Amazon'];
 
-        $azure = json_encode($this->analytics_json("Azure"));
-       // dd(json_encode($azure));
-        return view('analytics', ['azure' => $azure]);
+        foreach($sizes as $s){
+
+                $path = "analytics-" . $s . ".csv";
+                $csv = Writer::createFromPath( $path, "w");
+
+                $csv->insertOne(["Provider", "Time Elapsed In Minutes", "Overhead In Minutes"]);
+
+            foreach($providers as $p) {
+                $row = $this->analytics_json($p, $s);
+
+                if ($row) {
+                    $csv->insertOne($row);
+                } else {
+                    $csv->insertOne([$p . '- No data available', 0, 0]);
+                }
+            }
+        }
+
+
+
+        return view('analytics');
     }
 
-    public function analytics_json($provider){
-        $benchmarks = Benchmark::with('measurements')->where('provider', '=', $provider)->where('test_size', '=', 1)->get();
+    public function analytics_json($provider, $size){
+        if($size < 1){
+            $benchmarks = Benchmark::with('measurements')->where('provider', '=', $provider)->get();
+        }else{
+            $benchmarks = Benchmark::with('measurements')->where('provider', '=', $provider)->where('test_size', '=', $size)->get();
+        }
+
+
 
         if($benchmarks->count() < 1){
             return null;
         }
 
+        $total_overhead = 0;
+
+
         $measurements = [];
         foreach($benchmarks as $b){
             array_push($measurements, $b->measurements());
+            $total_overhead += $b->overhead;
         }
         $measurement_count = 0;
         foreach($measurements as $m){
             $measurement_count += $m->get()->count();
         }
         $total = 0;
+
         for($i = 0; $i < count($measurements); $i++){
             $current_measurements = $measurements[$i]->get();
             for($j = 0; $j < count($current_measurements); $j++){
@@ -85,13 +116,11 @@ class FrontendController extends Controller
             }
         }
 
+
         $total = intval((($total / $measurement_count) / 60));
-
-        $provider = new stdClass;
-        $provider->provider = "Azure";
-        $provider->time_elapsed = $total;
-
-        return $provider;
+        $total_overhead = ($total_overhead / $benchmarks->count());
+        $provider_data = array("provider" => $provider, "time_elapsed" => $total, "total_overhead" => $total_overhead);
+        return $provider_data;
     }
 
     public function log($uuid, $run)

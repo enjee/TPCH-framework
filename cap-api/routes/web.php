@@ -40,7 +40,7 @@ Route::get('/timeline', '\App\Http\Controllers\Benchmarks\FrontendController@tim
 
 Route::get('/detailed/{uuid}', '\App\Http\Controllers\Benchmarks\FrontendController@detailed');
 
-Route::get('/analytics', '\App\Http\Controllers\Benchmarks\FrontendController@analytics');
+Route::get('/analytics/{size?}', '\App\Http\Controllers\Benchmarks\FrontendController@analytics');
 
 Route::get('/api/search/{search?}', '\App\Http\Controllers\Benchmarks\FrontendController@search');
 
