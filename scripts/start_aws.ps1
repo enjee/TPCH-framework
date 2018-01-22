@@ -84,21 +84,9 @@ $start.location = new-object system.drawing.point(200,200)
 $Form.controls.Add($start)
 
 $start.Add_Click({
-  $access_key = $access.Text
-  $secret_key_secure =  $secret.Text | ConvertTo-SecureString -AsPlainText -Force
-  $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secret_key_secure)
-  $secret_key = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
-  Set-AWSCredential -AccessKey $access_key -SecretKey $secret_key -StoreAs AwsProfile
-  Initialize-AWSDefaults -ProfileName AwsProfile -Region eu-central-1
-  $global:authorization = Get-IAMAccountAuthorizationDetail
-  
-  
-  if(-not $global:authorization.HttpStatusCode -eq "OK")
-  {
-    $error_label.SetError($this, "Invalid access or secret key");
-  }else{
+
     $form.Close()
-  }
+
 
     
 })
@@ -106,14 +94,6 @@ $start.Add_Click({
 [void]$Form.ShowDialog()
 $Form.Dispose()
 
-
-if(-not $global:authorization.HttpStatusCode -eq "OK")
-  {
-    Write-Host "Can not execute script, wrong access/secret key. Press any key to exit ..."
-    $x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-    exit
-
-  }
 
 ##############################
 # ALL CONSTANTS & VARIABLES  #
@@ -185,38 +165,25 @@ $subnet = Get-EC2Subnet -Filter $subnet_filter_zone, $subnet_filter_vpc
 # removing previous & creating new IAM role  #
 ##############################################
 
-$jfrole = 'EMR_EC2_DefaultRole'
-$srole = 'EMR_DefaultRole'
+$jfrole = 'EMR_EC2_' + $random
+$srole = 'EMR_' + $random
 
-Get-IAMInstanceProfileForRole -RoleName $jfrole | Remove-IAMRoleFromInstanceProfile -RoleName $jfrole | Remove-IAMInstanceProfile
-Get-IAMAttachedRolePolicies -RoleName $jfrole | Unregister-IAMRolePolicy -RoleName $jfrole
-Remove-IAMRole -RoleName $jfrole -force
-#$accid = Get-IAMAccountAlias
-
-Get-IAMInstanceProfileForRole -RoleName $srole | Remove-IAMRoleFromInstanceProfile -RoleName $srole | Remove-IAMInstanceProfile
-Get-IAMAttachedRolePolicies -RoleName $srole | Unregister-IAMRolePolicy -RoleName $srole
-Remove-IAMRole -RoleName $srole -force
-
-$EMRpolicyFilePath = $PSScriptRoot + '\policies\emrpolicy.json'
-$EC2policyFilePath = $PSScriptRoot + '\policies\ec2policy.json'
+$EMRpolicyFilePath = $PSScriptRoot + '\..\policies\emrpolicy.json'
+$EC2policyFilePath = $PSScriptRoot + '\..\policies\ec2policy.json'
 $iamrole = New-IAMRole -RoleName $jfrole -AssumeRolePolicyDocument (Get-Content -raw $EC2policyFilePath)
-Write-Output ($policyFilePath)
-$iamrole = New-IAMRole -RoleName $srole -AssumeRolePolicyDocument (Get-Content -raw $EMRpolicyFilePath)
+$iamrole2 = New-IAMRole -RoleName $srole -AssumeRolePolicyDocument (Get-Content -raw $EMRpolicyFilePath)
 Register-IAMRolePolicy -RoleName $jfrole -PolicyArn "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role"
 Register-IAMRolePolicy -RoleName $jfrole -PolicyArn "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 Register-IAMRolePolicy -RoleName $srole -PolicyArn "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 Register-IAMRolePolicy -RoleName $srole -PolicyArn "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole"
-#Start-Sleep 1000
 
-		$instanceprofilename = "EMR_EC2_DefaultRole"
-		$accid = @(get-ec2securitygroup -GroupNames "default")[0].OwnerId
-		$path = "arn:aws:iam::" + $accid + ":instance-profile/EMR_EC2_DefaultRole"
-		New-IAMInstanceProfile -InstanceProfileName $instanceprofilename -Path "/"
-		Add-IAMRoleToInstanceProfile -InstanceProfileName $instanceprofilename -RoleName $srole
-
-		
-				$configuration = '[{"classification":"core-site", "properties":{"AWS_ACCESS_KEY_ID":"' + access_key + '", "AWS_SECRET_ACCESS_KEY":"'+$secret_key+'"}, "configurations":[{"classification":"export", "properties":{"AWS_ACCESS_KEY_ID":"' + access_key + '", "AWS_SECRET_ACCESS_KEY":"'+$secret_key+'"}, "configurations":[]}]}]'
-
+$instanceprofilename =  'EMR_EC2_' + $random
+New-IAMInstanceProfile -InstanceProfileName $instanceprofilename -Path "/"
+Add-IAMRoleToInstanceProfile -InstanceProfileName $instanceprofilename -RoleName $jfrole
+Write-Output ("Created emr role with name: " + $srole )
+Write-Output ("Created ec2 role with name: " + $jfrole)
+Start-Sleep 20
+				
 ##############################
 # Create EMR cluster         #
 ##############################
@@ -231,9 +198,7 @@ $job_id = Start-EMRJobFlow -Name $random `
                   -Application $hive `
                   -ReleaseLabel "emr-5.11.0" `
                   -JobFlowRole $jfrole `
-				  -ServiceRole $srole `
-				  -configuration $configuration `
-
+				          -ServiceRole $srole `
                   -VisibleToAllUsers $true `
 				          -Instances_AdditionalMasterSecurityGroup $groupid
 
@@ -269,8 +234,6 @@ $ssh = New-SSHSession -ComputerName $ComputerName -Credential $Crendtial -KeyFil
 Write-Output ("Invoking scripts")
 Invoke-SSHCommand -SSHSession $ssh -Command 'export DEBIAN_FRONTEND=noninteractive'
 
-#Invoke-SSHCommand -SSHSession $ssh -Command 'export AWS_ACCESS_KEY_ID=' + $access_key
-#Invoke-SSHCommand -SSHSession $ssh -Command 'export AWS_SECRET_ACCESS_KEY=' +$secret_key
 Write-Output ("Installing Python modules")
 Invoke-SSHCommand -SSHSession $ssh -Command 'yes | sudo yum install git'
 Invoke-SSHCommand -SSHSession $ssh -Command 'pip install requests'
@@ -290,7 +253,7 @@ Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand -timeout 999999
 
 Remove-SSHSession -SessionId 0
 
-#Stop-EMRJobFlow -JobFlowId $job_id -Force
+Stop-EMRJobFlow -JobFlowId $job_id -Force
 
 # Wait until cluster is terminated
 do {
@@ -299,7 +262,6 @@ do {
     $waitcnt = $waitcnt + 10
     Write-Output("Terminating cluster..." + $waitcnt)
 }while($state.Status.State -eq "TERMINATING")
-
 
 do{
 Start-Sleep 10
@@ -310,6 +272,15 @@ Start-Sleep 10
 Start-Sleep 20
 Remove-EC2KeyPair -KeyName $random -Force
 Remove-EC2SecurityGroup -GroupName $random -Force
+
+#Remove roles
+Get-IAMInstanceProfileForRole -RoleName $jfrole | Remove-IAMRoleFromInstanceProfile -RoleName $jfrole -Force | Remove-IAMInstanceProfile -Force
+Get-IAMAttachedRolePolicies -RoleName $jfrole | Unregister-IAMRolePolicy -RoleName $jfrole
+Remove-IAMRole -RoleName $jfrole -force
+
+Get-IAMInstanceProfileForRole -RoleName $srole | Remove-IAMRoleFromInstanceProfile -RoleName $srole -Force | Remove-IAMInstanceProfile -Force
+Get-IAMAttachedRolePolicies -RoleName $srole | Unregister-IAMRolePolicy -RoleName $srole
+Remove-IAMRole -RoleName $srole -force
 
 ############################################
 # CALCULATE AMOUNT OF BILLED HOURS         #
