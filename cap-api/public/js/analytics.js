@@ -150,7 +150,7 @@ function draw(size) {
         .attr("width", 60)
         .attr("height", 20)
         .attr("fill", "white")
-        .style("opacity", 0.5);
+        .style("opapp_item", 0.5);
 
     tooltip.append("text")
         .attr("x", 30)
@@ -193,10 +193,9 @@ var line = d3.line()
         return y(d.provider);
     });
 d3.csv("priceperformance.csv", function (error, data) {
-    console.info(data)
     if (error) throw error;
 
-    var cities = data.columns.slice(1).map(function (id) {
+    var pp_items = data.columns.slice(1).map(function (id) {
         return {
             id: id,
             values: data.map(function (d) {
@@ -210,19 +209,19 @@ d3.csv("priceperformance.csv", function (error, data) {
     }));
 
     y.domain([
-        d3.min(cities, function (c) {
+        d3.min(pp_items, function (c) {
             return d3.min(c.values, function (d) {
                 return d.provider;
             });
         }),
-        d3.max(cities, function (c) {
+        d3.max(pp_items, function (c) {
             return d3.max(c.values, function (d) {
                 return d.provider;
             });
         })
     ]);
 
-    z.domain(cities.map(function (c) {
+    z.domain(pp_items.map(function (c) {
         return c.id;
     }));
     g.append("g")
@@ -240,21 +239,22 @@ d3.csv("priceperformance.csv", function (error, data) {
         .attr("fill", "#000")
         .text("Price performance score");
 
-    var city = g.selectAll(".city")
-        .data(cities)
+    var pp_item = g.selectAll(".pp_item")
+        .data(pp_items)
         .enter().append("g")
-        .attr("class", "city");
+        .attr("class", "pp_item");
 
-    city.append("path")
+    pp_item.append("path")
         .attr("class", "line")
         .attr("d", function (d) {
             return line(d.values);
         })
         .style("stroke", function (d) {
             return z(d.id);
-        });
+        })
+        .style("fill", "none");
 
-    city.append("text")
+    pp_item.append("text")
         .datum(function (d) {
             return {id: d.id, value: d.values[d.values.length - 1]};
         })
