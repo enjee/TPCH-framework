@@ -23,8 +23,19 @@
             <h1 id="barchart-header">Benchmark Times Per Provider</h1>
             <svg width="960" height="500"></svg>
         </div>
+
 </div>
 
+    <div class="content-wrapper">
+        <div class="container-fluid">
+
+
+            <div id="main-linechart">
+                <h1 id="linechart-header">Price Performance Rating</h1>
+                <svg id="linesvg" width="960" height="500"></svg>
+            </div>
+        </div>
+    </div>
 
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
