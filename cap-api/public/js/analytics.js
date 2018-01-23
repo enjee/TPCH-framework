@@ -84,9 +84,9 @@ function draw(size) {
                 tooltip.style("display", "none");
             })
             .on("mousedown", function (d) {
-                if(size == 0){
-                    var href_path =  "../timeline?search_uuid_tag=" + d.data.Provider;
-                }else{
+                if (size == 0) {
+                    var href_path = "../timeline?search_uuid_tag=" + d.data.Provider;
+                } else {
                     var href_path = "../timeline?search_uuid_tag=" + d.data.Provider + "," + size;
                 }
 
@@ -174,13 +174,11 @@ function redraw(size) {
     draw(size);
 }
 
-var svg = d3.select("#linesvg"),
+var linesvg = d3.select("#linesvg"),
     margin = {top: 20, right: 80, bottom: 30, left: 50},
-    width = svg.attr("width") - margin.left - margin.right,
-    height = svg.attr("height") - margin.top - margin.bottom,
-    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-var parseTime = d3.timeParse("%Y%m%d");
+    width = linesvg.attr("width") - margin.left - margin.right,
+    height = linesvg.attr("height") - margin.top - margin.bottom,
+    g = linesvg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 var x = d3.scaleTime().range([0, width]),
     y = d3.scaleLinear().range([height, 0]),
@@ -189,26 +187,26 @@ var x = d3.scaleTime().range([0, width]),
 var line = d3.line()
     .curve(d3.curveBasis)
     .x(function (d) {
-        return x(d['test size']);
+        return x(d['Test Size']);
     })
     .y(function (d) {
         return y(d.provider);
     });
-
 d3.csv("priceperformance.csv", function (error, data) {
+    console.info(data)
     if (error) throw error;
 
     var cities = data.columns.slice(1).map(function (id) {
         return {
             id: id,
             values: data.map(function (d) {
-                return {'test size': d['test size'], provider: d[id]};
+                return {'Test Size': d['Test Size'], provider: d[id]};
             })
         };
     });
 
     x.domain(d3.extent(data, function (d) {
-        return d['test size'];
+        return d['Test Size'];
     }));
 
     y.domain([
@@ -227,7 +225,6 @@ d3.csv("priceperformance.csv", function (error, data) {
     z.domain(cities.map(function (c) {
         return c.id;
     }));
-
     g.append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + height + ")")
@@ -262,7 +259,7 @@ d3.csv("priceperformance.csv", function (error, data) {
             return {id: d.id, value: d.values[d.values.length - 1]};
         })
         .attr("transform", function (d) {
-            return "translate(" + x(d.value['test size']) + "," + y(d.value.provider) + ")";
+            return "translate(" + x(d.value['Test Size']) + "," + y(d.value.provider) + ")";
         })
         .attr("x", 3)
         .attr("dy", "0.35em")
