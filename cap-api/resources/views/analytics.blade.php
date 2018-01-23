@@ -21,7 +21,7 @@
 
         <div id="main">
             <h1 id="barchart-header">Benchmark Times Per Provider</h1>
-            <svg width="960" height="500"></svg>
+            <svg id="barsvg" width="960" height="500"></svg>
         </div>
 
 </div>

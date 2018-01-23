@@ -84,7 +84,13 @@ function draw(size) {
                 tooltip.style("display", "none");
             })
             .on("mousedown", function (d) {
-                console.info(d)
+                if(size == 0){
+                    var href_path =  "../timeline?search_uuid_tag=" + d.data.Provider;
+                }else{
+                    var href_path = "../timeline?search_uuid_tag=" + d.data.Provider + "," + size;
+                }
+
+                window.location.replace(href_path);
             })
             .on("mousemove", function (d) {
                 var xPosition = d3.mouse(this)[0] - 5;
