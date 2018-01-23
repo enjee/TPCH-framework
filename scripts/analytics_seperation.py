@@ -77,7 +77,7 @@ for line in s.split("\n"):
         continue
     if "@" in line:
         continue
-    base += line.replace("') }}", "").replace("{{ asset('", "").replace("href=\"/timeline\"", "href=\"/index.html\"").replace("href=\"/analytics\"", "href=\"/index\"") + "\n"
+    base += line.replace("') }}", "").replace("{{ asset('", "").replace("href=\"/timeline\"", "href=\"/index.html\"").replace("href=\"/analytics\"", "href=\"/index.html\"") + "\n"
 f = open(target_dir + "index.html", 'w')
 f.write(base)
 f.close()
