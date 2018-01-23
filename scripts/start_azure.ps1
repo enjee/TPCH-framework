@@ -172,7 +172,7 @@ Invoke-SSHCommand -SSHSession $ssh -Command 'git clone -b development https://gi
 
 $endBeforeScript = Get-Date -format HH:mm:ss
 $startupTime = New-TimeSpan $start $endBeforeScript
-$startupMinutes = $startupTime.totalMinutes;
+$startupMinutes = [math]::Round($startupTime.totalMinutes, [System.MidpointRounding]::AwayFromZero);
 
 Write-Output ("Running the Python benchmark")
 $PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat + ' ' + $WorkerCount + ' ' + $WorkerNodeType + ' ' + $HeadNodeType + ' ' + $Tag + " Azure")
@@ -211,6 +211,8 @@ switch($HeadNodeType) {
 	"Standard_D4" {$HeadNodeCost = (( 2 * 0.50) * $hours) }
 	"Standard_D12" {$HeadNodeCost = (( 2 * 0.32) * $hours) }
 }
+
+$WorkerCount = [convert]::ToInt32($WorkerCount, 10)
 
 switch($WorkerNodeType) {
 	"Standard_A3" {$WorkerNodeCost = (( $WorkerCount * 0.26) * $hours) }

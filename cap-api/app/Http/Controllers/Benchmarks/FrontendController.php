@@ -135,6 +135,7 @@ class FrontendController extends Controller
         $benchmark = Benchmark::with('measurements')->where(['uuid' => $uuid])->first();
         $measurements = Measurement::where(['uuid' => $uuid])->get();
 
+        $benchmark->created_at = $benchmark->created_at->add(\DateInterval::createFromDateString('+1 hours'));
         $runtimes = array();
         $runindex = 0;
         foreach (object_get($benchmark, "measurements") as $measurement) {

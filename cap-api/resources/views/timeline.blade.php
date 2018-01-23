@@ -135,8 +135,8 @@
                 </div>
                 <div class="timeline-panel">
                     <div class="timeline-heading">
-                        <h4 class="timeline-title"> Benchmark with id {{object_get($benchmark, "uuid") }}</h4>
-                        <p><small class="text-muted"><i class="fa fa-clock-o"></i> {{ object_get($benchmark, "created_at") }}</small>
+                        <h4 class="timeline-title"> Benchmark with id {{$benchmark->uuid}}</h4>
+                        <p><small class="text-muted"><i class="fa fa-clock-o"></i> <?php echo $benchmark->created_at->add(\DateInterval::createFromDateString('+1 hours'))?></small>
                         </p>
                     </div>
                     <div class="timeline-body">
@@ -155,7 +155,11 @@
                             </div>
                             <div class="col-sm-3">
                                 <h7><i>Head node count</i></h7>
-                                <h6><b> {{$benchmark->head_node_count}} head nodes</b></h6>
+                                @if($benchmark->head_node_count == 1)
+                                    <h6><b> {{$benchmark->head_node_count}} head node</b></h6>
+                                @else
+                                    <h6><b> {{$benchmark->head_node_count}} head nodes</b></h6>
+                                @endif
                             </div>
                             <div class="col-sm-3">
                                 <h7><i>Worker node type</i></h7>
@@ -172,7 +176,7 @@
                             @if($benchmark->cost)
                             <div class="col-sm-3">
                                 <h7><i>Cost</i></h7>
-                                <h6><b> €{{$benchmark->cost}}</b></h6>
+                                <h6><b> €{{ number_format((float) $benchmark->cost, 2) }}</b></h6>
                             </div>
                             @endif
             <?php
@@ -190,17 +194,17 @@
             }
 
             if(count($runtimes) > 0) {
-                echo '<div class="col-sm-3"> <h7><i>Average runtime</i></h7> <h6><b>'  . gmdate("H:i:s", intval(array_sum($runtimes) / count($runtimes))) . '</b></h6> </div>
+                echo '<div class="col-sm-3"> <h7><i>average runtime</i></h7> <h6><b>'  . gmdate("h:i:s", intval(array_sum($runtimes) / count($runtimes))) . '</b></h6> </div>
                           </table>
                           </div>
                           <div class="benchmark-runtimes" >';
                 for ($i = 0; $i < count($runtimes); $i++) {
-                    echo '<div class="benchmark-run" time="' . $runtimes[$i] . '">Run Nr. ' . ($i + 1) . '
+                    echo '<div class="benchmark-run" time="' . $runtimes[$i] . '">run nr. ' . ($i + 1) . '
                 <div class="benchmark-details" >
                         <table style="width:100%">
                             <tr>
-                                <th>Total time of this run</th>
-                                <td>' . gmdate("H:i:s", $runtimes[$i]) . '</td>
+                                <th>total time of this run</th>
+                                <td>' . gmdate("h:i:s", $runtimes[$i]) . '</td>
                             </tr>
                         </table>
                     </div>

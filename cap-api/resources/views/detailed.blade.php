@@ -28,7 +28,11 @@
                     </div>
                     <div class="col-sm-3">
                         <h6><i>Head node count</i></h6>
-                        <h4> {{$benchmark->head_node_count}} head nodes</h4>
+                        @if($benchmark->head_node_count == 1)
+                            <h4> {{$benchmark->head_node_count}} head node</h4>
+                        @else
+                            <h4> {{$benchmark->head_node_count}} head nodes</h4>
+                        @endif
                     </div>
                     <div class="col-sm-3">
                         <h6><i>Worker node type</i></h6>
@@ -45,7 +49,7 @@
                     @if($benchmark->cost)
                     <div class="col-sm-3">
                         <h6><i>Cost</i></h6>
-                        <h4><b> €{{$benchmark->cost}}</b></h4>
+                        <h4><b> €{{ number_format((float) $benchmark->cost, 2) }}</b></h4>
                     </div>
                     @endif
                     <div class="col-sm-3">

@@ -244,7 +244,7 @@ Invoke-SSHCommand -SSHSession $ssh -Command 'git clone -b development https://gi
 
 $endBeforeScript = Get-Date -format HH:mm:ss
 $startupTime = New-TimeSpan $start $endBeforeScript
-$startupMinutes = $startupTime.totalMinutes;
+$startupMinutes = [math]::Round($startupTime.totalMinutes, [System.MidpointRounding]::AwayFromZero);
 
 Write-Output ("Running the Python benchmark")
 $PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat + ' ' + $WorkerCount + ' ' + $WorkerNodeType + ' ' + $HeadNodeType + ' ' + $Tag + " Amazon")
@@ -301,6 +301,7 @@ switch($HeadNodeType) {
   "m4.xlarge" {$HeadNodeCost = (0.25 * $hours) }
   "m4.2xlarge" {$HeadNodeCost = (0.5 * $hours) }
   }
+$WorkerCount = [convert]::ToInt32($WorkerCount, 10)
 
 switch($WorkerNodeType) {
   "m4.large" {$WorkerNodeCost = (( $WorkerCount * 0.125) * $hours) }

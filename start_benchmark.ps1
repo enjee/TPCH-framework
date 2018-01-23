@@ -264,100 +264,166 @@ $Form.TopMost = $true
 $Form.Width = 800
 $Form.Height = 340
 $Form.StartPosition = "CenterScreen"
+$Form.ForeColor = "#434343"
+$Form.BackColor = "#FCFCFC"
 
 $start = New-Object system.windows.Forms.Button
-$start.BackColor = "#23f71b"
-$start.Text = "Login, Accept and Start"
-$start.Width = 141
+$start.Text = "Login, confirm and start"
+$start.Width = 200
 $start.Height = 29
-$start.location = new-object system.drawing.point(300,240)
-$start.Font = "Microsoft Sans Serif,10,style=Bold"
+$start.location = new-object system.drawing.point(300,260)
+$start.Font = "Microsoft Sans Serif,10"
 $Form.controls.Add($start)
 
 $header_lbl = New-Object system.windows.Forms.Label
-$header_lbl.Text = "You are starting the benchmark with these parameters:"
+$header_lbl.Text = "You are starting the benchmark with these parameters"
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,20)
-$header_lbl.Font = "Microsoft Sans Serif,10"
+$header_lbl.location = new-object system.drawing.point(150,20)
+$header_lbl.Font = "Microsoft Sans Serif,15"
 $Form.controls.Add($header_lbl)
 
 $header_lbl = New-Object system.windows.Forms.Label
-$header_lbl.Text = "Provider:" + $global:provider
+$header_lbl.Text = "Provider"
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,40)
-$header_lbl.Font = "Microsoft Sans Serif,10"
+$header_lbl.location = new-object system.drawing.point(30,75)
+$header_lbl.Font = "Microsoft Sans Serif,14, style=italic"
 $Form.controls.Add($header_lbl)
 
 $header_lbl = New-Object system.windows.Forms.Label
-$header_lbl.Text = "Head node type: " + $HeadNodeType
+$header_lbl.Text = $global:provider
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,60)
-$header_lbl.Font = "Microsoft Sans Serif,10"
+$header_lbl.location = new-object system.drawing.point(30,100)
+$header_lbl.Font = "Microsoft Sans Serif,11"
 $Form.controls.Add($header_lbl)
 
 $header_lbl = New-Object system.windows.Forms.Label
-$header_lbl.Text = "Worker node type: " + $WorkerNodeType
+$header_lbl.Text = "Head type"
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,80)
-$header_lbl.Font = "Microsoft Sans Serif,10"
+$header_lbl.location = new-object system.drawing.point(210,75)
+$header_lbl.Font = "Microsoft Sans Serif,14, style=italic"
 $Form.controls.Add($header_lbl)
 
 $header_lbl = New-Object system.windows.Forms.Label
-$header_lbl.Text = "Worker count: " + $WorkerCount
+$header_lbl.Text = $HeadNodeType
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,100)
-$header_lbl.Font = "Microsoft Sans Serif,10"
+$header_lbl.location = new-object system.drawing.point(210,100)
+$header_lbl.Font = "Microsoft Sans Serif,11"
 $Form.controls.Add($header_lbl)
 
 $header_lbl = New-Object system.windows.Forms.Label
-$header_lbl.Text = "Number of times to repeat the test: " + $Repeat
+$header_lbl.Text = "Worker type"
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,120)
-$header_lbl.Font = "Microsoft Sans Serif,10"
+$header_lbl.location = new-object system.drawing.point(370,75)
+$header_lbl.Font = "Microsoft Sans Serif,14, style=italic"
 $Form.controls.Add($header_lbl)
 
 $header_lbl = New-Object system.windows.Forms.Label
-$header_lbl.Text = "Testset size: " + $Size + "GB"
+$header_lbl.Text = $WorkerNodeType
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,140)
-$header_lbl.Font = "Microsoft Sans Serif,10"
+$header_lbl.location = new-object system.drawing.point(370,100)
+$header_lbl.Font = "Microsoft Sans Serif,11"
 $Form.controls.Add($header_lbl)
 
 $header_lbl = New-Object system.windows.Forms.Label
-$header_lbl.Text = "Benchmark tag: " + $Tag
+$header_lbl.Text = "Worker count"
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,160)
-$header_lbl.Font = "Microsoft Sans Serif,10"
+$header_lbl.location = new-object system.drawing.point(540,75)
+$header_lbl.Font = "Microsoft Sans Serif,14, style=italic"
 $Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = $WorkerCount
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(540,100)
+$header_lbl.Font = "Microsoft Sans Serif,11"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "Repeat time(s)"
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(30,150)
+$header_lbl.Font = "Microsoft Sans Serif,14, style=italic"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = $repeat
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(30,175)
+$header_lbl.Font = "Microsoft Sans Serif,11"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "Testset size"
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(210,150)
+$header_lbl.Font = "Microsoft Sans Serif,14, style=italic"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = $Size + " GB"
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(210,175)
+$header_lbl.Font = "Microsoft Sans Serif,11"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "Benchmark tag"
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(370,150)
+$header_lbl.Font = "Microsoft Sans Serif,14, style=italic"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "#" + $Tag
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(370,175)
+$header_lbl.Font = "Microsoft Sans Serif,11"
+$Form.controls.Add($header_lbl)
+
 
 $header_lbl = New-Object system.windows.Forms.Label
 $header_lbl.Text = "At the end of this script, the resources will be removed. Please check if this succeeded to prevent unexpected costs."
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,200)
-$header_lbl.Font = "Microsoft Sans Serif,10"
+$header_lbl.location = new-object system.drawing.point(9,220)
+$header_lbl.Font = "Microsoft Sans Serif,11"
 $Form.controls.Add($header_lbl)
 
 $start.Add_Click({
     $form.Close()
 })
+[System.Windows.Forms.Application]::EnableVisualStyles();
 [void]$Form.ShowDialog()
 $Form.Dispose()
 
