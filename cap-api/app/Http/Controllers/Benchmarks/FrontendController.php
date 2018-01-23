@@ -94,7 +94,7 @@ class FrontendController extends Controller
     {
         $sizes = ['0', '1', '10', '100', '1000'];
         $providers = ['Azure', 'Amazon'];
-        $linechart_csv = Writer::createFromPath( "analytics-linechart.csv", "w");
+        $linechart_csv = Writer::createFromPath( "priceperformance.csv", "w");
         $linechart_csv->insertOne(["Test Size", "Azure", "Amazon"]);
         foreach($sizes as $s){
                 $linechart_data = [];
