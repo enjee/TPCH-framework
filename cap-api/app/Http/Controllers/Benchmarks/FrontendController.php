@@ -94,23 +94,30 @@ class FrontendController extends Controller
     {
         $sizes = ['0', '1', '10', '100', '1000'];
         $providers = ['Azure', 'Amazon'];
-
+        $linechart_csv = Writer::createFromPath( "analytics-linechart.csv", "w");
+        $linechart_csv->insertOne(["Test Size", "Azure", "Amazon"]);
         foreach($sizes as $s){
+                $linechart_data = [];
+                array_push($linechart_data, $s);
+                $barchart_path = "analytics-" . $s . ".csv";
+                $barchart_csv = Writer::createFromPath( $barchart_path, "w");
 
-                $path = "analytics-" . $s . ".csv";
-                $csv = Writer::createFromPath( $path, "w");
-
-                $csv->insertOne(["Provider", "Time Elapsed In Minutes", "Overhead In Minutes"]);
+                $barchart_csv->insertOne(["Provider", "Time Elapsed In Minutes", "Overhead In Minutes"]);
 
             foreach($providers as $p) {
                 $row = $this->analytics_json($p, $s);
-
+                $price_performance = 0;
                 if ($row) {
-                    $csv->insertOne($row);
+                    $price = $row[3];
+                    unset($row[3]);
+                    $barchart_csv->insertOne($row);
+                    $price_performance = $price / $row[1];
                 } else {
-                    $csv->insertOne([$p . '- No data available', 0, 0]);
+                    $barchart_csv->insertOne([$p . '- No data available', 0, 0]);
                 }
+                array_push($linechart_data, $price_performance);
             }
+            $linechart_csv->insertOne($linechart_data);
         }
 
 
@@ -132,12 +139,14 @@ class FrontendController extends Controller
         }
 
         $total_overhead = 0;
+        $total_cost = 0;
 
 
         $measurements = [];
         foreach($benchmarks as $b){
             array_push($measurements, $b->measurements());
             $total_overhead += $b->overhead;
+            $total_cost += $b->cost;
         }
         $measurement_count = 0;
         foreach($measurements as $m){
@@ -160,7 +169,8 @@ class FrontendController extends Controller
 
         $total = intval((($total / $measurement_count) / 60));
         $total_overhead = ($total_overhead / $benchmarks->count());
-        $provider_data = array("provider" => $provider, "time_elapsed" => $total, "total_overhead" => $total_overhead);
+        $total_cost = ($total_cost / $benchmarks->count());
+        $provider_data = [$provider, $total, $total_overhead, $total_cost];
         return $provider_data;
     }
 
