@@ -26,20 +26,61 @@ class FrontendController extends Controller
                 $trimmed_search = str_replace(" ", "", $search_uuid_tag);
                 $search_array = explode(",", $trimmed_search);
                 $benchmark_array = collect(new Benchmark);
-                foreach ($search_array as $search){
 
-                    $benchmark = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $search . "%")->orWhere('tag', 'LIKE', "%" . $search . "%")->get();
+                $first_search = $search_array[0];
 
-                    if(count($benchmark) > 0){
-                        foreach($benchmark as $b){
-                            $benchmark_array->push($b);
+                if(strlen($first_search) < 9){
+                    $benchmark = Benchmark::with('measurements')->where('provider', 'LIKE', "%" . $first_search . "%")->orWhere('test_size', '=', $first_search)->orWhere('tag', 'LIKE', "%" . $first_search . "%")->get();
+                }else{
+                    $benchmark = Benchmark::with('measurements')->where('provider', 'LIKE', "%" . $first_search . "%")->orWhere('test_size', '=', $first_search)->orWhere('uuid', 'LIKE', "%" . $first_search . "%")->orWhere('tag', 'LIKE', "%" . $first_search . "%")->get();
+                }
+
+                $candidates = [];
+
+                foreach($benchmark as $b){
+                    array_push($candidates, $b->uuid);
+                }
+
+                for ($i = 1; $i < count($search_array); $i++){
+
+                    $search = $search_array[$i];
+
+                        $benchmark = Benchmark::with('measurements')->where('test_size', '=',  $search)->whereIn('uuid', $candidates)->get();
+                        if(count($benchmark) < 1){
+                            $benchmark = Benchmark::with('measurements')->where('tag', 'LIKE', "%" . $search . "%")->whereIn('uuid', $candidates)->get();
                         }
+                        if(count($benchmark) < 1){
+                            $benchmark = Benchmark::with('measurements')->where('provider', 'LIKE', "%" . $search . "%")->whereIn('uuid', $candidates)->get();
+                        }
+                    if(count($benchmark) < 1){
+                        $benchmark = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $search . "%")->whereIn('uuid', $candidates)->get();
+                    }
+
+
+                    $candidates = [];
+
+                    foreach($benchmark as $b){
+                        array_push($candidates, $b->uuid);
+                    }
+
+
+                }
+
+
+
+                if(count($benchmark) > 0){
+                    foreach($benchmark as $b){
+                        $benchmark_array->push($b);
                     }
                 }
 
                 $benchmarks = $benchmark_array->unique()->sort()->reverse();
             }else{
-                $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $search_uuid_tag . "%")->orWhere('tag', 'LIKE', "%" . $search_uuid_tag . "%")->get()->reverse();
+                if(strlen($search_uuid_tag) < 7){
+                    $benchmarks = Benchmark::with('measurements')->where('provider', 'LIKE', "%" . $search_uuid_tag . "%")->orWhere('test_size', '=', $search_uuid_tag)->orWhere('tag', 'LIKE', "%" . $search_uuid_tag . "%")->get();
+                }else{
+                    $benchmarks = Benchmark::with('measurements')->where('provider', 'LIKE', "%" . $search_uuid_tag . "%")->orWhere('test_size', '=', $search_uuid_tag)->orWhere('uuid', 'LIKE', "%" . $search_uuid_tag . "%")->orWhere('tag', 'LIKE', "%" . $search_uuid_tag . "%")->get();
+                }
             }
         } else {
             $benchmarks = Benchmark::with('measurements')->get()->reverse();
@@ -158,9 +199,8 @@ class FrontendController extends Controller
 
     public function search($search = null)
     {
-        if ($search) {
-            $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $search . "%")->orWhere('tag', 'LIKE', "%" . $search . "%")->get();
-        } else {
+            $benchmarks = Benchmark::with('measurements')->where('provider', 'LIKE', "%" . $search . "%")->orWhere('test_size', 'LIKE', "%" . $search . "%")->orWhere('uuid', 'LIKE', "%" . $search . "%")->orWhere('tag', 'LIKE', "%" . $search . "%")->get();
+        if ($benchmarks->count() < 1) {
             $benchmarks = Benchmark::with('measurements')->get();
         }
 
