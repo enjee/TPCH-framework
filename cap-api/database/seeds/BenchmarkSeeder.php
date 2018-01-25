@@ -19,7 +19,8 @@ class BenchmarkSeeder extends Seeder
         foreach($providers as $provider) {
             foreach($sizes as $s){
                 for($j = 0; $j < 15; $j++){
-                    $uuid = Hash::make(Carbon::now()->toDateTimeString());
+                    $uuid = str_replace("/", "", Hash::make(Carbon::now()->toDateTimeString()));
+
 
                     DB::table('benchmarks')->insert([
                         'created_at' => Carbon::now(),

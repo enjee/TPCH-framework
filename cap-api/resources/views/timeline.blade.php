@@ -204,7 +204,7 @@
                         <table style="width:100%">
                             <tr>
                                 <th>total time of this run</th>
-                                <td>' . gmdate("h:i:s", $runtimes[$i]) . '</td>
+                                <td>' . gmdate("H:i:s", $runtimes[$i]) . '</td>
                             </tr>
                         </table>
                     </div>
