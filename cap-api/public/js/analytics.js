@@ -14,7 +14,7 @@ function draw(size) {
     // create the svg
     var svg = d3.select("#barsvg"),
         margin = {top: 20, right: 20, bottom: 30, left: 40},
-        width = +svg.attr("width") - margin.left - margin.right,
+        width = +svg.attr("width") - margin.left - margin.right - 200,
         height = +svg.attr("height") - margin.top - margin.bottom,
         g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -99,9 +99,11 @@ function draw(size) {
                 tooltip.select("text").text((d[1] - d[0]) + " Minutes");
             });
 
+        console.log(keys.slice().reverse()[0]);
+        console.log(keys.slice().reverse()[1]);
         g.append("g")
             .attr("class", "axis")
-            .attr("transform", "translate(0," + height + ")")
+            .attr("transform", "translate(0," + (height) + ")")
             .call(d3.axisBottom(x));
 
         g.append("g")
@@ -115,30 +117,31 @@ function draw(size) {
             .attr("font-weight", "bold")
             .attr("text-anchor", "start");
 
-        var legend = g.append("g")
-            .attr("font-family", "sans-serif")
-            .attr("font-size", 10)
-            .attr("text-anchor", "end")
-            .selectAll("g")
-            .data(keys.slice().reverse())
-            .enter().append("g")
-            .attr("transform", function (d, i) {
-                return "translate(0," + i * 20 + ")";
-            });
 
-        legend.append("rect")
-            .attr("x", width - 19)
-            .attr("width", 19)
-            .attr("height", 19)
-            .attr("fill", z);
+            var legend = g.append("g")
+                .attr("font-family", "sans-serif")
+                .attr("font-size", 10)
+                .attr("text-anchor", "end")
+                .selectAll("g")
+                .data(keys.slice().reverse())
+                .enter().append("g")
+                .attr("transform", function (d, i) {
+                    return "translate(150," + i * 20 + ")";
+                });
 
-        legend.append("text")
-            .attr("x", width - 24)
-            .attr("y", 9.5)
-            .attr("dy", "0.32em")
-            .text(function (d) {
-                return d;
-            });
+            legend.append("rect")
+                .attr("x", width - 19)
+                .attr("width", 19)
+                .attr("height", 19)
+                .attr("fill", z);
+
+            legend.append("text")
+                .attr("x", width - 24)
+                .attr("y", 9.5)
+                .attr("dy", "0.32em")
+                .text(function (d) {
+                    return d;
+                });
     });
 
 
@@ -146,11 +149,6 @@ function draw(size) {
     var tooltip = svg.append("g")
         .attr("class", "tooltip-hover");
 
-    tooltip.append("rect")
-        .attr("width", 60)
-        .attr("height", 20)
-        .attr("fill", "white")
-        .style("opapp_item", 0.5);
 
     tooltip.append("text")
         .attr("x", 30)
@@ -160,7 +158,7 @@ function draw(size) {
         .attr("font-weight", "bold");
 }
 
-draw(0);
+draw(1);
 
 function redraw(size) {
     analytics_data.test_size = size;
