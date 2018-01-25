@@ -98,7 +98,9 @@ class FrontendController extends Controller
         $linechart_csv->insertOne(["Test Size", "Azure", "Amazon"]);
         foreach($sizes as $s){
                 $linechart_data = [];
-                array_push($linechart_data, $s);
+                if($s > 0){
+                    array_push($linechart_data, $s);
+                }
                 $barchart_path = "analytics-" . $s . ".csv";
                 $barchart_csv = Writer::createFromPath( $barchart_path, "w");
 
@@ -111,13 +113,20 @@ class FrontendController extends Controller
                     $price = $row[3];
                     unset($row[3]);
                     $barchart_csv->insertOne($row);
-                    $price_performance = $price / $row[1];
+                    if($s > 0){
+                        $price_performance =  1000 *(((1/$row[1]) / $price) * pow($s, 2));
+                        array_push($linechart_data, $price_performance);
+                    }
+
                 } else {
                     $barchart_csv->insertOne([$p . '- No data available', 0, 0]);
                 }
-                array_push($linechart_data, $price_performance);
+
             }
-            $linechart_csv->insertOne($linechart_data);
+            if(count($linechart_data) > 0){
+                $linechart_csv->insertOne($linechart_data);
+            }
+
         }
 
 

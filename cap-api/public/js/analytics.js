@@ -99,8 +99,6 @@ function draw(size) {
                 tooltip.select("text").text((d[1] - d[0]) + " Minutes");
             });
 
-        console.log(keys.slice().reverse()[0]);
-        console.log(keys.slice().reverse()[1]);
         g.append("g")
             .attr("class", "axis")
             .attr("transform", "translate(0," + (height) + ")")
@@ -265,4 +263,7 @@ d3.csv("priceperformance.csv", function (error, data) {
         .text(function (d) {
             return d.id;
         });
+
+
 });
+

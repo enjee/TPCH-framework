@@ -30,6 +30,7 @@
 
         <div id="main-linechart">
             <h1 id="linechart-header">Price Performance Rating</h1>
+            <p>This chart displays the average price to performance ratio per provider per dataset size, this score </p>
             <svg id="linesvg" width="960" height="500"></svg>
         </div>
     </div>
