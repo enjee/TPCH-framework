@@ -310,6 +310,13 @@ class FrontendController extends Controller
    public static function secondsToTime($seconds) {
         $dtF = new \DateTime('@0');
         $dtT = new \DateTime("@$seconds");
-        return $dtF->diff($dtT)->format('%a days, %h hours, %i minutes and %s seconds');
+        if($seconds > 3599 && $seconds > 86399){
+            return $dtF->diff($dtT)->format('%a days, %h hours, %i minutes and %s seconds');
+        }else if($seconds > 3599){
+            return $dtF->diff($dtT)->format('%h hours, %i minutes and %s seconds');
+        }else{
+            return $dtF->diff($dtT)->format('%i minutes and %s seconds');
+        }
+
     }
 }
