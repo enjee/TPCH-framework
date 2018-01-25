@@ -55,7 +55,7 @@
                     <div class="col-sm-3">
                         <h6><i>Average runtime</i></h6>
                         <?php
-                        echo '<h4>' . gmdate("H:i:s", $average_time) . '</h4>'
+                        echo '<h6>' . App\Http\Controllers\Benchmarks\FrontendController::secondsToTime( $average_time) . '</h6>'
                         ?>
                     </div>
                 </div>

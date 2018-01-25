@@ -181,6 +181,7 @@
                             @endif
             <?php
 
+
            $runtimes = array();
             $runindex = 0;
             foreach (object_get($benchmark, "measurements") as $measurement) {
@@ -193,8 +194,12 @@
                 $runindex++;
             }
 
+
+
             if(count($runtimes) > 0) {
-                echo '<div class="col-sm-3"> <h7><i>average runtime</i></h7> <h6><b>'  . gmdate("h:i:s", intval(array_sum($runtimes) / count($runtimes))) . '</b></h6> </div>
+
+
+                echo '<div class="col-sm-3"> <h7><i>average runtime</i></h7> <h6><b>'  . App\Http\Controllers\Benchmarks\FrontendController::secondsToTime(intval(array_sum($runtimes) / count($runtimes))) . '</b></h6> </div>
                           </table>
                           </div>
                           <div class="benchmark-runtimes" >';
@@ -204,7 +209,7 @@
                         <table style="width:100%">
                             <tr>
                                 <th>total time of this run</th>
-                                <td>' . gmdate("H:i:s", $runtimes[$i]) . '</td>
+                                <td>' . App\Http\Controllers\Benchmarks\FrontendController::secondsToTime($runtimes[$i]) . '</td>
                             </tr>
                         </table>
                     </div>
