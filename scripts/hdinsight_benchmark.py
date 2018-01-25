@@ -15,6 +15,19 @@ head_node_type = sys.argv[6]
 tag = sys.argv[7]
 provider = sys.argv[8]
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+config_file = current_dir + "/../settings.cfg"
+
+def get_config_property(property):
+    with open(config_file, 'rU') as f:
+        for line in f:
+            if line.startswith(property):
+                return line.split(":")[1]
+
+
+dashboard_ip = get_config_property("dashboard-ip")
+
+
 if provider == "Amazon":
 	import_dataset_file = "TPCH-framework/scripts/import_dataset_aws.hive"
 	head_node_count = 1
@@ -23,7 +36,7 @@ elif provider == "Azure":
 	head_node_count = 2
 
 
-url = 'http://13.79.186.204/api/benchmark/new'
+url = 'http://' + dashboard_ip + '/api/benchmark/new'
 data = {"uuid": uuid, "provider": provider, "test_size": test_size, "head_node_type": head_node_type,
         "head_node_count": head_node_count, "worker_node_type": worker_node_type,
         "worker_node_count": worker_node_count, "tag": tag}
@@ -48,7 +61,7 @@ print "Starting the benchmark"
 for run in range(times):
     log_file = open("benchmark_output.txt", "w")
     os.system('hive -f TPCH-framework/scripts/prepare_tables.hive &>> table_creation_output.txt')
-    url = 'http://13.79.186.204/api/measurement/new'
+    url = 'http://' + dashboard_ip + '/api/measurement/new'
     data = {"successful": "1", "uuid": str(uuid)}
     query_num = 0
     run += 1
