@@ -9,6 +9,23 @@ $HeadNodeType = $args[4]
 $Tag = $args[5]
 
 ##############################
+# Read config file           #
+##############################
+
+$scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
+$configFile = (Split-Path -Path $scriptPath -Parent) + "\settings.cfg"
+function Get-Config-Property {
+    Param ([string]$property)
+    foreach($line in Get-Content $configFile) {
+        if($line -match ("^" + $property)){
+            return $line.split(":")[1]
+        }
+    }
+}
+
+$dashboardIp = Get-Config-Property("dashboard-ip")
+
+##############################
 # Install needed modules     #
 ##############################
 Write-Output "Checking for AWS PowerShell"
@@ -311,8 +328,12 @@ switch($WorkerNodeType) {
 
 $cost = [Math]::Round($HeadNodeCost + $WorkerNodeCost,3);
 
-Invoke-RestMethod -Uri http://13.79.186.204/api/pricing/$random/$cost
-Invoke-RestMethod -Uri http://13.79.186.204/api/overhead/$random/$startupMinutes
+$scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
+$content = [IO.File]::ReadAllText($scriptPath+"..\settings.cfg")
+Write-Host: $content
+
+Invoke-RestMethod -Uri (http://" + $dashboardIp + "/api/pricing/$random/$cost)
+Invoke-RestMethod -Uri (http://" + $dashboardIp + "/api/overhead/$random/$startupMinutes)
 
 
 Write-Output "$(Get-Date)"
