@@ -90,7 +90,7 @@ function draw(size) {
                     var href_path = "../timeline?search_uuid_tag=" + d.data.Provider + "," + size;
                 }
 
-                window.location.replace(href_path);
+                window.location.href = href_path;
             })
             .on("mousemove", function (d) {
                 var xPosition = d3.mouse(this)[0] - 5;
@@ -160,10 +160,11 @@ draw(1);
 
 function redraw(size) {
     analytics_data.test_size = size;
+    document.getElementById("barchart-header").innerHTML = "Benchmark Times Per Provider";
     if (size == 0) {
-        document.getElementById("barchart-header").innerHTML = "Benchmark Times Per Provider";
+        document.getElementById("dropdownMenuButton").innerHTML = "All sizes";
     } else {
-        document.getElementById("barchart-header").innerHTML = "Benchmark Times Per Provider - " + size + " Gigabyte";
+        document.getElementById("dropdownMenuButton").innerHTML =  size + " GB";
     }
 
     svg.selectAll("*").remove();
@@ -248,7 +249,7 @@ d3.csv("priceperformance.csv", function (error, data) {
         .style("stroke", function (d) {
             return z(d.id);
         })
-        .style("fill", "none");
+        .style("fill", "none")
 
     pp_item.append("text")
         .datum(function (d) {
@@ -266,4 +267,16 @@ d3.csv("priceperformance.csv", function (error, data) {
 
 
 });
+
+// Prep the tooltip bits, initial display is hidden
+var tooltip = linesvg.append("g")
+    .attr("class", "tooltip-hover");
+
+
+tooltip.append("text")
+    .attr("x", 30)
+    .attr("dy", "1.2em")
+    .style("text-anchor", "middle")
+    .attr("font-size", "12px")
+    .attr("font-weight", "bold");
 
