@@ -317,6 +317,7 @@ class FrontendController extends Controller
     }
 
    public static function secondsToTime($seconds) {
+        $seconds = intval($seconds);
         $dtF = new \DateTime('@0');
         $dtT = new \DateTime("@$seconds");
         if($seconds > 3599 && $seconds > 86399){
