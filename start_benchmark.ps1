@@ -87,15 +87,16 @@ if($global:provider -eq "Azure")
   {
     $AcceptedNodeTypes = "Standard_A3", "Standard_A4", "Standard_A6", "Standard_D3", "Standard_D4", "Standard_D12"
     $PossibleNodes = "Standard_A3", "Standard_A4", "Standard_A6", "Standard_D3", "Standard_D4", "Standard_D12"
+    $AllowedTestSizes = 1, 5, 10, 100
   }
 else
   {
     $AcceptedNodeTypes = "m4.large", "m4.xlarge", "m4.2xlarge"
     $PossibleNodes = "m4.large", "m4.xlarge", "m4.2xlarge"
+    $AllowedTestSizes = 1, 10
   }
 
 # Test variables
-$AllowedTestSizes = 1, 5, 10, 100
 $MaxRepeatTest = 10
 $Tag = "no-tag"
 
