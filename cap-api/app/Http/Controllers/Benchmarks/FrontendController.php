@@ -113,7 +113,7 @@ class FrontendController extends Controller
                 $barchart_csv->insertOne(["Provider", "Time Elapsed In Minutes", "Overhead In Minutes"]);
 
             foreach($providers as $p) {
-                $row = $this->analytics_json($p, $s);
+                $row = $this->analytics_calc($p, $s);
                 $price_performance = 0;
                 if ($row) {
                     $price = $row[3];
@@ -140,7 +140,7 @@ class FrontendController extends Controller
         return view('analytics');
     }
 
-    public function analytics_json($provider, $size){
+    public function analytics_calc($provider, $size){
         if($size < 1){
             $benchmarks = Benchmark::with('measurements')->where('provider', '=', $provider)->get();
         }else{
