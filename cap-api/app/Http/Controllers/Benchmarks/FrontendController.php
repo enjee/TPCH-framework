@@ -24,6 +24,10 @@ class FrontendController extends Controller
         return view('timeline', ['benchmarks' => $benchmarks, 'search_uuid_tag' => $search_uuid_tag]);
     }
 
+    function guide(){
+        return view('guide');
+    }
+
     public static function search($keywords){
         if ($keywords != null) {
             if(strpos($keywords, ',') !== false){

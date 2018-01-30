@@ -38,6 +38,8 @@ Route::get('/', '\App\Http\Controllers\Benchmarks\FrontendController@timeline');
 
 Route::get('/timeline', '\App\Http\Controllers\Benchmarks\FrontendController@timeline');
 
+Route::get('/guide', '\App\Http\Controllers\Benchmarks\FrontendController@guide');
+
 Route::get('/detailed/{uuid}', '\App\Http\Controllers\Benchmarks\FrontendController@detailed');
 
 Route::get('/analytics/{size?}', '\App\Http\Controllers\Benchmarks\FrontendController@analytics');
