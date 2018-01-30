@@ -20,10 +20,15 @@ class FrontendController extends Controller
     public function timeline()
     {
         $search_uuid_tag = Input::get('search_uuid_tag');
-        if ($search_uuid_tag != null) {
-            if(strpos($search_uuid_tag, ',') !== false){
+        $benchmarks = FrontendController::search($search_uuid_tag);
+        return view('timeline', ['benchmarks' => $benchmarks, 'search_uuid_tag' => $search_uuid_tag]);
+    }
 
-                $trimmed_search = str_replace(" ", "", $search_uuid_tag);
+    public static function search($keywords){
+        if ($keywords != null) {
+            if(strpos($keywords, ',') !== false){
+
+                $trimmed_search = str_replace(" ", "", $keywords);
                 $search_array = explode(",", $trimmed_search);
                 $benchmark_array = collect(new Benchmark);
 
@@ -45,13 +50,13 @@ class FrontendController extends Controller
 
                     $search = $search_array[$i];
 
-                        $benchmark = Benchmark::with('measurements')->where('test_size', '=',  $search)->whereIn('uuid', $candidates)->get();
-                        if(count($benchmark) < 1){
-                            $benchmark = Benchmark::with('measurements')->where('tag', 'LIKE', "%" . $search . "%")->whereIn('uuid', $candidates)->get();
-                        }
-                        if(count($benchmark) < 1){
-                            $benchmark = Benchmark::with('measurements')->where('provider', 'LIKE', "%" . $search . "%")->whereIn('uuid', $candidates)->get();
-                        }
+                    $benchmark = Benchmark::with('measurements')->where('test_size', '=',  $search)->whereIn('uuid', $candidates)->get();
+                    if(count($benchmark) < 1){
+                        $benchmark = Benchmark::with('measurements')->where('tag', 'LIKE', "%" . $search . "%")->whereIn('uuid', $candidates)->get();
+                    }
+                    if(count($benchmark) < 1){
+                        $benchmark = Benchmark::with('measurements')->where('provider', 'LIKE', "%" . $search . "%")->whereIn('uuid', $candidates)->get();
+                    }
                     if(count($benchmark) < 1){
                         $benchmark = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $search . "%")->whereIn('uuid', $candidates)->get();
                     }
@@ -76,17 +81,18 @@ class FrontendController extends Controller
 
                 $benchmarks = $benchmark_array->unique()->sort()->reverse();
             }else{
-                if(strlen($search_uuid_tag) < 7){
-                    $benchmarks = Benchmark::with('measurements')->where('provider', 'LIKE', "%" . $search_uuid_tag . "%")->orWhere('test_size', '=', $search_uuid_tag)->orWhere('tag', 'LIKE', "%" . $search_uuid_tag . "%")->get();
+                if(strlen($keywords) < 7){
+                    $benchmarks = Benchmark::with('measurements')->where('provider', 'LIKE', "%" . $keywords . "%")->orWhere('test_size', '=', $keywords)->orWhere('tag', 'LIKE', "%" . $keywords . "%")->get();
                 }else{
-                    $benchmarks = Benchmark::with('measurements')->where('provider', 'LIKE', "%" . $search_uuid_tag . "%")->orWhere('test_size', '=', $search_uuid_tag)->orWhere('uuid', 'LIKE', "%" . $search_uuid_tag . "%")->orWhere('tag', 'LIKE', "%" . $search_uuid_tag . "%")->get();
+                    $benchmarks = Benchmark::with('measurements')->where('provider', 'LIKE', "%" . $keywords . "%")->orWhere('test_size', '=', $keywords)->orWhere('uuid', 'LIKE', "%" . $keywords . "%")->orWhere('tag', 'LIKE', "%" . $keywords . "%")->get();
                 }
             }
         } else {
             $benchmarks = Benchmark::with('measurements')->get()->reverse();
         }
 
-        return view('timeline', ['benchmarks' => $benchmarks, 'search_uuid_tag' => $search_uuid_tag]);
+        return $benchmarks;
+
     }
 
 
@@ -217,12 +223,9 @@ class FrontendController extends Controller
         return view('detailed', ['benchmark' => $benchmark, 'measurement' => $measurements, 'average_time' => $average_time]);
     }
 
-    public function search($search = null)
+    public function search_api($search = null)
     {
-            $benchmarks = Benchmark::with('measurements')->where('provider', 'LIKE', "%" . $search . "%")->orWhere('test_size', 'LIKE', "%" . $search . "%")->orWhere('uuid', 'LIKE', "%" . $search . "%")->orWhere('tag', 'LIKE', "%" . $search . "%")->get();
-        if ($benchmarks->count() < 1) {
-            $benchmarks = Benchmark::with('measurements')->get();
-        }
+        $benchmarks = FrontendController::search($search);
 
         if ($benchmarks) {
             return response()->json($benchmarks, 200);
@@ -234,26 +237,7 @@ class FrontendController extends Controller
     public function download_csv($search = null)
     {
         if ($search) {
-            if(strpos($search, ',') !== false){
-
-                $trimmed_search = str_replace(" ", "", $search);
-                $search_array = explode(",", $trimmed_search);
-                $benchmark_array = collect(new Benchmark);
-                foreach ($search_array as $s){
-
-                    $benchmark = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $s . "%")->orWhere('tag', 'LIKE', "%" . $s . "%")->get();
-
-                    if(count($benchmark) > 0){
-                        foreach($benchmark as $b){
-                            $benchmark_array->push($b);
-                        }
-                    }
-                }
-
-                $benchmarks = $benchmark_array->unique();
-            }else{
-                $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $search . "%")->orWhere('tag', 'LIKE', "%" . $search . "%")->get()->reverse();
-            }
+            $benchmarks = FrontendController::search($search);
             $filename = $search . '.csv';
         } else {
             $benchmarks = Benchmark::with('measurements')->get();

@@ -55,6 +55,8 @@ Route::get('/api/timeline', '\App\Http\Controllers\Benchmarks\ApiController@api_
 
 Route::get('/api/benchmark/{uuid}', '\App\Http\Controllers\Benchmarks\ApiController@benchmark');
 
+Route::get('/api/benchmark/search/{uuid}', '\App\Http\Controllers\Benchmarks\ApiController@api_search');
+
 Route::get('/api/measurement/{uuid}/{run}', '\App\Http\Controllers\Benchmarks\ApiController@measurement');
 
 Route::post('/api/benchmark/new', '\App\Http\Controllers\Benchmarks\ApiController@create_benchmark');

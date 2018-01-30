@@ -13,6 +13,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use League\Csv\Writer;
 use SplTempFileObject;
+use App\Http\Controllers\Benchmarks\FrontendController;
 
 class ApiController extends Controller
 {
@@ -199,6 +200,16 @@ class ApiController extends Controller
 
             return response()->download($path, $filename)->deleteFileAfterSend(true);
         } else {
+            return response()->json('benchmark not found', 404);
+        }
+    }
+
+    public function api_search($search){
+        $benchmarks = FrontendController::search($search);
+
+        if($benchmarks->count() > 0){
+            return response()->json($benchmarks, 200);
+        }else{
             return response()->json('benchmark not found', 404);
         }
     }
