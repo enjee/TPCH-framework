@@ -13,63 +13,15 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use League\Csv\Writer;
 use SplTempFileObject;
+use App\Http\Controllers\Benchmarks\FrontendController;
 
-class BenchmarkController extends Controller
+class ApiController extends Controller
 {
-    public function timeline()
-    {
-        $search_uuid_tag = Input::get('search_uuid_tag');
-        if ($search_uuid_tag != null) {
-            $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $search_uuid_tag . "%")->orWhere('tag', 'LIKE', "%" . $search_uuid_tag . "%")->get()->reverse();
-        } else {
-            $benchmarks = Benchmark::with('measurements')->get()->reverse();
-        }
-
-        return view('timeline', ['benchmarks' => $benchmarks, 'search_uuid_tag' => $search_uuid_tag]);
-    }
 
     public function api_timeline()
     {
         $benchmarks = Benchmark::with('measurements')->get();
         return response()->json($benchmarks, 200);
-    }
-
-    public function detailed($uuid)
-    {
-        $benchmark = Benchmark::with('measurements')->where(['uuid' => $uuid])->first();
-        $measurements = Measurement::where(['uuid' => $uuid])->get();
-
-        $runtimes = array();
-        $runindex = 0;
-        foreach (object_get($benchmark, "measurements") as $measurement) {
-            $currentrun = 0;
-
-            for ($i = 0; $i < 22; $i++) {
-                $currentrun += object_get($measurement, "q{$i}");
-            }
-            array_push($runtimes, $currentrun);
-            $runindex++;
-        }
-
-        if (count($runtimes) > 0) {
-            $average_time = array_sum($runtimes) / count($runtimes);
-        } else {
-            $average_time = 0;
-        }
-
-        return view('detailed', ['benchmark' => $benchmark, 'measurement' => $measurements, 'average_time' => $average_time]);
-    }
-
-    public function log($uuid, $run)
-    {
-        $measurement = $measurements = Measurement::where(['uuid' => $uuid])->where('run', '=', $run)->first();
-
-        return view('log', ['measurement' => $measurement]);
-    }
-
-    public function analytics()
-    {
-        return view('analytics');
     }
 
     public function benchmark($uuid)
@@ -229,20 +181,6 @@ class BenchmarkController extends Controller
         }
     }
 
-    public function search($search = null)
-    {
-        if ($search) {
-            $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $search . "%")->orWhere('tag', 'LIKE', "%" . $search . "%")->get();
-        } else {
-            $benchmarks = Benchmark::with('measurements')->get();
-        }
-
-        if ($benchmarks) {
-            return response()->json($benchmarks, 200);
-        } else {
-            return response()->json('benchmark not found', 404);
-        }
-    }
 
     public function download($search = null)
     {
@@ -268,77 +206,38 @@ class BenchmarkController extends Controller
         }
     }
 
-    public function download_csv($search = null)
-    {
-        if ($search) {
-            $benchmarks = Benchmark::with('measurements')->where('uuid', 'LIKE', "%" . $search . "%")->orWhere('tag', 'LIKE', "%" . $search . "%")->get();
-            $filename = $search . '.csv';
-        } else {
-            $benchmarks = Benchmark::with('measurements')->get();
-            $filename = 'benchmarks.csv';
+    public function api_search($search){
+        $benchmarks = FrontendController::search($search);
+
+        if($benchmarks->count() > 0){
+            return response()->json($benchmarks, 200);
+        }else{
+            return response()->json('benchmark not found', 404);
         }
+    }
 
+    public function update_pricing($uuid, $cost){
+        $benchmark = Benchmark::where('uuid', '=', $uuid)->first();
 
-        if (count($benchmarks) > 0) {
+        if($benchmark){
+            $benchmark->cost = $cost;
 
-            $csv = Writer::createFromFileObject(new SplTempFileObject());
+            $benchmark->save();
+            return response()->json($benchmark, 200);
+        }else{
+            return response()->json('benchmark not found', 404);
+        }
+    }
 
+    public function update_overhead($uuid, $overhead){
+        $benchmark = Benchmark::where('uuid', '=', $uuid)->first();
 
-            $measurement1 = $benchmarks[0]->measurements()->get();
+        if($benchmark){
+            $benchmark->overhead = $overhead;
 
-
-            if (count($measurement1) == 0) {
-
-                return response()->json('Benchmark contains no measurements, csv cannot be provided', 500);
-            }
-
-            $header_measurements = array_keys($measurement1[0]->toArray());
-
-            if (($key = array_search('log', $header_measurements)) !== false) {
-                unset($header_measurements[$key]);
-            }
-
-            $benchmark1 = $benchmarks[0];
-
-
-            unset($benchmark1['measurements']);
-            unset($benchmark1['id']);
-            unset($benchmark1['created_at']);
-            unset($benchmark1['updated_at']);
-            unset($benchmark1['uuid']);
-
-            $header_benchmark = array_keys($benchmark1->toArray());
-
-
-            $headers = array_merge($header_measurements, $header_benchmark);
-
-            $csv->insertOne($headers);
-
-
-            foreach ($measurement1 as $m) {
-                unset($m['log']);
-                $csv->insertOne(array_merge($m->toArray(), $benchmark1->toArray()));
-            }
-
-            foreach ($benchmarks as $benchmark) {
-
-                $data_measurements = $benchmark->measurements()->get();
-                unset($benchmark['measurements']);
-                unset($benchmark['id']);
-                unset($benchmark['created_at']);
-                unset($benchmark['updated_at']);
-                unset($benchmark['uuid']);
-                $data = $benchmark->toArray();
-
-                foreach ($data_measurements as $measurement) {
-                    unset($measurement['log']);
-
-                    $csv->insertOne(array_merge($measurement->toArray(), $data));
-                }
-            }
-
-            $csv->output($filename);
-        } else {
+            $benchmark->save();
+            return response()->json($benchmark, 200);
+        }else{
             return response()->json('benchmark not found', 404);
         }
     }

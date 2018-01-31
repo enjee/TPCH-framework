@@ -1,4 +1,3 @@
-
 # Get the ID and security principal of the current user account
 $myWindowsID=[System.Security.Principal.WindowsIdentity]::GetCurrent()
 $myWindowsPrincipal=new-object System.Security.Principal.WindowsPrincipal($myWindowsID)
@@ -23,7 +22,7 @@ else
    $newProcess = new-object System.Diagnostics.ProcessStartInfo "PowerShell";
 
    # Specify the current script path and name as a parameter
-   $newProcess.Arguments = $myInvocation.MyCommand.Definition;
+   $newProcess.Arguments = $myInvocation.MyCommand.Path -replace ' ', '` ';
 
    # Indicate that the process should be elevated
    $newProcess.Verb = "runas";
@@ -35,109 +34,86 @@ else
    exit
    }
 
-
-##############################
-# ALL CONSTANTS & VARIABLES  #
-##############################
-
-# Randomize this run
-$random = -join ((48..57) + (97..122) | Get-Random -Count 16 | % {[char]$_})
-$random = "a" + $random
-Write-Output ("This script execution has been randomized with: " + $random)
-
-# Default cluster size (# of worker nodes), version, type, and OS
-$clusterVersion = "3.5"
-$clusterType = "Hadoop"
-$clusterOS = "Linux"
-$clusterName = ($random + "cluster")
-$ComputerName = ($clusterName + "-ssh.azurehdinsight.net")
-$resourceGroupName = ($random + "group")
-$location = "northeurope"
-$defaultStorageAccountName = ($random + "storage")
-
-
-# Credentials
-$username = -join ((48..57) + (97..122) | Get-Random -Count 10 | % {[char]$_})
-$password = "1Password!"
-$secstr = New-Object -TypeName System.Security.SecureString
-$password.ToCharArray() | ForEach-Object {$secstr.AppendChar($_)}
-$credentials = new-object -typename System.Management.Automation.PSCredential -argumentlist $username, $secstr
-
-# Files
-$Path = ((Split-Path -Path $MyInvocation.MyCommand.Definition -Parent) + "\")
-$PythonFileName = "hdinsight_benchmark.py"
-$SftpPath = ('/home/' + $username + '/')
-$PythonFile = ($SftpPath + 'TPCH-framework/scripts/' + $PythonFileName)
-$PythonCHmodCommand = ('sudo chmod +x ' + $PythonFile)
-$PythonCommand = ('python ' + $PythonFile + ' ' + $random)
-
-# Test variables
-$AllowedTestSizes = 1, 5, 10, 100
-$MaxRepeatTest = 10
-$AcceptedNodeTypes = "Standard_A3", "Standard_A4", "Standard_A5", "Standard_D3", "Standard_D4", "Standard_D5"
-$Tag = "no-tag"
-
-
-
-##########################################
-# Check and install required libraries   #
-##########################################
-
-# Install PowerShell for Azure if not exists
-Write-Output "$(Get-Date)"
-
-Write-Output "Checking for Azure PowerShell"
-if (!(Get-Module -ListAvailable -Name AzureRM)) {
-    Install-Module AzureRM -Force
-    Import-Module AzureRM
-    Write-Output "Azure Powershell installed"
-} else {
-    Write-Output "Azure PowerShell already present"
-}
-
-# Install ssh for powershell if not exists
-Write-Output "Checking for Posh-SSH"
-if (!(Get-Module -ListAvailable -Name Posh-SSH)) {
-    Install-Module Posh-SSH -Force
-    Import-Module Posh-SSH
-} else {
-    Write-Output "Posh-SSH is already present"
-}
-
-
-##############################
-# Azure PowerShell  login    #
-##############################
-
-# Login to your Azure subscription
-Write-Output "Logging in to your Azure subscription"
-$sub = Add-AzureRmAccount
-
-$PossibleNodes = Get-AzureRmVMSize -location 'westeurope'
-
-
-
 ##############################
 # GUI                        #
 ##############################
 
 Add-Type -AssemblyName System.Windows.Forms
 
+
+
 $Form = New-Object system.Windows.Forms.Form
-$Form.Text = "TPCH Benchmark on Azure"
-$Form.BackColor = "#34bce5"
+$Form.Text = "TPCH Benchmark"
+$Form.TopMost = $true
+$Form.Width = 350
+$Form.Height = 300
+$Form.StartPosition = "CenterScreen"
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "On which provider would you like to execute the benchmark: "
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(20,40)
+$Form.controls.Add($header_lbl)
+
+$azure_button = New-Object system.windows.Forms.Button
+$azure_button.Text = "Azure"
+$azure_button.Width = 150
+$azure_button.Height = 29
+$azure_button.location = new-object system.drawing.point(100,100)
+$Form.controls.Add($azure_button)
+
+$amazon_button = New-Object system.windows.Forms.Button
+$amazon_button.Text = "Amazon"
+$amazon_button.Width = 150
+$amazon_button.Height = 29
+$amazon_button.location = new-object system.drawing.point(100,150)
+$Form.controls.Add($amazon_button)
+
+$amazon_button.Add_Click({
+    $global:provider = $amazon_button.Text
+    $form.Close()
+})
+$azure_button.Add_Click({
+    $global:provider = $azure_button.Text
+    $form.Close()
+})
+[System.Windows.Forms.Application]::EnableVisualStyles();
+[void]$Form.ShowDialog()
+$Form.Dispose()
+
+if($global:provider -eq "Azure")
+  {
+    $AcceptedNodeTypes = "Standard_A3", "Standard_A4", "Standard_A6", "Standard_D3", "Standard_D4", "Standard_D12"
+    $PossibleNodes = "Standard_A3", "Standard_A4", "Standard_A6", "Standard_D3", "Standard_D4", "Standard_D12"
+    $AllowedTestSizes = 1, 5, 10, 100
+  }
+else
+  {
+    $AcceptedNodeTypes = "m4.large", "m4.xlarge", "m4.2xlarge"
+    $PossibleNodes = "m4.large", "m4.xlarge", "m4.2xlarge"
+    $AllowedTestSizes = 1, 10
+  }
+
+# Test variables
+$MaxRepeatTest = 10
+$Tag = "no-tag"
+
+Add-Type -AssemblyName System.Windows.Forms
+
+$Form = New-Object system.Windows.Forms.Form
+$Form.Text = "TPCH Benchmark on " + $global:provider
 $Form.TopMost = $true
 $Form.Width = 500
 $Form.Height = 600
 $Form.StartPosition = "CenterScreen"
 
 $start = New-Object system.windows.Forms.Button
-$start.BackColor = "#23f71b"
 $start.Text = "Start Benchmark"
 $start.Width = 141
 $start.Height = 29
 $start.location = new-object system.drawing.point(156,520)
-$start.Font = "Microsoft Sans Serif,10,style=Bold"
 $Form.controls.Add($start)
 
 $worker_nodes_label = New-Object system.windows.Forms.Label
@@ -154,7 +130,7 @@ $worker_nodes.Width = 150
 $worker_nodes.Height = 100
 $worker_nodes.location = new-object system.drawing.point(150,10)
 for ($i = 0; $i -lt $PossibleNodes.Count ; $i++) {
-    $AddName = $PossibleNodes[$i].name
+    $AddName = $PossibleNodes[$i]
     if ($AcceptedNodeTypes -contains $AddName) {
         [void] $worker_nodes.Items.Add($AddName)
     }
@@ -176,7 +152,7 @@ $head_nodes.Width = 150
 $head_nodes.Height = 100
 $head_nodes.location = new-object system.drawing.point(150,120)
 for ($i = 0; $i -lt $PossibleNodes.Count ; $i++) {
-    $AddName = $PossibleNodes[$i].name
+    $AddName = $PossibleNodes[$i]
     if ($AcceptedNodeTypes -contains $AddName) {
          [void] $head_nodes.Items.Add($AddName)
     }
@@ -267,6 +243,7 @@ $Form.controls.Add($tag_box)
 $start.Add_Click({
     $form.Close()
 })
+[System.Windows.Forms.Application]::EnableVisualStyles();
 [void]$Form.ShowDialog()
 $Form.Dispose()
 
@@ -277,220 +254,188 @@ $Repeat = $repeat_test_count.Text
 $Size = $test_size.Text
 $Tag = $tag_box.Text  -replace '\s','-'
 
-Write-Output $Size
 
 
 Add-Type -AssemblyName System.Windows.Forms
 
 $Form = New-Object system.Windows.Forms.Form
-$Form.Text = "TPCH Benchmark on Azure"
+$Form.Text = "TPCH Benchmark"
 $Form.BackColor = "#34bce5"
 $Form.TopMost = $true
 $Form.Width = 800
 $Form.Height = 340
 $Form.StartPosition = "CenterScreen"
+$Form.ForeColor = "#434343"
+$Form.BackColor = "#FCFCFC"
 
 $start = New-Object system.windows.Forms.Button
-$start.BackColor = "#23f71b"
-$start.Text = "Accept and Start"
-$start.Width = 141
+$start.Text = "Login, confirm and start"
+$start.Width = 200
 $start.Height = 29
-$start.location = new-object system.drawing.point(300,240)
-$start.Font = "Microsoft Sans Serif,10,style=Bold"
+$start.location = new-object system.drawing.point(300,260)
+$start.Font = "Microsoft Sans Serif,10"
 $Form.controls.Add($start)
 
 $header_lbl = New-Object system.windows.Forms.Label
-$header_lbl.Text = "You are starting the benchmark with these parameters:"
+$header_lbl.Text = "You are starting the benchmark with these parameters"
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,20)
-$header_lbl.Font = "Microsoft Sans Serif,10"
+$header_lbl.location = new-object system.drawing.point(150,20)
+$header_lbl.Font = "Microsoft Sans Serif,15"
 $Form.controls.Add($header_lbl)
 
 $header_lbl = New-Object system.windows.Forms.Label
-$header_lbl.Text = "Head node type: " + $HeadNodeType
+$header_lbl.Text = "Provider"
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,60)
-$header_lbl.Font = "Microsoft Sans Serif,10"
+$header_lbl.location = new-object system.drawing.point(30,75)
+$header_lbl.Font = "Microsoft Sans Serif,14, style=italic"
 $Form.controls.Add($header_lbl)
 
 $header_lbl = New-Object system.windows.Forms.Label
-$header_lbl.Text = "Worker node type: " + $WorkerNodeType
+$header_lbl.Text = $global:provider
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,80)
-$header_lbl.Font = "Microsoft Sans Serif,10"
+$header_lbl.location = new-object system.drawing.point(30,100)
+$header_lbl.Font = "Microsoft Sans Serif,11"
 $Form.controls.Add($header_lbl)
 
 $header_lbl = New-Object system.windows.Forms.Label
-$header_lbl.Text = "Worker count: " + $WorkerCount
+$header_lbl.Text = "Head type"
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,100)
-$header_lbl.Font = "Microsoft Sans Serif,10"
+$header_lbl.location = new-object system.drawing.point(210,75)
+$header_lbl.Font = "Microsoft Sans Serif,14, style=italic"
 $Form.controls.Add($header_lbl)
 
 $header_lbl = New-Object system.windows.Forms.Label
-$header_lbl.Text = "Number of times to repeat the test: " + $Repeat
+$header_lbl.Text = $HeadNodeType
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,120)
-$header_lbl.Font = "Microsoft Sans Serif,10"
+$header_lbl.location = new-object system.drawing.point(210,100)
+$header_lbl.Font = "Microsoft Sans Serif,11"
 $Form.controls.Add($header_lbl)
 
 $header_lbl = New-Object system.windows.Forms.Label
-$header_lbl.Text = "Testset size: " + $Size + "GB"
+$header_lbl.Text = "Worker type"
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,140)
-$header_lbl.Font = "Microsoft Sans Serif,10"
+$header_lbl.location = new-object system.drawing.point(370,75)
+$header_lbl.Font = "Microsoft Sans Serif,14, style=italic"
 $Form.controls.Add($header_lbl)
 
 $header_lbl = New-Object system.windows.Forms.Label
-$header_lbl.Text = "Benchmark tag: " + $Tag
+$header_lbl.Text = $WorkerNodeType
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,160)
-$header_lbl.Font = "Microsoft Sans Serif,10"
+$header_lbl.location = new-object system.drawing.point(370,100)
+$header_lbl.Font = "Microsoft Sans Serif,11"
 $Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "Worker count"
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(540,75)
+$header_lbl.Font = "Microsoft Sans Serif,14, style=italic"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = $WorkerCount
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(540,100)
+$header_lbl.Font = "Microsoft Sans Serif,11"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "Repeat time(s)"
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(30,150)
+$header_lbl.Font = "Microsoft Sans Serif,14, style=italic"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = $repeat
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(30,175)
+$header_lbl.Font = "Microsoft Sans Serif,11"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "Testset size"
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(210,150)
+$header_lbl.Font = "Microsoft Sans Serif,14, style=italic"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = $Size + " GB"
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(210,175)
+$header_lbl.Font = "Microsoft Sans Serif,11"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "Benchmark tag"
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(370,150)
+$header_lbl.Font = "Microsoft Sans Serif,14, style=italic"
+$Form.controls.Add($header_lbl)
+
+$header_lbl = New-Object system.windows.Forms.Label
+$header_lbl.Text = "#" + $Tag
+$header_lbl.AutoSize = $true
+$header_lbl.Width = 25
+$header_lbl.Height = 10
+$header_lbl.location = new-object system.drawing.point(370,175)
+$header_lbl.Font = "Microsoft Sans Serif,11"
+$Form.controls.Add($header_lbl)
+
 
 $header_lbl = New-Object system.windows.Forms.Label
 $header_lbl.Text = "At the end of this script, the resources will be removed. Please check if this succeeded to prevent unexpected costs."
 $header_lbl.AutoSize = $true
 $header_lbl.Width = 25
 $header_lbl.Height = 10
-$header_lbl.location = new-object system.drawing.point(9,200)
-$header_lbl.Font = "Microsoft Sans Serif,10"
+$header_lbl.location = new-object system.drawing.point(9,220)
+$header_lbl.Font = "Microsoft Sans Serif,11"
 $Form.controls.Add($header_lbl)
 
 $start.Add_Click({
     $form.Close()
 })
+[System.Windows.Forms.Application]::EnableVisualStyles();
 [void]$Form.ShowDialog()
 $Form.Dispose()
 
 
-
-##############################
-# Azure PowerShell creation  #
-##############################
-
-# Create the resource group
-Write-Output ("Creating the resource group " + $resourceGroupName + " on your account")
-if (!(Get-AzureRmResourceGroup -Name $resourceGroupName -EA 0)) {
-    New-AzureRmResourceGroup -Name $resourceGroupName -Location $location
-}
-
-# Create an Azure storage account and container
-Write-Output ("Creating the Azure storage account and container " + $defaultStorageAccountName + " on your account")
-New-AzureRmStorageAccount `
-    -ResourceGroupName $resourceGroupName `
-    -Name $defaultStorageAccountName `
-    -Type Standard_LRS `
-    -Location $location
-
-
-$defaultStorageAccountKey = (Get-AzureRmStorageAccountKey `
-                                -ResourceGroupName $resourceGroupName `
-                                -Name $defaultStorageAccountName)[0].Value
-$defaultStorageContext = New-AzureStorageContext `
-                                -StorageAccountName $defaultStorageAccountName `
-                                -StorageAccountKey $defaultStorageAccountKey
-
-
-
-
-# Set the storage container name to the cluster name
-$defaultBlobContainerName = $clusterName
-
-# Create a blob container. This holds the default data store for the cluster.
-Write-Output ("Creating the storage container " + $defaultBlobContainerName + " on your account")
-New-AzureStorageContainer `
-    -Name $clusterName -Context $defaultStorageContext
-
-# Create the HDInsight cluster
-Write-Output ("Creating the HDInsight cluster " + $defaultBlobContainerName + " on your account")
-Write-Output ("Please be patient, this could take more than 10 minutes.")
-New-AzureRmHDInsightCluster `
-    -ResourceGroupName $resourceGroupName `
-    -ClusterName $clusterName `
-    -WorkerNodeSize $WorkerNodeType `
-    -HeadNodeSize $HeadNodeType `
-    -Location $location `
-    -ClusterSizeInNodes $WorkerCount `
-    -ClusterType $clusterType `
-    -OSType $clusterOS `
-    -Version $clusterVersion `
-    -HttpCredential $credentials `
-    -DefaultStorageAccountName "$defaultStorageAccountName.blob.core.windows.net" `
-    -DefaultStorageAccountKey $defaultStorageAccountKey `
-    -DefaultStorageContainer $clusterName `
-    -SshCredential $credentials
-
-Write-Output "$(Get-Date)"
-Write-Output ("Done creating all resources on your Azure account")
-
-
-
-##############################
-# SSH INTO SERVER            #
-##############################
-
-New-SFTPSession -ComputerName $ComputerName -Credential $credentials -AcceptKey:$true
-$ssh = New-SSHSession -ComputerName $ComputerName -Credential $credentials -AcceptKey:$true
-
-Write-Output ("Invoking scripts")
-Invoke-SSHCommand -SSHSession $ssh -Command 'export DEBIAN_FRONTEND=noninteractive'
-Write-Output ("Installing Python modules")
-Invoke-SSHCommand -SSHSession $ssh -Command 'pip install requests'
-Invoke-SSHCommand -SSHSession $ssh -Command 'pip install natsort'
-
-Write-Output ("Installing Microsoft .NET core")
-Invoke-SSHCommand -SSHSession $ssh -Command 'curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg'
-Invoke-SSHCommand -SSHSession $ssh -Command 'sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg'
-Invoke-SSHCommand -SSHSession $ssh -Command 'sudo sh -c ''echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-xenial-prod xenial main" > /etc/apt/sources.list.d/dotnetdev.list'''
-Invoke-SSHCommand -SSHSession $ssh -Command 'sudo apt-get update'
-Invoke-SSHCommand -SSHSession $ssh -Command 'sudo apt-get -y install dotnet-sdk-2.0.2' -timeout 600
-Invoke-SSHCommand -SSHSession $ssh -Command 'sudo apt-get -y install dotnet-dev-1.1.4' -timeout 600
-
-Write-Output ("Installing AZCopy")
-Invoke-SSHCommand -SSHSession $ssh -Command 'sudo wget -O azcopy.tar.gz https://aka.ms/downloadazcopyprlinux'
-Invoke-SSHCommand -SSHSession $ssh -Command 'sudo tar -xf azcopy.tar.gz'
-Invoke-SSHCommand -SSHSession $ssh -Command 'sudo ./install.sh'
-
-Write-Output ("Cloning GIT repo")
-Invoke-SSHCommand -SSHSession $ssh -Command 'git clone https://github.com/enjee/TPCH-framework'
-
-Write-Output ("Copy required datasets from central datastore")
-$SourceUrl = ('https://benchmarkdatasaxion.blob.core.windows.net/' + $Size + 'gb')
-$AzCopyCommand = ('azcopy --source-key vKqcXAZEI5TjwfBYBjx9BCWzkzmf8hG4t4O3O0h7RQXPcUL6FVSrMamXq+2cS7Qe7h/oVJbv7sboi9JsKQbKJw== --source ' + $SourceUrl + ' --destination ~/dataset --recursive')
-Invoke-SSHCommand -SSHSession $ssh -Command $AzCopyCommand -timeout 999999
-
-Write-Output ("Running the Python benchmark")
-$PythonCommand = ($PythonCommand + ' ' + $Size + ' ' + $Repeat + ' ' + $WorkerCount + ' ' + $WorkerNodeType + ' ' + $HeadNodeType + ' ' + $Tag)
-Invoke-SSHCommand -SSHSession $ssh -Command $PythonCHmodCommand -timeout 999999
-Invoke-SSHCommand -SSHSession $ssh -Command $PythonCommand -timeout 999999
-
-Remove-SFTPSession -SessionId 0
-Remove-SSHSession -SessionId 0
-
-Write-Output ("Finished executing all scripts through ssh")
-Write-Output "$(Get-Date)"
-Write-Output ("Removing all earlier created resources from your Azure account")
-
-Remove-AzureRmResourceGroup -Name $resourceGroupName -Force
-
-Write-Output "$(Get-Date)"
-
-Write-Output ("Find your benchmark at: http://40.115.29.85:8000/detailed/" + $random)
-Write-Host "Press any key to exit ..."
-
-$x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+if($global:provider -eq "Azure")
+  {
+    $PSScriptRoot
+    & "$PSScriptRoot\scripts\start_azure.ps1" $size $repeat $WorkerCount $WorkerNodeType $HeadNodeType $tag
+  }
+else
+  {
+    $PSScriptRoot
+    & "$PSScriptRoot\scripts\start_aws.ps1" $size $repeat $WorkerCount $WorkerNodeType $HeadNodeType $tag
+  }
