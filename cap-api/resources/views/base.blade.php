@@ -37,6 +37,10 @@
                         <i class="fa fa-fw fa-github"></i>
                         <span class="nav-link-text">Github</span>
                     </a>
+                    <a class="nav-link" href="/guide">
+                        <i class="fa fa-fw fa-book"></i>
+                        <span class="nav-link-text">Guide</span>
+                    </a>
                 </li>
             </ul>
             <ul class="navbar-nav sidenav-toggler">

@@ -1,0 +1,130 @@
+
+-- create the target tables for each query
+DROP TABLE IF EXISTS q1_pricing_summary_report;
+CREATE TABLE q1_pricing_summary_report ( L_RETURNFLAG STRING, L_LINESTATUS STRING, SUM_QTY DOUBLE, SUM_BASE_PRICE DOUBLE, SUM_DISC_PRICE DOUBLE, SUM_CHARGE DOUBLE, AVE_QTY DOUBLE, AVE_PRICE DOUBLE, AVE_DISC DOUBLE, COUNT_ORDER INT);
+
+DROP TABLE IF EXISTS q2_minimum_cost_supplier_tmp1;
+CREATE TABLE q2_minimum_cost_supplier_tmp1 (s_acctbal double, s_name string, n_name string, p_partkey int, ps_supplycost double, p_mfgr string, s_address string, s_phone string, s_comment string);
+
+DROP TABLE IF EXISTS q2_minimum_cost_supplier_tmp2;
+CREATE TABLE q2_minimum_cost_supplier_tmp2 (p_partkey int, ps_min_supplycost double);
+
+DROP TABLE IF EXISTS q2_minimum_cost_supplier;
+CREATE TABLE q2_minimum_cost_supplier (s_acctbal double, s_name string, n_name string, p_partkey int, p_mfgr string, s_address string, s_phone string, s_comment string);
+
+DROP TABLE IF EXISTS q3_shipping_priority;
+CREATE TABLE q3_shipping_priority (l_orderkey int, revenue double, o_orderdate string, o_shippriority int);
+
+DROP TABLE IF EXISTS q4_order_priority_tmp;
+CREATE TABLE q4_order_priority_tmp (O_ORDERKEY INT);
+
+DROP TABLE IF EXISTS q4_order_priority;
+CREATE TABLE q4_order_priority (O_ORDERPRIORITY STRING, ORDER_COUNT INT);
+
+DROP TABLE IF EXISTS q5_local_supplier_volume;
+CREATE TABLE q5_local_supplier_volume (N_NAME STRING, REVENUE DOUBLE);
+
+DROP TABLE IF EXISTS q6_forecast_revenue_change;
+CREATE TABLE q6_forecast_revenue_change (revenue double);
+
+DROP TABLE IF EXISTS q7_volume_shipping;
+CREATE TABLE q7_volume_shipping (supp_nation string, cust_nation string, l_year int, revenue double);
+
+DROP TABLE IF EXISTS q7_volume_shipping_tmp;
+CREATE TABLE q7_volume_shipping_tmp(supp_nation string, cust_nation string, s_nationkey int, c_nationkey int);
+
+DROP TABLE IF EXISTS q8_national_market_share;
+CREATE TABLE q8_national_market_share(o_year string, mkt_share double);
+
+DROP TABLE IF EXISTS q9_product_type_profit;
+CREATE TABLE q9_product_type_profit (nation string, o_year string, sum_profit double);
+
+DROP TABLE IF EXISTS q10_returned_item;
+CREATE TABLE q10_returned_item (c_custkey int, c_name string, revenue double, c_acctbal string, n_name string, c_address string, c_phone string, c_comment string);
+
+DROP TABLE IF EXISTS q11_important_stock;
+CREATE TABLE q11_important_stock(ps_partkey INT, value DOUBLE);
+
+DROP TABLE IF EXISTS q11_part_tmp;
+CREATE TABLE q11_part_tmp(ps_partkey int, part_value double);
+
+DROP TABLE IF EXISTS q11_sum_tmp;
+CREATE TABLE q11_sum_tmp(total_value double);
+
+DROP TABLE IF EXISTS q12_shipping;
+CREATE TABLE q12_shipping(l_shipmode string, high_line_count double, low_line_count double);
+
+DROP TABLE IF EXISTS q13_customer_distribution;
+CREATE TABLE q13_customer_distribution (c_count int, custdist int);
+
+DROP TABLE IF EXISTS q14_promotion_effect;
+CREATE TABLE q14_promotion_effect(promo_revenue double);
+
+DROP TABLE IF EXISTS q15_revenue;
+CREATE TABLE q15_revenue(supplier_no int, total_revenue double);
+
+DROP TABLE IF EXISTS q15_max_revenue;
+CREATE TABLE q15_max_revenue(max_revenue double);
+
+DROP TABLE IF EXISTS q15_top_supplier;
+CREATE TABLE q15_top_supplier(s_suppkey int, s_name string, s_address string, s_phone string, total_revenue double);
+
+DROP TABLE IF EXISTS q16_parts_supplier_relationship;
+CREATE TABLE q16_parts_supplier_relationship(p_brand string, p_type string, p_size int, q16_supplier_cnt int);
+
+DROP TABLE IF EXISTS q16_tmp;
+CREATE TABLE q16_tmp(p_brand string, p_type string, p_size int, ps_suppkey int);
+
+DROP TABLE IF EXISTS q16_supplier_tmp;
+CREATE TABLE q16_supplier_tmp(s_suppkey int);
+
+DROP TABLE IF EXISTS q17_small_quantity_order_revenue;
+CREATE TABLE q17_small_quantity_order_revenue (avg_yearly double);
+
+DROP TABLE IF EXISTS q17_lineitem_tmp;
+CREATE TABLE q17_lineitem_tmp (t_partkey int, t_avg_quantity double);
+
+DROP TABLE IF EXISTS q18_tmp;
+CREATE TABLE q18_tmp(l_orderkey int, t_sum_quantity double);
+
+DROP TABLE IF EXISTS q18_large_volume_customer;
+CREATE TABLE q18_large_volume_customer(c_name string, c_custkey int, o_orderkey int, o_orderdate string, o_totalprice double, sum_quantity double);
+
+DROP TABLE IF EXISTS q19_discounted_revenue;
+CREATE TABLE q19_discounted_revenue(revenue double);
+
+DROP TABLE IF EXISTS q20_tmp1;
+CREATE TABLE q20_tmp1(p_partkey int);
+
+DROP TABLE IF EXISTS q20_tmp2;
+CREATE TABLE q20_tmp2(l_partkey int, l_suppkey int, sum_quantity double);
+
+DROP TABLE IF EXISTS q20_tmp3;
+CREATE TABLE q20_tmp3(ps_suppkey int, ps_availqty int, sum_quantity double);
+
+DROP TABLE IF EXISTS q20_tmp4;
+CREATE TABLE q20_tmp4(ps_suppkey int);
+
+DROP TABLE IF EXISTS q20_potential_part_promotion;
+CREATE TABLE q20_potential_part_promotion(s_name string, s_address string);
+
+DROP TABLE IF EXISTS q21_tmp1;
+CREATE TABLE q21_tmp1(l_orderkey int, count_suppkey int, max_suppkey int);
+
+DROP TABLE IF EXISTS q21_tmp2;
+CREATE TABLE q21_tmp2(l_orderkey int, count_suppkey int, max_suppkey int);
+
+DROP TABLE IF EXISTS q21_suppliers_who_kept_orders_waiting;
+CREATE TABLE q21_suppliers_who_kept_orders_waiting(s_name string, numwait int);
+
+DROP TABLE IF EXISTS q22_customer_tmp;
+CREATE TABLE q22_customer_tmp(c_acctbal double, c_custkey int, cntrycode string);
+
+DROP TABLE IF EXISTS q22_customer_tmp1;
+CREATE TABLE q22_customer_tmp1(avg_acctbal double);
+
+DROP TABLE IF EXISTS q22_orders_tmp;
+CREATE TABLE q22_orders_tmp(o_custkey int);
+
+DROP TABLE IF EXISTS q22_global_sales_opportunity;
+CREATE TABLE q22_global_sales_opportunity(cntrycode string, numcust int, totacctbal double);

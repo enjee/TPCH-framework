@@ -11,6 +11,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
     <script src="{{ asset('js/colorDiv.js') }}"></script>
+    <script src="{{asset('js/labelmanager.js') }}"></script>
 
     <!-- Styles -->
     <style>
@@ -94,14 +95,20 @@
             display: inline-block;
             width: 98%;
         }
+
+        .label{
+            color: whitesmoke;
+            background-color: #1b1e21; border-radius: 3px; padding: 2px 7px; margin: 5px;
+        }
     </style>
 </head>
 <body>
 
-    @section('searchbar')
-    <form method="get" action="/timeline" class="form-inline my-2 my-lg-0 mr-lg-2">
+@section('searchbar')
+<div id="labels"></div>
+    <form id="searchbar" method="get" action="/timeline" class="form-inline my-2 my-lg-0 mr-lg-2">
         <div class="input-group">
-            <input name="search_uuid_tag" class="form-control" type="text" placeholder="Search on tag/uuid..." value="{{$search_uuid_tag}}">
+            <input id="searchfield" name="search_uuid_tag" class="form-control" type="text" placeholder="Search on tag/uuid..." value="{{$search_uuid_tag}}">
             <span class="input-group-btn">
                     <button class="btn btn-primary" type="Submit">
                       <i class="fa fa-search"></i>
@@ -109,7 +116,7 @@
                   </span>
         </div>
     </form>
-    <a class="btn btn-info" href="/api/csv/{{$search_uuid_tag}}"><i class="fa fa-download"></i></a>
+    <a class="btn btn-info" href="/api/csv/{{$search_uuid_tag}}"><i class="fa fa-download"></i></br></a>
 
 
     @stop
@@ -128,8 +135,8 @@
                 </div>
                 <div class="timeline-panel">
                     <div class="timeline-heading">
-                        <h4 class="timeline-title"> Benchmark with id {{object_get($benchmark, "uuid") }}</h4>
-                        <p><small class="text-muted"><i class="fa fa-clock-o"></i> {{ object_get($benchmark, "created_at") }}</small>
+                        <h4 class="timeline-title"> Benchmark with id {{$benchmark->uuid}}</h4>
+                        <p><small class="text-muted"><i class="fa fa-clock-o"></i> <?php echo $benchmark->created_at->add(\DateInterval::createFromDateString('+1 hours'))?></small>
                         </p>
                     </div>
                     <div class="timeline-body">
@@ -148,7 +155,11 @@
                             </div>
                             <div class="col-sm-3">
                                 <h7><i>Head node count</i></h7>
-                                <h6><b> {{$benchmark->head_node_count}} head nodes</b></h6>
+                                @if($benchmark->head_node_count == 1)
+                                    <h6><b> {{$benchmark->head_node_count}} head node</b></h6>
+                                @else
+                                    <h6><b> {{$benchmark->head_node_count}} head nodes</b></h6>
+                                @endif
                             </div>
                             <div class="col-sm-3">
                                 <h7><i>Worker node type</i></h7>
@@ -162,7 +173,14 @@
                                 <h7><i>Tag</i></h7>
                                 <h6><b> #{{$benchmark->tag}}</b></h6>
                             </div>
+                            @if($benchmark->cost)
+                            <div class="col-sm-3">
+                                <h7><i>Cost</i></h7>
+                                <h6><b> €{{ number_format((float) $benchmark->cost, 2) }}</b></h6>
+                            </div>
+                            @endif
             <?php
+
 
            $runtimes = array();
             $runindex = 0;
@@ -176,18 +194,22 @@
                 $runindex++;
             }
 
+
+
             if(count($runtimes) > 0) {
-                echo '<div class="col-sm-3"> <h7><i>Average runtime</i></h7> <h6><b>'  . gmdate("H:i:s", intval(array_sum($runtimes) / count($runtimes))) . '</b></h6> </div>
+
+
+                echo '<div class="col-sm-3"> <h7><i>average runtime</i></h7> <h6><b>'  . App\Http\Controllers\Benchmarks\FrontendController::secondsToTime(intval(array_sum($runtimes) / count($runtimes))) . '</b></h6> </div>
                           </table>
                           </div>
                           <div class="benchmark-runtimes" >';
                 for ($i = 0; $i < count($runtimes); $i++) {
-                    echo '<div class="benchmark-run" time="' . $runtimes[$i] . '">Run Nr. ' . ($i + 1) . '
+                    echo '<div class="benchmark-run" time="' . $runtimes[$i] . '">run nr. ' . ($i + 1) . '
                 <div class="benchmark-details" >
                         <table style="width:100%">
                             <tr>
-                                <th>Total time of this run</th>
-                                <td>' . gmdate("H:i:s", $runtimes[$i]) . '</td>
+                                <th>total time of this run</th>
+                                <td>' . App\Http\Controllers\Benchmarks\FrontendController::secondsToTime($runtimes[$i]) . '</td>
                             </tr>
                         </table>
                     </div>

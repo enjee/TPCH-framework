@@ -34,33 +34,47 @@ Route::get('/benchmark', function () {
     return view('benchmark');
 });
 
-Route::get('/', '\App\Http\Controllers\Benchmarks\BenchmarkController@timeline');
+Route::get('/', '\App\Http\Controllers\Benchmarks\FrontendController@timeline');
 
-Route::get('/api/search/{search?}', '\App\Http\Controllers\Benchmarks\BenchmarkController@search');
+Route::get('/timeline', '\App\Http\Controllers\Benchmarks\FrontendController@timeline');
 
-Route::get('/api/download/{search?}', '\App\Http\Controllers\Benchmarks\BenchmarkController@download');
+Route::get('/guide', '\App\Http\Controllers\Benchmarks\FrontendController@guide');
 
-Route::get('/api/csv/{search?}', '\App\Http\Controllers\Benchmarks\BenchmarkController@download_csv');
+Route::get('/detailed/{uuid}', '\App\Http\Controllers\Benchmarks\FrontendController@detailed');
 
-Route::get('/log/{uuid}/{run}', '\App\Http\Controllers\Benchmarks\BenchmarkController@log');
+Route::get('/analytics/{size?}', '\App\Http\Controllers\Benchmarks\FrontendController@analytics');
 
-Route::get('/analytics', '\App\Http\Controllers\Benchmarks\BenchmarkController@analytics');
+Route::get('/api/search/{search?}', '\App\Http\Controllers\Benchmarks\FrontendController@search');
 
-Route::get('/timeline', '\App\Http\Controllers\Benchmarks\BenchmarkController@timeline');
+Route::get('/api/csv/{search?}', '\App\Http\Controllers\Benchmarks\FrontendController@download_csv');
 
-Route::get('/detailed/{uuid}', '\App\Http\Controllers\Benchmarks\BenchmarkController@detailed');
+Route::get('/log/{uuid}/{run}', '\App\Http\Controllers\Benchmarks\FrontendController@log');
 
-Route::get('/api/benchmark/{uuid}', '\App\Http\Controllers\Benchmarks\BenchmarkController@benchmark');
 
-Route::get('/api/measurement/{uuid}/{run}', '\App\Http\Controllers\Benchmarks\BenchmarkController@measurement');
 
-Route::get('/api/timeline', '\App\Http\Controllers\Benchmarks\BenchmarkController@api_timeline');
 
-Route::post('/api/benchmark/new', '\App\Http\Controllers\Benchmarks\BenchmarkController@create_benchmark');
+Route::get('/api/timeline', '\App\Http\Controllers\Benchmarks\ApiController@api_timeline');
 
-Route::post('/api/measurement/new', '\App\Http\Controllers\Benchmarks\BenchmarkController@create_measurement');
+Route::get('/api/benchmark/{uuid}', '\App\Http\Controllers\Benchmarks\ApiController@benchmark');
 
-Route::get('/api/benchmark/delete/{uuid}', '\App\Http\Controllers\Benchmarks\BenchmarkController@delete_benchmark');
+Route::get('/api/benchmark/search/{search}', '\App\Http\Controllers\Benchmarks\ApiController@api_search');
 
-Route::get('/api/measurement/delete/{uuid}/{run}', '\App\Http\Controllers\Benchmarks\BenchmarkController@delete_measurement');
+Route::get('/api/measurement/{uuid}/{run}', '\App\Http\Controllers\Benchmarks\ApiController@measurement');
+
+Route::post('/api/benchmark/new', '\App\Http\Controllers\Benchmarks\ApiController@create_benchmark');
+
+Route::post('/api/measurement/new', '\App\Http\Controllers\Benchmarks\ApiController@create_measurement');
+
+Route::get('/api/benchmark/delete/{uuid}', '\App\Http\Controllers\Benchmarks\ApiController@delete_benchmark');
+
+Route::get('/api/measurement/delete/{uuid}/{run}', '\App\Http\Controllers\Benchmarks\ApiController@delete_measurement');
+
+Route::get('/api/pricing/{uuid}/{cost}', '\App\Http\Controllers\Benchmarks\ApiController@update_pricing');
+
+Route::get('/api/overhead/{uuid}/{overhead}', '\App\Http\Controllers\Benchmarks\ApiController@update_overhead');
+
+Route::get('/api/download/{search?}', '\App\Http\Controllers\Benchmarks\ApiController@download');
+
+
+
 
