@@ -193,7 +193,9 @@ class ApiController extends Controller
         }
 
 
+
         if (count($benchmarks) > 0) {
+          
             Storage::put($filename, $benchmarks->toJson());
 
             $path = storage_path('/app/' . $filename);

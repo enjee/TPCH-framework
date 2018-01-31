@@ -161,7 +161,7 @@ $head_nodes.SetSelected(0, $true)
 $Form.controls.Add($head_nodes)
 
 $worker_count = New-Object system.windows.Forms.ListBox
-$worker_count.Width = 120
+$worker_count.Width = 150
 $worker_count.Height = 60
 $worker_count.location = new-object system.drawing.point(150,250)
 for ($i = 0; $i -le 3 ; $i++) {
@@ -182,7 +182,7 @@ $Form.controls.Add($worker_count_label)
 
 
 $repeat_test_count = New-Object system.windows.Forms.ListBox
-$repeat_test_count.Width = 120
+$repeat_test_count.Width = 150
 $repeat_test_count.Height = 60
 $repeat_test_count.location = new-object system.drawing.point(150,320)
 for ($i = 0; $i -lt $MaxRepeatTest ; $i++) {
@@ -202,7 +202,7 @@ $repeat_test_count_label.Font = "Microsoft Sans Serif,10"
 $Form.controls.Add($repeat_test_count_label)
 
 $test_size = New-Object system.windows.Forms.ListBox
-$test_size.Width = 120
+$test_size.Width = 150
 $test_size.Height = 60
 $test_size.location = new-object system.drawing.point(150,390)
 for ($i = 0; $i -lt $AllowedTestSizes.Count ; $i++) {
@@ -222,7 +222,7 @@ $test_size_label.Font = "Microsoft Sans Serif,10"
 $Form.controls.Add($test_size_label)
 
 $tag_label = New-Object system.windows.Forms.Label
-$tag_label.Text = "Add tag to benchmark:"
+$tag_label.Text = "Add tag(s) to benchmark, seperate by comma's to add multiple tags:"
 $tag_label.AutoSize = $true
 $tag_label.Width = 25
 $tag_label.Height = 10
@@ -231,10 +231,10 @@ $tag_label.Font = "Microsoft Sans Serif,10"
 $Form.controls.Add($tag_label)
 
 $tag_box = New-Object system.windows.Forms.TextBox
-$tag_box.Width = 100
+$tag_box.Width = 150
 $tag_box.Height = 20
 $tag_box.Text = "no-tag"
-$tag_box.location = new-object system.drawing.point(150,460)
+$tag_box.location = new-object system.drawing.point(150,480)
 $tag_box.Font = "Microsoft Sans Serif,10"
 $Form.controls.Add($tag_box)
 
