@@ -328,10 +328,6 @@ switch($WorkerNodeType) {
 
 $cost = [Math]::Round($HeadNodeCost + $WorkerNodeCost,3);
 
-$scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
-$content = [IO.File]::ReadAllText($scriptPath+"..\settings.cfg")
-Write-Host: $content
-
 Invoke-RestMethod -Uri (http://" + $dashboardIp + "/api/pricing/$random/$cost)
 Invoke-RestMethod -Uri (http://" + $dashboardIp + "/api/overhead/$random/$startupMinutes)
 
