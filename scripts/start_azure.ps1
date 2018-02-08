@@ -184,7 +184,7 @@ Invoke-SSHCommand -SSHSession $ssh -Command 'pip install requests'
 Invoke-SSHCommand -SSHSession $ssh -Command 'pip install natsort'
 
 Write-Output ("Cloning GIT repo")
-Invoke-SSHCommand -SSHSession $ssh -Command 'git clone -b development https://github.com/enjee/TPCH-framework'
+Invoke-SSHCommand -SSHSession $ssh -Command 'git clone https://github.com/enjee/TPCH-framework'
 
 
 $endBeforeScript = Get-Date -format HH:mm:ss
