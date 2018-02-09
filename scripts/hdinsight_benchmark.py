@@ -22,7 +22,7 @@ def get_config_property(property):
     with open(config_file, 'rU') as f:
         for line in f:
             if line.startswith(property):
-                return line.split(":")[1].replace('\n', ' ').replace('\r', '')
+                return line.split(":")[1].replace('\n', '').replace('\r', '')
 
 
 
